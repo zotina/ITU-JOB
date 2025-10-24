@@ -10,9 +10,7 @@ use InvalidArgumentException;
 class AuthService
 {
     private $userRepository;
-    private $mapiService;
     private $jwtService;
-    private $compteRepository;
 
     public function __construct(
         UserRepository $userRepository,

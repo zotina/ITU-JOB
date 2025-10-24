@@ -4,19 +4,17 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Services\Auth\AuthService;
-use App\Services\Auth\JwtService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
     private $authService;
-    private $jwtService;
 
-    public function __construct(AuthService $authService, JwtService $jwtService)
+    public function __construct(AuthService $authService)
     {
         $this->authService = $authService;
-        $this->jwtService = $jwtService;
     }
 
     public function login(Request $request): JsonResponse
@@ -56,5 +54,22 @@ class AuthController extends Controller
         } catch (\Exception $e) {
             return $this->errorResponse( $e->getMessage(), 500);
         }
+    }
+
+    private function successResponse(string $message, array $data = [], int $status = 200): JsonResponse
+    {
+        return response()->json(array_merge([
+            'status' => true,
+            'message' => $message,
+        ], $data), $status);
+    }
+
+    private function errorResponse(string $message, int $status = 500): JsonResponse
+    {
+        Log::error($message);
+        return response()->json([
+            'status' => false,
+            'message' => $message,
+        ], $status);
     }
 }
