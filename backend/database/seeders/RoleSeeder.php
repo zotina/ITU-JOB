@@ -1,0 +1,24 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class RoleSeeder extends Seeder
+{
+    public function run()
+    {
+        DB::table('role')->insert([
+            'id' => 'ROLE-000001',
+            'val' => 'etudiant',
+            'description' => 'etudiant',
+        ]);
+
+        DB::table('role')->insert([
+            'id' => 'ROLE-000002',
+            'val' => 'recruteur',
+            'description' => 'recruteur',
+        ]);
+    }
+}
