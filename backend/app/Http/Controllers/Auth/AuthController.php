@@ -22,10 +22,10 @@ class AuthController extends Controller
         try {
             $request->validate([
                 'emailOUnumero' => 'required|string',
-                'mot_de_passe' => 'required|string|min:6',
+                'mot_de_passe' => 'required|string|min:6'
             ]);
 
-            $result = $this->authService->login($request->emailOUnumero, $request->mot_de_passe);
+            $result = $this->authService->login($request->emailOUnumero, $request->mot_de_passe );
 
             return $this->successResponse($result['message'], [
                 'token_data' => $result['token_data'],

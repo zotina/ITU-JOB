@@ -20,7 +20,7 @@ class AuthService
         $this->jwtService = $jwtService;
     }
 
-    public function login(string $credential, string $password): array
+    public function login(string $credential, string $password ): array
     {
         $user = filter_var($credential, FILTER_VALIDATE_EMAIL)
             ? $this->userRepository->findByEmail($credential)
@@ -41,6 +41,7 @@ class AuthService
             'nom' => $user->nom,
             'telephone' => $user->telephone,
             'adresse' => $user->adresse,
+            'role'=> $user->role->val
         ]);
 
         return [

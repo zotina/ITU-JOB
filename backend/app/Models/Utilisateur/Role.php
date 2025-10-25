@@ -18,6 +18,9 @@ class Role extends Model
         'description'
     ];
 
+    const ETUDIANT = 'etudiant';
+    const RECRUTEUR = 'recruteur';
+    
     protected static function boot()
     {
         parent::boot();

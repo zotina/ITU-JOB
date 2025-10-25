@@ -36,6 +36,7 @@ class JwtService
             'prenom' => $userData['prenom'],
             'nom' => $userData['nom'],
             'adresse' => $userData['adresse'] ?? null,
+            'role' => $userData['role'],
             'created_at' => Carbon::now()->toISOString(),
             'expires_at' => Carbon::now()->addSeconds($this->tokenExpiration)->toISOString(),
             'refresh_expires_at' => Carbon::now()->addSeconds($this->refreshTokenExpiration)->toISOString()
@@ -49,12 +50,14 @@ class JwtService
         Redis::setex($refreshKey, $this->refreshTokenExpiration, json_encode([
             'user_id' => $userData['id'],
             'telephone' => $userData['telephone'],
-            'access_token' => $token
+            'access_token' => $token,
+            'role' => $userData['role']
         ]));
 
         Log::info('Token d\'accès généré', [
             'user_id' => $userData['id'],
             'telephone' => $userData['telephone'],
+            'role' => $userData['role'],
             'expires_in' => $this->tokenExpiration
         ]);
 
@@ -139,12 +142,14 @@ class JwtService
         Redis::setex($newRefreshKey, $this->refreshTokenExpiration, json_encode([
             'user_id' => $currentData['user_id'],
             'telephone' => $currentData['telephone'],
-            'access_token' => $newToken
+            'access_token' => $newToken,
+             'role' => $currentData['role']
         ]));
 
         Log::info('Token rafraîchi', [
             'user_id' => $currentData['user_id'],
-            'telephone' => $currentData['telephone']
+            'telephone' => $currentData['telephone'],
+            'role' => $currentData['role']
         ]);
 
         return [
@@ -206,7 +211,8 @@ class JwtService
             'prenom' => $tokenData['prenom'],
             'nom' => $tokenData['nom'],
             'telephone' => $tokenData['telephone'],
-            'adresse' => $tokenData['adresse']
+            'adresse' => $tokenData['adresse'],
+            'role' => $tokenData['role'] ?? null
         ];
     }
 

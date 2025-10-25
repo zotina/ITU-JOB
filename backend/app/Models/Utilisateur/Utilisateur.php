@@ -4,8 +4,6 @@ namespace App\Models\Utilisateur;
 
 use App\Repositories\Utilisateur\UserRepository;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Interaction\Like;
-use App\Models\Vente\Annonce;
 
 class Utilisateur extends Model
 {
@@ -53,32 +51,24 @@ class Utilisateur extends Model
         });
     }
 
-    public function likes()
-    {
-        return $this->hasMany(Like::class, 'id_utilisateur', 'id');
-    }
-
     public function role()
     {
         return $this->belongsTo(Role::class, 'id_role');
     }
 
-    public function likedAnnonces()
+    public function isEtudiant(): bool
     {
-        return $this->belongsToMany(
-            Annonce::class,
-            'IF_likes',
-            'id_utilisateur',
-            'id_annonce'
-        )->withTimestamps();
+        return $this->role->val === Role::ETUDIANT;
     }
 
-    
-    public function hasLiked(string $annonceId): bool
+    public function isRecruteur(): bool
     {
-        return $this->likes()
-            ->where('id_annonce', $annonceId)
-            ->exists();
+        return $this->role->val === Role::RECRUTEUR;
+    }
+
+    public function hasRole(string $role): bool
+    {
+        return $this->role->val === $role;
     }
     
     public function updatePassword(string $newPassword): bool

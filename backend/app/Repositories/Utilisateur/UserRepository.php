@@ -3,8 +3,6 @@
 namespace App\Repositories\Utilisateur;
 
 use App\Models\Utilisateur\Utilisateur;
-use Illuminate\Database\Eloquent\Model;
-
 class UserRepository
 {
     protected $model;
@@ -16,12 +14,18 @@ class UserRepository
 
     public function findByTelephone(string $telephone): ?Utilisateur
     {
-        return $this->model->where('telephone', $telephone)->first();
+        return $this->model->where('telephone', $telephone)
+        ->where('est_actif', 1)
+        ->with('role')
+        ->first();
     }
 
     public function findByEmail(string $email): ?Utilisateur
     {
-        return $this->model->where('email', $email)->first();
+        return $this->model->where('email', $email)
+        ->where('est_actif', 1)
+        ->with('role')
+        ->first();
     }
 
     public function existsByTelephone(string $telephone): bool
