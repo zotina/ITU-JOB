@@ -72,7 +72,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 window.dispatchEvent(new Event('auth-change'));
 
                 // Navigate after state update
-                navigate('/home', { replace: true });
+                if (response.user.role === 'etudiant') {
+                    navigate('/student/offers', { replace: true });
+                } else if (response.user.role === 'recruteur') {
+                    navigate('/recruiter/offers', { replace: true });
+                }
                 return response;
             } else {
                 throw new Error(response.message);
@@ -123,7 +127,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 window.dispatchEvent(new Event('auth-change'));
 
                 // Navigate after state update
-                navigate('/home', { replace: true });
+                if (response.user.role === 'etudiant') {
+                    navigate('/student/offers', { replace: true });
+                } else if (response.user.role === 'recruteur') {
+                    navigate('/recruiter/offers', { replace: true });
+                }
                 return response;
             } else {
                 throw new Error(response.message);

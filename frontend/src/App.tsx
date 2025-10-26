@@ -1,5 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,29 +10,27 @@ import StudentLayout from '@/components/layouts/StudentLayout';
 import RecruiterLayout from '@/components/layouts/RecruiterLayout';
 import RecruiterRegistrationPage from '@/pages/RecruiterRegistrationPage';
 import StudentRegistrationPage from '@/pages/StudentRegistrationPage';
+import { useAuth } from '@/context/AuthContext';
 
 const queryClient = new QueryClient();
 
-// Simulation d'un état d'authentification
-export type UserType = 'student' | 'recruiter' | null;
-
 function App() {
-  const [userType, setUserType] = useState<UserType>(null);
+  const { isAuthenticated, user } = useAuth();
 
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Router>
+        
           <div className="min-h-screen bg-background">
             <Routes>
               <Route 
                 path="/login" 
-                element={<LoginPage onLogin={setUserType} />} 
+                element={<LoginPage />} 
               />
               
               {/* Routes étudiants */}
               <Route path="/student/*" element={
-                userType === 'student' ? (
+                isAuthenticated && user?.role === 'etudiant' ? (
                   <StudentLayout>
                     <StudentDashboard />
                   </StudentLayout>
@@ -44,7 +41,7 @@ function App() {
               
               {/* Routes recruteurs */}
               <Route path="/recruiter/*" element={
-                userType === 'recruiter' ? (
+                isAuthenticated && user?.role === 'recruteur' ? (
                   <RecruiterLayout>
                     <RecruiterDashboard />
                   </RecruiterLayout>
@@ -60,7 +57,7 @@ function App() {
               <Route path="/" element={<Navigate to="/login" replace />} />
             </Routes>
           </div>
-        </Router>
+        
         <Toaster />
         <Sonner />
       </TooltipProvider>

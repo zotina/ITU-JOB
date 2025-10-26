@@ -4,25 +4,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Mail, Lock, GraduationCap, Building2 } from 'lucide-react';
-import { UserType } from '@/App';
 import logoItu from '@/assets/logo-itu.png';
+import { useAuth } from '@/context/AuthContext';
 
-interface LoginPageProps {
-  onLogin: (userType: UserType) => void;
-}
 
-const LoginPage = ({ onLogin }: LoginPageProps) => {
-  const [selectedRole, setSelectedRole] = useState<'student' | 'recruiter'>('student');
+const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { login, loading, error } = useAuth();
 
-  const handleLogin = () => {
-    onLogin(selectedRole);
-    if (selectedRole === 'student') {
-      navigate('/student/dashboard');
-    } else {
-      navigate('/recruiter/dashboard');
+  const handleLogin = async () => {
+    try {
+      await login({ emailOUnumero: email, mot_de_passe: password });
+    } catch (err) {
+      // Error is already handled in useAuth hook, but you can add component-specific logic here if needed
     }
   };
 
@@ -43,26 +39,6 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
           <h2 className="text-center text-gray-text font-semibold text-xl mb-6">
             Identifiez-vous!
           </h2>
-
-          {/* Sélection du rôle */}
-          <div className="grid grid-cols-2 gap-2 mb-6">
-            <Button
-              variant={selectedRole === 'student' ? 'default' : 'outline'}
-              className="h-16 flex-col gap-2"
-              onClick={() => setSelectedRole('student')}
-            >
-              <GraduationCap className="w-5 h-5" />
-              <span className="text-sm">Étudiant</span>
-            </Button>
-            <Button
-              variant={selectedRole === 'recruiter' ? 'default' : 'outline'}
-              className="h-16 flex-col gap-2"
-              onClick={() => setSelectedRole('recruiter')}
-            >
-              <Building2 className="w-5 h-5" />
-              <span className="text-sm">Recruteur</span>
-            </Button>
-          </div>
 
           {/* Formulaire */}
           <div className="space-y-4 mb-6">
@@ -88,13 +64,16 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
             </div>
           </div>
 
+          {error && <p className="text-red-500 text-sm text-center mb-4">{error}</p>}
+
           {/* Bouton */}
           <div className="flex justify-center">
             <Button
               onClick={handleLogin}
+              disabled={loading}
               className="w-full h-12 bg-[#3F8BDB] hover:bg-[#2c70b8] text-white font-medium rounded-md transition-smooth"
             >
-              Se connecter
+              {loading ? 'Connexion...' : 'Se connecter'}
             </Button>
           </div>
 

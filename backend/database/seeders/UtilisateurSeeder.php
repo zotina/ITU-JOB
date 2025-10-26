@@ -13,7 +13,7 @@ class UtilisateurSeeder extends Seeder
             [
                 'id' => 'USR-000001',
                 'email' => 'user@gmail.com',
-                'mot_de_passe_hash' => bcrypt('admin123'),
+                'mot_de_passe_hash' => bcrypt('admin123'),  
                 'prenom' => 'Zo Tina',
                 'nom' => 'R.',
                 'telephone' => '+261382010328',

@@ -55,6 +55,7 @@ class AuthService
                 'telephone' => $user->telephone,
                 'adresse' => $user->adresse,
                 'date_creation' => $user->date_creation,
+                'role'=> $user->role->val,
             ],
         ];
     }
