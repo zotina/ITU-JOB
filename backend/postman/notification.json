@@ -1,0 +1,237 @@
+{
+	"info": {
+		"_postman_id": "7f8e9a2b-3c4d-5e6f-7a8b-9c0d1e2f3a4b",
+		"name": "API Notifications",
+		"description": "Tests pour les endpoints de gestion des notifications",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39761457"
+	},
+	"item": [
+		{
+			"name": "Get Notifications Non Lues",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					},
+					{
+						"key": "X-Phone-Number",
+						"value": "+261382010328",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/notifications/non-lues?id_utilisateur=USR-000001",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"notifications",
+						"non-lues"
+					],
+					"query": [
+						{
+							"key": "id_utilisateur",
+							"value": "USR-000001",
+							"description": "ID de l'utilisateur (requis, doit exister dans utilisateur)"
+						}
+					]
+				},
+				"description": "Récupère la liste des notifications non lues pour un utilisateur spécifique."
+			},
+			"response": []
+		},
+		{
+			"name": "Count Notifications Non Lues",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					},
+					{
+						"key": "X-Phone-Number",
+						"value": "+261382010328",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/notifications/count-non-lues?id_utilisateur=USR-000001",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"notifications",
+						"count-non-lues"
+					],
+					"query": [
+						{
+							"key": "id_utilisateur",
+							"value": "USR-000001",
+							"description": "ID de l'utilisateur (requis, doit exister dans )"
+						}
+					]
+				},
+				"description": "Compte le nombre de notifications non lues pour un utilisateur spécifique."
+			},
+			"response": []
+		},
+		{
+			"name": "Tous Marquer Comme Lue",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					},
+					{
+						"key": "X-Phone-Number",
+						"value": "+261382010328",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/notifications/lire-tous?id_utilisateur=USR-000001",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"notifications",
+						"lire-tous"
+					],
+					"query": [
+						{
+							"key": "id_utilisateur",
+							"value": "USR-000001",
+							"description": "ID de l'utilisateur (requis, doit exister dans )"
+						}
+					]
+				},
+				"description": "Lire toutes les notifications non lues pour un utilisateur spécifique."
+			},
+			"response": []
+		},
+		{
+			"name": "Marquer Notification Comme Lue",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					},
+					{
+						"key": "X-Phone-Number",
+						"value": "+261382010328",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/notifications/1/lire",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"notifications",
+						"1",
+						"lire"
+					]
+				},
+				"description": "Marque une notification spécifique comme lue en utilisant son ID."
+			},
+			"response": []
+		},
+		{
+			"name": "Envoyer Notification",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					},
+					{
+						"key": "X-Phone-Number",
+						"value": "+261382010328",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id_receveur\": \"USR-000001\",\n    \"message\": \"Nouvelle notification de test\",\n    \"id_emetteur\": \"USR-000002\",\n    \"url_redirect\": \"http://example.com\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/notifications/envoyer",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"notifications",
+						"envoyer"
+					]
+				},
+				"description": "Envoie une nouvelle notification à un utilisateur spécifique."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000/api"
+		},
+		{
+			"key": "auth_token",
+			"value": "YOUR_AUTH_TOKEN"
+		}
+	]
+}
