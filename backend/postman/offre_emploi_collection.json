@@ -1,0 +1,339 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6",
+		"name": "ITU-JOB - Offres d'Emploi",
+		"description": "Collection pour le nouveau système d'offres d'emploi",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39761457"
+	},
+	"item": [
+		{
+			"name": "Lister les offres d'emploi",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					},
+					{
+						"key": "X-Phone-Number",
+						"value": "+261382010328",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/offres",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"offres"
+					]
+				},
+				"description": "Récupère la liste de toutes les offres d'emploi publiées."
+			},
+			"response": []
+		},
+		{
+			"name": "Voir les détails d'une offre",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					},
+					{
+						"key": "X-Phone-Number",
+						"value": "+261382010328",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/offres/OFF-00001",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"offres",
+						"OFF-00001"
+					]
+				},
+				"description": "Récupère les détails complets d'une offre d'emploi spécifique."
+			},
+			"response": []
+		},
+		{
+			"name": "Postuler à une offre",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					},
+					{
+						"key": "X-Phone-Number",
+						"value": "+261382010328",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"cv_url\": \"https://example.com/my_cv.pdf\",\n    \"lettre_motivation\": \"Je suis très intéressé par cette opportunité...\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/offres/OFF-00001/postuler",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"offres",
+						"OFF-00001",
+						"postuler"
+					]
+				},
+				"description": "Permet à un utilisateur (étudiant) de postuler à une offre. L'utilisateur doit être authentifié."
+			},
+			"response": []
+		},
+		{
+			"name": "Sauvegarder une offre",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					},
+					{
+						"key": "X-Phone-Number",
+						"value": "+261382010328",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"notes\": \"Offre intéressante, à suivre.\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/offres/OFF-00001/sauvegarder",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"offres",
+						"OFF-00001",
+						"sauvegarder"
+					]
+				},
+				"description": "Permet à un utilisateur (étudiant) de sauvegarder une offre."
+			},
+			"response": []
+		},
+		{
+			"name": "Retirer une offre sauvegardée",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					},
+					{
+						"key": "X-Phone-Number",
+						"value": "+261382010328",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/offres/OFF-00001/sauvegarder",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"offres",
+						"OFF-00001",
+						"sauvegarder"
+					]
+				},
+				"description": "Permet à un utilisateur (étudiant) de retirer une offre de sa liste de sauvegarde."
+			},
+			"response": []
+		},
+		{
+			"name": "Lister les offres sauvegardées",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					},
+					{
+						"key": "X-Phone-Number",
+						"value": "+261382010328",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/offres/sauvegardees",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"offres",
+						"sauvegardees"
+					]
+				},
+				"description": "Récupère la liste de toutes les offres sauvegardées par l'utilisateur (étudiant)."
+			},
+			"response": []
+		},
+		{
+			"name": "Voir un profil recruteur",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					},
+					{
+						"key": "X-Phone-Number",
+						"value": "+261382010328",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/profils/recruteur/REC-00001",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"profils",
+						"recruteur",
+						"REC-00001"
+					]
+				},
+				"description": "Récupère les informations d'un profil de recruteur/entreprise."
+			},
+			"response": []
+		},
+		{
+			"name": "Voir un profil étudiant",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					},
+					{
+						"key": "X-Phone-Number",
+						"value": "+261382010328",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/profils/etudiant/ETU-00001",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"profils",
+						"etudiant",
+						"ETU-00001"
+					]
+				},
+				"description": "Récupère les informations d'un profil d'étudiant."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000/api"
+		},
+		{
+			"key": "auth_token",
+			"value": "YOUR_AUTH_TOKEN"
+		}
+	]
+}

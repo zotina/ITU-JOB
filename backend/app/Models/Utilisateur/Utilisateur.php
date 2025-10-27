@@ -2,6 +2,8 @@
 
 namespace App\Models\Utilisateur;
 
+use App\Models\Profil\ProfilEtudiant;
+use App\Models\Profil\ProfilRecruteur;
 use App\Repositories\Utilisateur\UserRepository;
 use Illuminate\Database\Eloquent\Model;
 
@@ -54,6 +56,16 @@ class Utilisateur extends Model
     public function role()
     {
         return $this->belongsTo(Role::class, 'id_role');
+    }
+
+    public function profilEtudiant()
+    {
+        return $this->hasOne(ProfilEtudiant::class, 'id_utilisateur');
+    }
+
+    public function profilRecruteur()
+    {
+        return $this->hasOne(ProfilRecruteur::class, 'id_utilisateur');
     }
 
     public function isEtudiant(): bool
