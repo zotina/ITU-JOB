@@ -1,14 +1,33 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { MapPin, Navigation } from 'lucide-react';
+import { MapPin, Navigation, Edit } from 'lucide-react';
 import LeafletMap from '@/components/ui/leaflet-map';
 import { mockCompanies } from '@/data/mockData';
 import { useProfileData } from '@/hooks/useProfileData';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import LeafletLocationPicker from '@/components/ui/leaflet-location-picker';
+import { useToast } from '@/hooks/use-toast';
 
 const StudentLocation = () => {
-  const { profileData } = useProfileData();
+  const { profileData, updateEditingData } = useProfileData();
+  const { toast } = useToast();
   const [radius, setRadius] = useState(50); // Default radius in km
+
+  const handleLocationChange = (location: string, coordinates?: [number, number]) => {
+    updateEditingData({
+      personalInfo: {
+        ...profileData.personalInfo,
+        location,
+        coordinates
+      }
+    });
+    
+    toast({
+      title: "Localisation mise à jour",
+      description: "Votre position a été enregistrée avec succès.",
+    });
+  };
 
   const haversineDistance = (
     coords1: [number, number],
@@ -53,9 +72,21 @@ const StudentLocation = () => {
 
       {/* Informations de localisation */}
       <Card className="p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <MapPin className="w-5 h-5 text-primary" />
-          <h2 className="text-lg font-semibold">Votre Position</h2>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <MapPin className="w-5 h-5 text-primary" />
+            <h2 className="text-lg font-semibold">Votre Position</h2>
+          </div>
+          <LeafletLocationPicker
+            currentLocation={profileData.personalInfo.location || ""}
+            onLocationChange={handleLocationChange}
+            trigger={
+              <Button variant="outline" size="sm" className="gap-2">
+                <Edit className="w-4 h-4" />
+                Modifier
+              </Button>
+            }
+          />
         </div>
         
         <div className="space-y-3">

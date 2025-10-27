@@ -1,9 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { Edit3, Save, X, User, MapPin } from "lucide-react";
+import { Edit3, Save, X } from "lucide-react";
 import { useProfileData } from "@/hooks/useProfileData";
 import StudentPersonalTab from "@/components/student/StudentPersonalTab";
-import StudentLocationTab from "@/components/student/StudentLocationTab";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
@@ -59,32 +57,13 @@ const Index = () => {
           )}
         </div>
 
-        <Tabs defaultValue="personal" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
-            <TabsTrigger value="personal" className="gap-2">
-              <User className="w-4 h-4" />
-              Fiche Personnel
-            </TabsTrigger>
-            <TabsTrigger value="location" className="gap-2">
-              <MapPin className="w-4 h-4" />
-              Localisation
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="personal" className="mt-6">
-            <StudentPersonalTab 
-              isEditing={isEditing} 
-              startEditing={startEditing}
-              onSave={handleSave}
-              onCancel={handleCancel}
-              showActions={false}
-            />
-          </TabsContent>
-          
-          <TabsContent value="location" className="mt-6">
-            <StudentLocationTab />
-          </TabsContent>
-        </Tabs>
+        <StudentPersonalTab 
+          isEditing={isEditing} 
+          startEditing={startEditing}
+          onSave={handleSave}
+          onCancel={handleCancel}
+          showActions={false}
+        />
       </div>
     </div>
   );

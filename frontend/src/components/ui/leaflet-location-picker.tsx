@@ -19,6 +19,7 @@ L.Icon.Default.mergeOptions({
 interface LocationPickerProps {
   currentLocation: string;
   onLocationChange: (location: string, coordinates?: [number, number]) => void;
+  trigger?: React.ReactNode;
 }
 
 // Component to handle map clicks
@@ -42,7 +43,7 @@ const MapController = ({ center }: { center: [number, number] }) => {
   return null;
 };
 
-const LeafletLocationPicker = ({ currentLocation, onLocationChange }: LocationPickerProps) => {
+const LeafletLocationPicker = ({ currentLocation, onLocationChange, trigger }: LocationPickerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [tempLocation, setTempLocation] = useState(currentLocation);
   const [tempCoordinates, setTempCoordinates] = useState<[number, number] | undefined>();
@@ -166,10 +167,12 @@ const LeafletLocationPicker = ({ currentLocation, onLocationChange }: LocationPi
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button type="button" variant="outline" size="sm" className="gap-2">
-          <MapPin className="w-4 h-4" />
-          Choisir sur la carte
-        </Button>
+        {trigger || (
+          <Button type="button" variant="outline" size="sm" className="gap-2">
+            <MapPin className="w-4 h-4" />
+            Choisir sur la carte
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-4xl h-[600px]">
         <DialogHeader>
