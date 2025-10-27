@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Api\CandidatureController;
 use App\Http\Controllers\Api\OffreController;
 use App\Http\Controllers\Api\ProfilController;
 
@@ -23,6 +24,8 @@ Route::middleware(['jwt.auth'])->group(function () {
     // Routes pour les profils
     Route::get('/profils/recruteur/{id}', [ProfilController::class, 'showRecruteur']);
     Route::get('/profils/etudiant/{id}', [ProfilController::class, 'showEtudiant']);
+
+    Route::get('/candidatures/etudiant', [CandidatureController::class, 'getEtudiantCandidatures']);
 });
 
 

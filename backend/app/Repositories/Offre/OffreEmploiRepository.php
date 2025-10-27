@@ -20,9 +20,32 @@ class OffreEmploiRepository
         return sprintf('OFF-%05d', $lastId + 1);
     }
 
-    public function getAllOffres()
+    public function search(array $filters = [])
     {
-        return $this->model->with('profilRecruteur')->where('statut', 'publiee')->get();
+        $query = $this->model->with('profilRecruteur', 'competencesRequises')->where('statut', 'publiee');
+
+        if (!empty($filters['type_contrat'])) {
+            $query->where('type_contrat', $filters['type_contrat']);
+        }
+
+        if (!empty($filters['ville'])) {
+            $query->where('ville', 'like', '%' . $filters['ville'] . '%');
+        }
+
+        if (!empty($filters['mot_cles'])) {
+            $query->where(function ($q) use ($filters) {
+                $q->where('titre', 'like', '%' . $filters['mot_cles'] . '%')
+                  ->orWhere('description', 'like', '%' . $filters['mot_cles'] . '%');
+            });
+        }
+
+        if (!empty($filters['technologie'])) {
+            $query->whereHas('competencesRequises', function ($q) use ($filters) {
+                $q->where('nom_competence', 'like', '%' . $filters['technologie'] . '%');
+            });
+        }
+
+        return $query->get();
     }
 
     public function findOffreById(string $id)

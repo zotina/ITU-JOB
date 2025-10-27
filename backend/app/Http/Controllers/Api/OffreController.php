@@ -8,7 +8,6 @@ use App\Services\Candidature\CandidatureService;
 use App\Services\Offre\OffreEmploiService;
 use App\Services\Offre\OffreSauvegardeeService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class OffreController extends Controller
 {
@@ -29,9 +28,15 @@ class OffreController extends Controller
         $this->userRepository =$userRepository ;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $offres = $this->offreEmploiService->listerOffres();
+        $filters = $request->only(['type_contrat', 'ville', 'mot_cles', 'technologie']);
+        
+        $user = $this->userRepository->find($request->input('userId'));
+        $profilEtudiant = $user->profilEtudiant;
+
+        $offres = $this->offreEmploiService->listerOffres($filters, $profilEtudiant);
+        
         return response()->json($offres);
     }
 
