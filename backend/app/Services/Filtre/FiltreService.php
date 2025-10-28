@@ -29,10 +29,20 @@ class FiltreService
 
         $validatedData = $validator->validated();
 
-        return $this->filtreRepository->filterCompaniesByDistance(
+        $companies = $this->filtreRepository->filterCompaniesByDistance(
             $validatedData['latitude'],
             $validatedData['longitude'],
             $validatedData['radius']
         );
+
+        $totalOffres = $companies->sum('nombre_offres_disponibles');
+
+        return [
+            'metadata' => [
+                'total_entreprises_localisees' => $companies->count(),
+                'total_offres_disponibles' => $totalOffres,
+            ],
+            'data' => $companies,
+        ];
     }
 }
