@@ -1,0 +1,72 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p8",
+		"name": "API Filtre - Companies",
+		"description": "Tests for filtering companies by distance",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39761457"
+	},
+	"item": [
+		{
+			"name": "Filter Companies by Distance",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					},
+					{
+						"key": "X-Phone-Number",
+						"value": "+261382010328",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/filtre/companies?latitude=-18.8792&longitude=47.5079&radius=50",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"filtre",
+						"companies"
+					],
+					"query": [
+						{
+							"key": "latitude",
+							"value": "-18.8792"
+						},
+						{
+							"key": "longitude",
+							"value": "47.5079"
+						},
+						{
+							"key": "radius",
+							"value": "50"
+						}
+					]
+				},
+				"description": "Filters companies based on the provided latitude, longitude, and radius."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000/api"
+		},
+		{
+			"key": "auth_token",
+			"value": "YOUR_AUTH_TOKEN"
+		}
+	]
+}

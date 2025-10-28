@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\OffreController;
 use App\Http\Controllers\Api\ProfilController;
 use App\Http\Controllers\Util\NotificationController;
 use App\Http\Controllers\Util\ChatbotController;
+use App\Http\Controllers\Api\FiltreController;
 
 
 Route::prefix('auth')->group(function () {
@@ -16,6 +17,7 @@ Route::prefix('auth')->group(function () {
 
 
 Route::middleware(['jwt.auth'])->group(function () {
+
     Route::get('/offres', [OffreController::class, 'index']);
     Route::get('/offres/sauvegardees', [OffreController::class, 'listerSauvegardes']);
     Route::get('/offres/{id}', [OffreController::class, 'show']);
@@ -31,7 +33,7 @@ Route::middleware(['jwt.auth'])->group(function () {
         ->put('/profils/recruteur/{id}/position', [ProfilController::class, 'updateRecruteurPosition']);
 
     Route::get('/candidatures/etudiant', [CandidatureController::class, 'getEtudiantCandidatures']);
-    Route::prefix('notifications')->group(function () {
+      Route::prefix('notifications')->group(function () {
         Route::get('/non-lues', [NotificationController::class, 'getNonLues']);    
         Route::get('/count-non-lues', [NotificationController::class, 'countNonLues']);
         Route::get('/lire-tous', [NotificationController::class, 'tousMarquerCommeLue']);
@@ -42,4 +44,8 @@ Route::middleware(['jwt.auth'])->group(function () {
     Route::prefix('chatbot')->group(function () {
     Route::post('/message', [ChatbotController::class, 'message']);
     });
+
+});
+Route::prefix('filtre')->group(function () {
+    Route::get('/companies', [FiltreController::class, 'filterCompanies']);
 });
