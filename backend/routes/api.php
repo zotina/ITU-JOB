@@ -16,7 +16,6 @@ Route::prefix('auth')->group(function () {
 
 
 Route::middleware(['jwt.auth'])->group(function () {
-
     Route::get('/offres', [OffreController::class, 'index']);
     Route::get('/offres/sauvegardees', [OffreController::class, 'listerSauvegardes']);
     Route::get('/offres/{id}', [OffreController::class, 'show']);
@@ -26,9 +25,13 @@ Route::middleware(['jwt.auth'])->group(function () {
 
     Route::get('/profils/recruteur/{id}', [ProfilController::class, 'showRecruteur']);
     Route::get('/profils/etudiant/{id}', [ProfilController::class, 'showEtudiant']);
+    Route::middleware(['jwt.auth', 'role:etudiant'])
+        ->put('/profils/etudiant/{id}/position', [ProfilController::class, 'updateEtudiantPosition']);
+    Route::middleware(['jwt.auth', 'role:recruteur'])
+        ->put('/profils/recruteur/{id}/position', [ProfilController::class, 'updateRecruteurPosition']);
 
     Route::get('/candidatures/etudiant', [CandidatureController::class, 'getEtudiantCandidatures']);
-      Route::prefix('notifications')->group(function () {
+    Route::prefix('notifications')->group(function () {
         Route::get('/non-lues', [NotificationController::class, 'getNonLues']);    
         Route::get('/count-non-lues', [NotificationController::class, 'countNonLues']);
         Route::get('/lire-tous', [NotificationController::class, 'tousMarquerCommeLue']);
@@ -38,22 +41,5 @@ Route::middleware(['jwt.auth'])->group(function () {
 
     Route::prefix('chatbot')->group(function () {
     Route::post('/message', [ChatbotController::class, 'message']);
+    });
 });
-});
-
-
-
-// Route::prefix('test')->group(function () {
-    
-//     // Route accessible uniquement par les étudiants
-//     Route::middleware(['jwt.auth', 'role:etudiant'])
-//         ->get('/hello-etudiant', [TestRoleController::class, 'helloEtudiant']);
-    
-//     // Route accessible uniquement par les recruteurs
-//     Route::middleware(['jwt.auth', 'role:recruteur'])
-//         ->get('/hello-recruteur', [TestRoleController::class, 'helloRecruteur']);
-    
-//     // Route accessible par tous les utilisateurs authentifiés
-//     Route::middleware(['jwt.auth', 'role:etudiant,recruteur'])
-//         ->get('/hello-all', [TestRoleController::class, 'helloAll']);
-// });

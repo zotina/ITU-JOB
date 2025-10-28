@@ -1,0 +1,107 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p7",
+		"name": "API Profil - Position",
+		"description": "Tests for updating profil position",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39761457"
+	},
+	"item": [
+		{
+			"name": "Update Etudiant Position",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					},
+					{
+						"key": "X-Phone-Number",
+						"value": "+261382010328",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ville\": \"Antananarivo\",\n    \"pays\": \"Madagascar\",\n    \"code_pays\": \"MG\",\n    \"latitude\": -18.8792,\n    \"longitude\": 47.5079\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/profils/etudiant/ETU-00001/position",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"profils",
+						"etudiant",
+						"ETU-00001",
+						"position"
+					]
+				},
+				"description": "Updates the position for a specific student profile."
+			},
+			"response": []
+		},
+		{
+			"name": "Update Recruteur Position",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					},
+					{
+						"key": "X-Phone-Number",
+						"value": "+261382010328",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ville\": \"Paris\",\n    \"pays\": \"France\",\n    \"code_pays\": \"FR\",\n    \"latitude\": 48.8566,\n    \"longitude\": 2.3522\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/profils/recruteur/REC-00001/position",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"profils",
+						"recruteur",
+						"REC-00001",
+						"position"
+					]
+				},
+				"description": "Updates the position for a specific recruiter profile."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000/api"
+		},
+		{
+			"key": "auth_token",
+			"value": "YOUR_AUTH_TOKEN"
+		}
+	]
+}

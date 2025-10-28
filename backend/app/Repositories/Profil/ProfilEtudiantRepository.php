@@ -22,4 +22,14 @@ class ProfilEtudiantRepository
     public function getProfilEtudiant($id){
         return $this->model->with('utilisateur', 'competences', 'langues', 'softSkills', 'experiences', 'formations', 'certifications', 'projets')->find($id);
     }
+
+    public function updatePosition(string $id, array $data)
+    {
+        $profil = $this->model->find($id);
+        if ($profil) {
+            $profil->update($data);
+            return $profil;
+        }
+        return null;
+    }
 }
