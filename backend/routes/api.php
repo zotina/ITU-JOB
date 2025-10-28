@@ -6,15 +6,17 @@ use App\Http\Controllers\Api\CandidatureController;
 use App\Http\Controllers\Api\OffreController;
 use App\Http\Controllers\Api\ProfilController;
 use App\Http\Controllers\Util\NotificationController;
+use App\Http\Controllers\Util\ChatbotController;
+
 
 Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 
-// Routes protégées par JWT
+
 Route::middleware(['jwt.auth'])->group(function () {
-    // Routes pour les offres d'emploi
+
     Route::get('/offres', [OffreController::class, 'index']);
     Route::get('/offres/sauvegardees', [OffreController::class, 'listerSauvegardes']);
     Route::get('/offres/{id}', [OffreController::class, 'show']);
@@ -22,7 +24,6 @@ Route::middleware(['jwt.auth'])->group(function () {
     Route::post('/offres/{id}/sauvegarder', [OffreController::class, 'sauvegarder']);
     Route::delete('/offres/{id}/sauvegarder', [OffreController::class, 'retirerSauvegarde']);
 
-    // Routes pour les profils
     Route::get('/profils/recruteur/{id}', [ProfilController::class, 'showRecruteur']);
     Route::get('/profils/etudiant/{id}', [ProfilController::class, 'showEtudiant']);
 
@@ -34,7 +35,12 @@ Route::middleware(['jwt.auth'])->group(function () {
         Route::patch('/{id}/lire', [NotificationController::class, 'marquerCommeLue']);
         Route::post('/envoyer', [NotificationController::class, 'envoyer']);
     });
+
+    Route::prefix('chatbot')->group(function () {
+    Route::post('/message', [ChatbotController::class, 'message']);
 });
+});
+
 
 
 // Route::prefix('test')->group(function () {

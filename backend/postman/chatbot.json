@@ -1,0 +1,585 @@
+{
+  "info": {
+    "name": "ITU Jobs - Chatbot API",
+    "description": "Collection complète pour tester le chatbot de la plateforme ITU Jobs (étudiant & recruteur)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api",
+      "type": "string"
+    },
+    {
+      "key": "user_id_etudiant",
+      "value": "user_etudiant_123",
+      "type": "string"
+    },
+    {
+      "key": "user_id_recruteur",
+      "value": "user_recruteur_456",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Test Connexion",
+      "item": [
+        {
+          "name": "Ping - Test API",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/chatbot/ping",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "ping"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Conversations Générales",
+      "item": [
+        {
+          "name": "Salutation Simple",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Bonjour !\",\n  \"user_id\": \"{{user_id_etudiant}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Demande d'aide",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Comment puis-je t'utiliser ?\",\n  \"user_id\": \"{{user_id_etudiant}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Conversation Libre",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Raconte-moi une blague sur les développeurs\",\n  \"user_id\": \"{{user_id_etudiant}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Étudiant - Recherche d'Offres",
+      "item": [
+        {
+          "name": "Recherche Simple",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Je cherche un emploi\",\n  \"user_id\": \"{{user_id_etudiant}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Recherche avec Technologie",
+          "request": {
+            "method": " **POST**",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Je cherche un poste en React\",\n  \"user_id\": \"{{user_id_etudiant}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Recherche Stage à Paris",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Je cherche un stage en développement web à Paris\",\n  \"user_id\": \"{{user_id_etudiant}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Recherche CDI Remote",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Trouve-moi un CDI en remote avec React et Node.js\",\n  \"user_id\": \"{{user_id_etudiant}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Recherche Aucune Résultat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Je cherche un job de cosmonaute à Madagascar\",\n  \"user_id\": \"{{user_id_etudiant}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Étudiant - Gestion du Profil",
+      "item": [
+        {
+          "name": "Analyser mon Profil",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Comment est mon profil ?\",\n  \"user_id\": \"{{user_id_etudiant}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Conseils d'Amélioration",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Donne-moi des conseils pour améliorer mon profil\",\n  \"user_id\": \"{{user_id_etudiant}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Étudiant - Candidatures",
+      "item": [
+        {
+          "name": "Postuler à une Offre",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Je veux postuler à l'offre job_001\",\n  \"user_id\": \"{{user_id_etudiant}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Postuler à une Offre Inexistante",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Postule à l'offre job_999\",\n  \"user_id\": \"{{user_id_etudiant}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mes Candidatures",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Montre-moi mes candidatures\",\n  \"user_id\": \"{{user_id_etudiant}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Statut Candidatures",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Où en sont mes candidatures ?\",\n  \"user_id\": \"{{user_id_etudiant}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Sauvegarder une Offre",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Sauvegarde l'offre job_001 pour moi\",\n  \"user_id\": \"{{user_id_etudiant}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "6. Recruteur - Gestion des Offres",
+      "item": [
+        {
+          "name": "Créer une Offre",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Crée une offre pour développeur full stack en CDI à 40k€ à Lyon\",\n  \"user_id\": \"{{user_id_recruteur}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mes Offres",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Montre-moi mes offres d'emploi\",\n  \"user_id\": \"{{user_id_recruteur}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Offres Publiées",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Liste mes offres publiées\",\n  \"user_id\": \"{{user_id_recruteur}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "7. Recruteur - Candidatures",
+      "item": [
+        {
+          "name": "Candidatures pour une Offre",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Montre-moi les candidatures pour l'offre job_001\",\n  \"user_id\": \"{{user_id_recruteur}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Statistiques de Recrutement",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Quelles sont mes statistiques de recrutement ?\",\n  \"user_id\": \"{{user_id_recruteur}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "8. Tests Edge Cases",
+      "item": [
+        {
+          "name": "Message Vide",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"\",\n  \"user_id\": \"{{user_id_etudiant}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "User ID Invalide",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Bonjour\",\n  \"user_id\": \"invalid_user_id\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Message Très Long",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"{{repeat('Je cherche un job en développement web avec React, Node.js, Laravel, Docker, Kubernetes, AWS, et je veux travailler en remote à Paris ou Lyon avec un salaire entre 40k et 60k, en CDI ou CDD de 12 mois minimum, et je suis disponible immédiatement. ', 10)}}\",\n  \"user_id\": \"{{user_id_etudiant}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/message",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "message"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
