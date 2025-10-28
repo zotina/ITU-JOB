@@ -17,35 +17,38 @@ Route::prefix('auth')->group(function () {
 
 
 Route::middleware(['jwt.auth'])->group(function () {
-
-    Route::get('/offres', [OffreController::class, 'index']);
-    Route::get('/offres/sauvegardees', [OffreController::class, 'listerSauvegardes']);
-    Route::get('/offres/{id}', [OffreController::class, 'show']);
-    Route::post('/offres/{id}/postuler', [OffreController::class, 'postuler']);
-    Route::post('/offres/{id}/sauvegarder', [OffreController::class, 'sauvegarder']);
-    Route::delete('/offres/{id}/sauvegarder', [OffreController::class, 'retirerSauvegarde']);
-
+    // role etudiant 
+    Route::middleware(['jwt.auth', 'role:etudiant'])
+    ->group(function () {
+        Route::put('/profils/etudiant/{id}/position', [ProfilController::class, 'updateEtudiantPosition']);
+        Route::get('/candidatures/etudiant', [CandidatureController::class, 'getEtudiantCandidatures']);
+        Route::get('/offres', [OffreController::class, 'index']);
+        Route::get('/offres/sauvegardees', [OffreController::class, 'listerSauvegardes']);
+        Route::get('/offres/{id}', [OffreController::class, 'show']);
+        Route::post('/offres/{id}/postuler', [OffreController::class, 'postuler']);
+        Route::post('/offres/{id}/sauvegarder', [OffreController::class, 'sauvegarder']);
+        Route::delete('/offres/{id}/sauvegarder', [OffreController::class, 'retirerSauvegarde']);
+    });
+    //role recruteur
+    Route::middleware(['jwt.auth', 'role:recruteur'])
+    ->group(function () {
+        Route::put('/profils/recruteur/{id}/position', [ProfilController::class, 'updateRecruteurPosition']);
+    });
+    //all
     Route::get('/profils/recruteur/{id}', [ProfilController::class, 'showRecruteur']);
     Route::get('/profils/etudiant/{id}', [ProfilController::class, 'showEtudiant']);
-    Route::middleware(['jwt.auth', 'role:etudiant'])
-        ->put('/profils/etudiant/{id}/position', [ProfilController::class, 'updateEtudiantPosition']);
-    Route::middleware(['jwt.auth', 'role:recruteur'])
-        ->put('/profils/recruteur/{id}/position', [ProfilController::class, 'updateRecruteurPosition']);
-
-    Route::get('/candidatures/etudiant', [CandidatureController::class, 'getEtudiantCandidatures']);
-      Route::prefix('notifications')->group(function () {
+    Route::prefix('notifications')->group(function () {
         Route::get('/non-lues', [NotificationController::class, 'getNonLues']);    
         Route::get('/count-non-lues', [NotificationController::class, 'countNonLues']);
         Route::get('/lire-tous', [NotificationController::class, 'tousMarquerCommeLue']);
         Route::patch('/{id}/lire', [NotificationController::class, 'marquerCommeLue']);
         Route::post('/envoyer', [NotificationController::class, 'envoyer']);
     });
-
     Route::prefix('chatbot')->group(function () {
     Route::post('/message', [ChatbotController::class, 'message']);
     });
+    Route::prefix('filtre')->group(function () {
+        Route::get('/companies', [FiltreController::class, 'filterCompanies']);
+    });
 
-});
-Route::prefix('filtre')->group(function () {
-    Route::get('/companies', [FiltreController::class, 'filterCompanies']);
 });
