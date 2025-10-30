@@ -13,6 +13,16 @@ class LanguesEtudiantRepository
         $this->model = $model;
     }
 
+    public function create(array $data): LanguesEtudiant
+    {
+        return $this->model->create($data);
+    }
+
+    public function deleteByEtudiantId(string $etudiantId): void
+    {
+        $this->model->where('id_profil_etudiant', $etudiantId)->delete();
+    }
+
     public function generateLanguesEtudiantId(): string
     {
         $lastLangue = $this->model->orderBy('id', 'desc')->first();

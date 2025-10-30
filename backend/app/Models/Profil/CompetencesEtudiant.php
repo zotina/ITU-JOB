@@ -19,6 +19,7 @@ class CompetencesEtudiant extends Model
         'nom_competence',
         'categorie',
         'niveau',
+        'niveau_int',
         'annees_experience',
     ];
 
@@ -31,6 +32,24 @@ class CompetencesEtudiant extends Model
                 $model->id = app(CompetencesEtudiantRepository::class)->generateCompetencesEtudiantId();
             }
         });
+    }
+
+    public function setNiveauAttribute($value)
+    {
+        $this->attributes['niveau'] = $value;
+        $this->attributes['niveau_int'] = $this->getNiveauInt($value);
+    }
+
+    private function getNiveauInt($niveau)
+    {
+        $mapping = [
+            'debutant' => 2,
+            'intermediaire' => 5,
+            'avance' => 8,
+            'expert' => 10,
+        ];
+
+        return $mapping[strtolower($niveau)] ?? null;
     }
 
     public function profilEtudiant(): BelongsTo

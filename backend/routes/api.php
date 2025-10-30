@@ -20,7 +20,7 @@ Route::middleware(['jwt.auth'])->group(function () {
     // role etudiant 
     Route::middleware(['jwt.auth', 'role:etudiant'])
     ->group(function () {
-        Route::put('/profils/etudiant/{id}/position', [ProfilController::class, 'updateEtudiantPosition']);
+        Route::post('/profils/etudiant/{id}', [ProfilController::class, 'updateProfilEtudiant']);
         Route::get('/candidatures/etudiant', [CandidatureController::class, 'getEtudiantCandidatures']);
         Route::get('/offres', [OffreController::class, 'index']);
         Route::get('/offres/sauvegardees', [OffreController::class, 'listerSauvegardes']);
@@ -32,7 +32,7 @@ Route::middleware(['jwt.auth'])->group(function () {
     //role recruteur
     Route::middleware(['jwt.auth', 'role:recruteur'])
     ->group(function () {
-        Route::put('/profils/recruteur/{id}/position', [ProfilController::class, 'updateRecruteurPosition']);
+        Route::post('/profils/recruteur/{id}', [ProfilController::class, 'updateProfilRecruteur']);
     });
     //all
     Route::get('/profils/recruteur/{id}', [ProfilController::class, 'showRecruteur']);

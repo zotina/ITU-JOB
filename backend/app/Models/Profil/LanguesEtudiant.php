@@ -18,6 +18,7 @@ class LanguesEtudiant extends Model
         'id_profil_etudiant',
         'nom_langue',
         'niveau',
+        'niveau_int',
     ];
 
     protected static function boot()
@@ -29,6 +30,25 @@ class LanguesEtudiant extends Model
                 $model->id = app(LanguesEtudiantRepository::class)->generateLanguesEtudiantId();
             }
         });
+    }
+
+    public function setNiveauAttribute($value)
+    {
+        $this->attributes['niveau'] = $value;
+        $this->attributes['niveau_int'] = $this->getNiveauInt($value);
+    }
+
+    private function getNiveauInt($niveau)
+    {
+        $mapping = [
+            'notions' => 2,
+            'intermediaire' => 5,
+            'courant' => 8,
+            'bilingue' => 10,
+            'natif' => 10,
+        ];
+
+        return $mapping[strtolower($niveau)] ?? null;
     }
 
     public function profilEtudiant(): BelongsTo

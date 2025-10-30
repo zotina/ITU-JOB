@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Services\Profil\ProfilService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 
 class ProfilController extends Controller
 {
@@ -37,29 +36,23 @@ class ProfilController extends Controller
         return response()->json($profil);
     }
 
-    public function updateEtudiantPosition(Request $request, string $id)
+    public function updateProfilEtudiant(Request $request, string $id)
     {
         try {
-            $profil = $this->profilService->updateEtudiantPosition($id, $request->all());
-            if (!$profil) {
-                return response()->json(['message' => 'Profil etudiant not found'], 404);
-            }
+            $profil = $this->profilService->updateProfilEtudiant($request, $id);
             return response()->json($profil);
-        } catch (ValidationException $e) {
-            return response()->json(['errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 
-    public function updateRecruteurPosition(Request $request, string $id)
+    public function updateProfilRecruteur(Request $request, string $id)
     {
         try {
-            $profil = $this->profilService->updateRecruteurPosition($id, $request->all());
-            if (!$profil) {
-                return response()->json(['message' => 'Profil recruteur not found'], 404);
-            }
+            $profil = $this->profilService->updateProfilRecruteur($request, $id);
             return response()->json($profil);
-        } catch (ValidationException $e) {
-            return response()->json(['errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 }

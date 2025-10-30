@@ -25,7 +25,7 @@ class ProfilRecruteurRepository
         return $this->model->with('utilisateur')->find($id);
     }
 
-    public function updatePosition(string $id, array $data)
+    public function update(string $id, array $data)
     {
         $profil = $this->model->find($id);
         if ($profil) {

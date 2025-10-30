@@ -1,0 +1,161 @@
+{
+    "info": {
+        "_postman_id": "a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p7",
+        "name": "API Profil - Update",
+        "description": "Tests for updating student and recruiter profiles",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "39761457"
+    },
+    "item": [
+        {
+            "name": "Update Student Profile",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{auth_token}}"
+                    },
+                    {
+                        "key": "X-Phone-Number",
+                        "value": "+261382010328",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "formdata",
+                    "formdata": [
+                        {
+                            "key": "photo",
+                            "type": "file",
+                            "src": "/path/to/your/image.jpg"
+                        },
+                        {
+                            "key": "info_personnel[titre]",
+                            "value": "Développeur Full-Stack Junior",
+                            "type": "text"
+                        },
+                        {
+                            "key": "info_personnel[bio]",
+                            "value": "Passionné par le développement web et les nouvelles technologies.",
+                            "type": "text"
+                        },
+                        {
+                            "key": "info_personnel[date_naissance]",
+                            "value": "2000-01-01",
+                            "type": "text"
+                        },
+                        {
+                            "key": "info_personnel[ville]",
+                            "value": "Paris",
+                            "type": "text"
+                        },
+                        {
+                            "key": "info_personnel[pays]",
+                            "value": "France",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences_etudiant[0][competence]",
+                            "value": "PHP",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences_etudiant[0][niveau]",
+                            "value": "avance",
+                            "type": "text"
+                        },
+                        {
+                            "key": "langues_etudiant[0][langue]",
+                            "value": "Anglais",
+                            "type": "text"
+                        },
+                        {
+                            "key": "langues_etudiant[0][niveau]",
+                            "value": "courant",
+                            "type": "text"
+                        }
+                    ]
+                },
+                "url": {
+                    "raw": "{{base_url}}/profils/etudiant/ETU-00001",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "profils",
+                        "etudiant",
+                        "ETU-00001"
+                    ]
+                },
+                "description": "Update a student's profile. This is a multipart/form-data request."
+            },
+            "response": []
+        },
+        {
+            "name": "Update Recruiter Profile",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{auth_token}}"
+                    },
+                    {
+                        "key": "X-Phone-Number",
+                        "value": "+261382010328",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "formdata",
+                    "formdata": [
+                        {
+                            "key": "logo",
+                            "type": "file",
+                            "src": "/path/to/your/logo.png"
+                        },
+                        {
+                            "key": "info_personnel[nom_entreprise]",
+                            "value": "New Company Name",
+                            "type": "text"
+                        },
+                        {
+                            "key": "info_personnel[description_entreprise]",
+                            "value": "Une super entreprise.",
+                            "type": "text"
+                        },
+                        {
+                            "key": "info_personnel[site_web]",
+                            "value": "https://example.com",
+                            "type": "text"
+                        }
+                    ]
+                },
+                "url": {
+                    "raw": "{{base_url}}/profils/recruteur/REC-00001",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "profils",
+                        "recruteur",
+                        "REC-00001"
+                    ]
+                },
+                "description": "Update a recruiter's profile. This is a multipart/form-data request."
+            },
+            "response": []
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:8000/api"
+        },
+        {
+            "key": "auth_token",
+            "value": "YOUR_AUTH_TOKEN"
+        }
+    ]
+}
