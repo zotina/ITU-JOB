@@ -39,6 +39,12 @@ class ProfilEtudiant extends Model
         'devise_salaire',
         'profil_complete_pourcentage',
         'nb_vues_profil',
+        'progression',
+        'progression_metadata',
+    ];
+
+    protected $casts = [
+        'progression_metadata' => 'array',
     ];
 
     protected static function boot()
