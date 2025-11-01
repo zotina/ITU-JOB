@@ -1,0 +1,102 @@
+{
+    "info": {
+        "_postman_id": "a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p8",
+        "name": "API CV Management",
+        "description": "Requests for importing from and exporting to CV files.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Import CV from PDF",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{auth_token}}"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "formdata",
+                    "formdata": [
+                        {
+                            "key": "cv",
+                            "type": "file",
+                            "src": []
+                        }
+                    ]
+                },
+                "url": {
+                    "raw": "{{base_url}}/cv/import",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "cv",
+                        "import"
+                    ]
+                },
+                "description": "Upload a PDF CV to be parsed by the AI into a structured student profile. The response will contain the extracted data in JSON format."
+            },
+            "response": []
+        },
+        {
+            "name": "Export Profile to CV",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{auth_token}}"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/cv/export?profil_etudiant_id={{etudiant_id}}&categorie=Backend",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "cv",
+                        "export"
+                    ],
+                    "query": [
+                        {
+                            "key": "profil_etudiant_id",
+                            "value": "{{etudiant_id}}",
+                            "description": "The ID of the student profile to export."
+                        },
+                        {
+                            "key": "categorie",
+                            "value": "Backend",
+                            "description": "(Optional) The category to filter competences, experiences, etc."
+                        }
+                    ]
+                },
+                "description": "Generate a PDF CV from a student profile. The response will contain the base64 encoded PDF."
+            },
+            "response": []
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:8000/api"
+        },
+        {
+            "key": "auth_token",
+            "value": "YOUR_AUTH_TOKEN"
+        },
+        {
+            "key": "etudiant_id",
+            "value": "ETU-00001"
+        }
+    ]
+}

@@ -31,6 +31,8 @@ Route::middleware(['jwt.auth'])->group(function () {
         Route::delete('/offres/{id}/sauvegarder', [OffreController::class, 'retirerSauvegarde']);
         Route::get('/profils/etudiant/{id}/recommandations', [RecommandationController::class, 'getRecommandations']);
         Route::get('/recommandations/offres', [RecommandationController::class, 'getOffreRecommandations']);
+        Route::post('cv/import', [\App\Http\Controllers\Api\CvController::class, 'import']);
+        Route::get('cv/export', [\App\Http\Controllers\Api\CvController::class, 'export']);
     });
     //role recruteur
     Route::middleware(['jwt.auth', 'role:recruteur'])
