@@ -30,6 +30,7 @@ Route::middleware(['jwt.auth'])->group(function () {
         Route::post('/offres/{id}/sauvegarder', [OffreController::class, 'sauvegarder']);
         Route::delete('/offres/{id}/sauvegarder', [OffreController::class, 'retirerSauvegarde']);
         Route::get('/profils/etudiant/{id}/recommandations', [RecommandationController::class, 'getRecommandations']);
+        Route::get('/recommandations/offres', [RecommandationController::class, 'getOffreRecommandations']);
     });
     //role recruteur
     Route::middleware(['jwt.auth', 'role:recruteur'])

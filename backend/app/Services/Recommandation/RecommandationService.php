@@ -3,9 +3,54 @@
 namespace App\Services\Recommandation;
 
 use App\Models\Profil\ProfilEtudiant;
+use App\Repositories\Profil\ProfilEtudiantRepository;
+use App\Repositories\Offre\OffreEmploiRepository;
 
 class RecommandationService
 {
+    protected $profilEtudiantRepository;
+    protected $offreEmploiRepository;
+
+    public function __construct(
+        ProfilEtudiantRepository $profilEtudiantRepository,
+        OffreEmploiRepository $offreEmploiRepository
+    ) {
+        $this->profilEtudiantRepository = $profilEtudiantRepository;
+        $this->offreEmploiRepository = $offreEmploiRepository;
+    }
+
+    public function recommanderOffres(string $profilEtudiantId)
+    {
+        $profilEtudiant = $this->profilEtudiantRepository->getProfilEtudiant($profilEtudiantId);
+
+        if (!$profilEtudiant) {
+            return ['error' => 'Profil etudiant non trouvé'];
+        }
+
+        $offres = $this->offreEmploiRepository->search();
+        $competencesEtudiant = $profilEtudiant->competences->pluck('nom_competence')->toArray();
+
+        $offres->each(function ($offre) use ($competencesEtudiant) {
+            $competencesRequises = $offre->competencesRequises->pluck('nom_competence')->toArray();
+            $offre->matching_percentage = $this->calculateMatchingPercentage($competencesEtudiant, $competencesRequises);
+        });
+
+        $offresTriees = $offres->sortByDesc('matching_percentage')->values();
+
+        return $offresTriees->take(3);
+    }
+
+    private function calculateMatchingPercentage(array $competencesEtudiant, array $competencesRequises): float
+    {
+        if (count($competencesRequises) === 0) {
+            return 100.0;
+        }
+
+        $matches = count(array_intersect($competencesEtudiant, $competencesRequises));
+
+        return round(($matches / count($competencesRequises)) * 100, 2);
+    }
+
     public function getRecommandations(ProfilEtudiant $profil)
     {
         $recommandations = [];

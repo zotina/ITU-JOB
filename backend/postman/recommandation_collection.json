@@ -45,6 +45,50 @@
 				"description": "Récupère les recommandations pour un profil étudiant spécifique. Nécessite l l'ID de l l'étudiant en paramètre d l'URL."
 			},
 			"response": []
+		},
+		{
+			"name": "Get Offer Recommandations",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					},
+					{
+						"key": "X-Phone-Number",
+						"value": "+261382010328",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/recommandations/offres?profil_etudiant_id={{etudiant_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"recommandations",
+						"offres"
+					],
+					"query": [
+						{
+							"key": "profil_etudiant_id",
+							"value": "{{etudiant_id}}",
+							"description": "ID of the student profile (required, must exist in profil_etudiant table)"
+						}
+					]
+				},
+				"description": "Retrieves the top 3 job offer recommendations for a specific student profile based on skill matching."
+			},
+			"response": []
 		}
 	],
 	"variable": [
