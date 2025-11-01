@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ProfilController;
 use App\Http\Controllers\Util\NotificationController;
 use App\Http\Controllers\Util\ChatbotController;
 use App\Http\Controllers\Api\FiltreController;
+use App\Http\Controllers\Api\RecommandationController;
 
 
 Route::prefix('auth')->group(function () {
@@ -28,6 +29,7 @@ Route::middleware(['jwt.auth'])->group(function () {
         Route::post('/offres/{id}/postuler', [OffreController::class, 'postuler']);
         Route::post('/offres/{id}/sauvegarder', [OffreController::class, 'sauvegarder']);
         Route::delete('/offres/{id}/sauvegarder', [OffreController::class, 'retirerSauvegarde']);
+        Route::get('/profils/etudiant/{id}/recommandations', [RecommandationController::class, 'getRecommandations']);
     });
     //role recruteur
     Route::middleware(['jwt.auth', 'role:recruteur'])

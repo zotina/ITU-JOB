@@ -10,6 +10,7 @@ use App\Repositories\Profil\SoftSkillsEtudiantRepository;
 use App\Repositories\Profil\ExperienceProfessionnelleRepository;
 use App\Repositories\Profil\FormationRepository;
 use App\Services\Util\ProfileImageService;
+use App\Services\Recommandation\RecommandationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -23,6 +24,7 @@ class ProfilService
     protected $experienceProfessionnelleRepository;
     protected $formationRepository;
     protected $profileImageService;
+    protected $recommandationService;
 
     public function __construct(
         ProfilRecruteurRepository $profilRecruteurRepository,
@@ -32,7 +34,8 @@ class ProfilService
         SoftSkillsEtudiantRepository $softSkillsEtudiantRepository,
         ExperienceProfessionnelleRepository $experienceProfessionnelleRepository,
         FormationRepository $formationRepository,
-        ProfileImageService $profileImageService
+        ProfileImageService $profileImageService,
+        RecommandationService $recommandationService
     ) {
         $this->profilRecruteurRepository = $profilRecruteurRepository;
         $this->profilEtudiantRepository = $profilEtudiantRepository;
@@ -42,6 +45,7 @@ class ProfilService
         $this->experienceProfessionnelleRepository = $experienceProfessionnelleRepository;
         $this->formationRepository = $formationRepository;
         $this->profileImageService = $profileImageService;
+        $this->recommandationService = $recommandationService;
     }
 
     public function getProfilRecruteur(string $id)
@@ -52,6 +56,12 @@ class ProfilService
     public function getProfilEtudiant(string $id)
     {
         return $this->profilEtudiantRepository->getProfilEtudiant($id);
+    }
+
+    public function getRecommandations(string $id)
+    {
+        $profil = $this->profilEtudiantRepository->getProfilEtudiant($id);
+        return $this->recommandationService->getRecommandations($profil);
     }
 
     public function updateProfilEtudiant(Request $request, string $id)
@@ -347,4 +357,3 @@ class ProfilService
         });
     }
 }
-
