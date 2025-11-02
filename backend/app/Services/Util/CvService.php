@@ -8,7 +8,9 @@ use Dompdf\Options;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Spatie\PdfToText\Pdf;
 use Smalot\PdfParser\Parser;
+use thiagoalessio\TesseractOCR\TesseractOCR;
 
 class CvService
 {
@@ -21,25 +23,35 @@ class CvService
         $this->profilEtudiantRepository = $profilEtudiantRepository;
     }
 
-    /**
-     * Import a CV from a PDF and return a structured profile.
-     *
-     * @param UploadedFile $cvPdf
-     * @return array
-     */
     public function importCvEnProfil(UploadedFile $cvPdf): array
     {
-        $parser = new Parser();
-        $pdf = $parser->parseFile($cvPdf->getRealPath());
-        $cvText = $pdf->getText();
-        Log::debug('Extracted CV Text:', ['cvText' => $cvText]);
+        // ⚡ Augmenter le timeout pour cette opération
+        set_time_limit(300);
+        
+        $cvText = $this->extractTextFromPdf($cvPdf);
+
+        if (empty(trim($cvText))) {
+            return [
+                'error' => 'Impossible d\'extraire le texte du PDF',
+                'suggestions' => [
+                    'Le PDF ne contient pas de texte sélectionnable',
+                    'Si c\'est un scan, l\'OCR a échoué',
+                    'Essayez avec un PDF de meilleure qualité'
+                ]
+            ];
+        }
+
+        Log::debug('Extracted CV Text:', [
+            'length' => strlen($cvText),
+            'preview' => substr($cvText, 0, 300)
+        ]);
 
         $prompt = $this->createGroqPrompt($cvText);
 
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->groqApiKey,
             'Content-Type' => 'application/json',
-        ])->post('https://api.groq.com/openai/v1/chat/completions', [
+        ])->timeout(60)->post('https://api.groq.com/openai/v1/chat/completions', [
             'model' => 'llama-3.3-70b-versatile',
             'messages' => [
                 ['role' => 'system', 'content' => 'You are an expert CV parsing assistant. Your sole task is to extract information from the provided CV text and return it ONLY as a single, valid JSON object. Do not include any introductory text, explanations, or markdown formatting. Just the JSON.'],
@@ -57,6 +69,9 @@ class CvService
         $content = $response->json('choices.0.message.content');
         Log::debug('Raw content from Groq API:', ['content' => $content]);
 
+        // Nettoyer le JSON (enlever les backticks markdown si présents)
+        $content = preg_replace('/```json\s*|\s*```/', '', $content);
+        
         $jsonContent = json_decode($content, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -67,10 +82,108 @@ class CvService
         return $jsonContent;
     }
 
+    private function extractTextFromPdf(UploadedFile $cvPdf): string
+    {
+        $pdfPath = $cvPdf->getRealPath();
+
+        // Méthode 1: Spatie (pdftotext) - Le plus rapide
+        try {
+            $text = (new Pdf())
+                ->setPdf($pdfPath)
+                ->text();
+            
+            if (!empty(trim($text)) && strlen($text) > 100) {
+                Log::info('✅ Text extracted via Spatie/pdftotext');
+                return $text;
+            }
+        } catch (\Exception $e) {
+            Log::warning('Spatie extraction failed: ' . $e->getMessage());
+        }
+
+        // Méthode 2: Smalot (pure PHP parser)
+        try {
+            $parser = new Parser();
+            $pdf = $parser->parseFile($pdfPath);
+            $text = $pdf->getText();
+            
+            if (!empty(trim($text)) && strlen($text) > 100) {
+                Log::info('✅ Text extracted via Smalot');
+                return $text;
+            }
+        } catch (\Exception $e) {
+            Log::warning('Smalot extraction failed: ' . $e->getMessage());
+        }
+
+        // Méthode 3: OCR (plus lent)
+        Log::info('📸 PDF appears to be scanned. Attempting OCR...');
+        return $this->extractTextWithOCR($pdfPath);
+    }
+
+    /**
+     * Extract text from ALL pages using OCR
+     */
+    private function extractTextWithOCR(string $pdfPath): string
+    {
+        try {
+            $imagick = new \Imagick();
+            
+            // ⚡ Résolution optimisée pour vitesse/qualité
+            $imagick->setResolution(150, 150);
+            
+            // 🔥 CHANGEMENT : Lire TOUTES les pages (pas seulement [0])
+            $imagick->readImage($pdfPath);
+            
+            $pageCount = $imagick->getNumberImages();
+            Log::info("📄 Processing {$pageCount} page(s) with OCR...");
+            
+            $fullText = '';
+            $pageNumber = 1;
+            
+            // 🔥 Parcourir TOUTES les pages
+            foreach ($imagick as $image) {
+                Log::info("🔍 Processing page {$pageNumber}/{$pageCount}...");
+                
+                $image->setImageFormat('png');
+                $image->setImageCompressionQuality(75);
+                
+                // Sauvegarder temporairement
+                $tempImagePath = sys_get_temp_dir() . '/cv_page_' . $pageNumber . '_' . uniqid() . '.png';
+                $image->writeImage($tempImagePath);
+                
+                // OCR avec Tesseract
+                $pageText = (new TesseractOCR($tempImagePath))
+                    ->lang('eng', 'fra')
+                    ->psm(6) // Assume uniform block of text
+                    ->run();
+                
+                $fullText .= "\n\n--- Page {$pageNumber} ---\n\n" . $pageText;
+                
+                // Nettoyer
+                @unlink($tempImagePath);
+                
+                Log::info("✅ Page {$pageNumber} completed: " . strlen($pageText) . ' chars');
+                
+                $pageNumber++;
+            }
+            
+            $imagick->clear();
+            
+            Log::info("🎉 OCR completed for all {$pageCount} page(s). Total text length: " . strlen($fullText));
+            
+            return $fullText;
+            
+        } catch (\Exception $e) {
+            Log::error('OCR failed: ' . $e->getMessage());
+            return '';
+        }
+    }
+
     private function createGroqPrompt(string $cvText): string
     {
         return <<<PROMPT
 Analyze the following CV text and extract the information into a valid JSON object. Do not add any comments or introductory text. The output must be only the JSON.
+
+Note: This text may come from OCR and may contain multiple pages separated by "--- Page N ---" markers. Extract information from ALL pages and consolidate it into a single JSON object.
 
 The JSON structure should be as follows:
 
@@ -143,13 +256,6 @@ Remember, respond with ONLY the JSON object.
 PROMPT;
     }
 
-    /**
-     * Export a student profile to a PDF CV.
-     *
-     * @param string $idProfilEtudiant
-     * @param string|null $categoriCompetence
-     * @return string
-     */
     public function exportProfilEnCV(string $idProfilEtudiant, ?string $categoriCompetence = null): string
     {
         $profil = $this->profilEtudiantRepository->getProfilEtudiant($idProfilEtudiant);

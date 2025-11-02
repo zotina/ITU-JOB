@@ -18,7 +18,7 @@ class CvController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'cv' => 'required|file|mimes:pdf|max:2048',
+            'cv' => 'required|file|mimes:pdf|max:10240',
         ]);
 
         $profilData = $this->cvService->importCvEnProfil($request->file('cv'));
