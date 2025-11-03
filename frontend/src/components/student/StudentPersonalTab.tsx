@@ -63,7 +63,11 @@ const StudentPersonalTab = ({ showActions = true }: StudentPersonalTabProps) => 
   };
 
   const handleSave = () => {
-    saveEditing(); // Cette fonction doit sauvegarder ET sortir du mode édition
+    // Sauvegarder les modifications
+    if (saveEditing) {
+      saveEditing();
+    }
+    
     toast({
       title: "Profil sauvegardé",
       description: "Vos modifications ont été enregistrées avec succès.",
@@ -71,7 +75,11 @@ const StudentPersonalTab = ({ showActions = true }: StudentPersonalTabProps) => 
   };
 
   const handleCancel = () => {
-    cancelEditing(); // Cette fonction doit annuler ET sortir du mode édition
+    // Annuler les modifications
+    if (cancelEditing) {
+      cancelEditing();
+    }
+    
     toast({
       title: "Modifications annulées",
       description: "Les modifications n'ont pas été enregistrées.",
