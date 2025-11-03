@@ -16,9 +16,19 @@ export interface ProfileData {
     remoteWork: boolean;
     profileImage: string;
   };
-  skills: {
+  technicalSkills: {
     title: string;
     skills: { name: string; level: string }[];
+  }[];
+  languages: {
+    name: string;
+    level: string;
+  }[];
+  softSkills: string[];
+  projects: {
+    title: string;
+    description: string;
+    link?: string;
   }[];
   experiences: {
     title: string;
@@ -41,13 +51,13 @@ const initialProfileData: ProfileData = {
     location: "Paris, France",
     coordinates: [2.3522, 48.8566],
     linkedin: "linkedin.com/in/alexandre-martin",
-    github: "",
-    website: "",
+    github: "github.com/alexandre-martin",
+    website: "alexandre-martin.dev",
     availability: "Disponible immédiatement",
     remoteWork: true,
     profileImage: "/src/assets/profile-photo.jpg"
   },
-  skills: [
+  technicalSkills: [
     {
       title: "Développement Frontend",
       skills: [
@@ -67,26 +77,44 @@ const initialProfileData: ProfileData = {
         { name: "MongoDB", level: "Intermédiaire" },
         { name: "Docker", level: "Intermédiaire" }
       ]
-    },
-    {
-      title: "Langues",
-      skills: [
-        { name: "Français", level: "Natif" },
-        { name: "Anglais", level: "Courant" },
-        { name: "Espagnol", level: "Intermédiaire" }
-      ]
-    },
-    {
-      title: "Compétences Interpersonnelles",
-      skills: [
-        { name: "Leadership d'équipe", level: "Avancé" },
-        { name: "Communication", level: "Expert" },
-        { name: "Gestion de projet", level: "Avancé" },
-        { name: "Mentoring", level: "Intermédiaire" }
-      ]
     }
   ],
-  experiences: []
+  languages: [
+    { name: "Français", level: "Natif" },
+    { name: "Anglais", level: "Courant" },
+    { name: "Espagnol", level: "Intermédiaire" }
+  ],
+  softSkills: [
+    "Leadership d'équipe",
+    "Communication efficace",
+    "Gestion de projet",
+    "Travail d'équipe",
+    "Résolution de problèmes",
+    "Adaptabilité"
+  ],
+  projects: [
+    {
+      title: "Plateforme E-commerce",
+      description: "Application complète de commerce électronique avec React, Node.js et Stripe",
+      link: "github.com/alexandre/ecommerce"
+    },
+    {
+      title: "Dashboard Analytics",
+      description: "Tableau de bord d'analyse de données en temps réel avec D3.js",
+      link: "github.com/alexandre/dashboard"
+    }
+  ],
+  experiences: [
+    {
+      title: "Lead Developer",
+      company: "TechStart Solutions",
+      location: "Paris, France",
+      period: "2021 - Présent",
+      type: "CDI",
+      description: "Direction de l'équipe frontend et architecture des applications React",
+      technologies: ["React", "TypeScript", "Node.js", "PostgreSQL"]
+    }
+  ]
 };
 
 export const useProfileData = () => {

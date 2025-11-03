@@ -1,19 +1,51 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { mockOffers, mockCompanies } from '@/data/mockData';
+import { addApplication } from '@/data/applicationStore';
 import { useProfileData } from '@/hooks/useProfileData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import LeafletMap from '@/components/ui/leaflet-map';
-import { Building2, MapPin, Euro, Clock, ArrowLeft } from 'lucide-react';
+import { Building2, MapPin, Euro, Clock, ArrowLeft, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const OfferDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { profileData } = useProfileData();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
 
   // Find the offer and company based on the ID from the URL
   const offer = mockOffers.find(o => o.id === id);
   const company = mockCompanies.find(c => c.name === offer?.company);
+
+  const handleApply = () => {
+    if (!offer) return;
+    
+    setLoading(true);
+    setTimeout(() => {
+      addApplication({
+        company: offer.company,
+        position: offer.title,
+        location: offer.location,
+        salary: offer.salary,
+        type: offer.type,
+        offerId: offer.id
+      });
+      
+      setLoading(false);
+      toast({
+        title: "Succès",
+        description: "Candidature envoyée avec succès !",
+      });
+      
+      setTimeout(() => {
+        navigate('/student/applications');
+      }, 1000);
+    }, 1500);
+  };
 
   if (!offer || !company) {
     return (
@@ -82,8 +114,9 @@ const OfferDetailPage = () => {
                 </ul>
               </div>
 
-              <Button size="lg" className="w-full">
-                Postuler maintenant
+              <Button size="lg" className="w-full" onClick={handleApply} disabled={loading}>
+                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                {loading ? 'Envoi...' : 'Postuler maintenant'}
               </Button>
             </CardContent>
           </Card>

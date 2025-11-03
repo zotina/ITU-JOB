@@ -1,5 +1,8 @@
 import EditableProfileHeader from "@/components/EditableProfileHeader";
-import EditableSkillsSection from "@/components/EditableSkillsSection";
+import EditableTechnicalSkillsSection from "@/components/EditableTechnicalSkillsSection";
+import EditableLanguagesSection from "@/components/EditableLanguagesSection";
+import EditableSoftSkillsSection from "@/components/EditableSoftSkillsSection";
+import EditableProjectsSection from "@/components/EditableProjectsSection";
 import EditableExperienceSection from "@/components/EditableExperienceSection";
 import { useProfileData } from "@/hooks/useProfileData";
 import { Button } from "@/components/ui/button";
@@ -46,8 +49,23 @@ const StudentPersonalTab = ({ isEditing, startEditing, onSave, onCancel, showAct
         onUpdate={updateEditingData}
         startEditing={startEditing}
       />
-      <EditableSkillsSection 
-        data={profileData.skills}
+      <EditableTechnicalSkillsSection 
+        data={profileData.technicalSkills}
+        isEditing={isEditing}
+        onUpdate={updateEditingData}
+      />
+      <EditableLanguagesSection 
+        data={profileData.languages}
+        isEditing={isEditing}
+        onUpdate={updateEditingData}
+      />
+      <EditableSoftSkillsSection 
+        data={profileData.softSkills}
+        isEditing={isEditing}
+        onUpdate={updateEditingData}
+      />
+      <EditableProjectsSection 
+        data={profileData.projects}
         isEditing={isEditing}
         onUpdate={updateEditingData}
       />

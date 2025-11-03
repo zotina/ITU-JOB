@@ -4,11 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Code, Database, Globe, Users, Plus, Trash2 } from "lucide-react";
+import { Code, Database, Plus, Trash2 } from "lucide-react";
 import { ProfileData } from "@/hooks/useProfileData";
 
-interface EditableSkillsSectionProps {
-  data: ProfileData["skills"];
+interface EditableTechnicalSkillsSectionProps {
+  data: ProfileData["technicalSkills"];
   isEditing: boolean;
   onUpdate: (data: Partial<ProfileData>) => void;
 }
@@ -21,9 +21,6 @@ const predefinedCategories = [
   "Cybersécurité",
   "DevOps & Cloud",
   "Design UX/UI",
-  "Gestion de Projet",
-  "Langues",
-  "Compétences Interpersonnelles",
   "Outils & Technologies"
 ];
 
@@ -35,9 +32,6 @@ const skillIcons = {
   "Cybersécurité": Database,
   "DevOps & Cloud": Database,
   "Design UX/UI": Code,
-  "Gestion de Projet": Users,
-  "Langues": Globe,
-  "Compétences Interpersonnelles": Users,
   "Outils & Technologies": Code
 };
 
@@ -49,42 +43,37 @@ const skillColors = {
   "Cybersécurité": "text-red-500",
   "DevOps & Cloud": "text-blue-500",
   "Design UX/UI": "text-purple-500",
-  "Gestion de Projet": "text-green-500",
-  "Langues": "text-blue-500",
-  "Compétences Interpersonnelles": "text-purple-500",
   "Outils & Technologies": "text-gray-500"
 };
 
-const levelOptions = ["Débutant", "Intermédiaire", "Avancé", "Expert", "Natif", "Courant"];
+const levelOptions = ["Débutant", "Intermédiaire", "Avancé", "Expert"];
 
 const getLevelColor = (level: string) => {
   switch (level) {
     case "Expert": return "bg-accent text-accent-foreground";
     case "Avancé": return "bg-primary/10 text-primary";
     case "Intermédiaire": return "bg-muted text-muted-foreground";
-    case "Natif": return "bg-accent text-accent-foreground";
-    case "Courant": return "bg-primary/10 text-primary";
     default: return "bg-muted text-muted-foreground";
   }
 };
 
-const EditableSkillsSection = ({ data, isEditing, onUpdate }: EditableSkillsSectionProps) => {
+const EditableTechnicalSkillsSection = ({ data, isEditing, onUpdate }: EditableTechnicalSkillsSectionProps) => {
   const updateSkillCategory = (categoryIndex: number, updates: Partial<typeof data[0]>) => {
     const newSkills = [...data];
     newSkills[categoryIndex] = { ...newSkills[categoryIndex], ...updates };
-    onUpdate({ skills: newSkills });
+    onUpdate({ technicalSkills: newSkills });
   };
 
   const addSkill = (categoryIndex: number) => {
     const newSkills = [...data];
     newSkills[categoryIndex].skills.push({ name: "", level: "Intermédiaire" });
-    onUpdate({ skills: newSkills });
+    onUpdate({ technicalSkills: newSkills });
   };
 
   const removeSkill = (categoryIndex: number, skillIndex: number) => {
     const newSkills = [...data];
     newSkills[categoryIndex].skills.splice(skillIndex, 1);
-    onUpdate({ skills: newSkills });
+    onUpdate({ technicalSkills: newSkills });
   };
 
   const updateSkill = (categoryIndex: number, skillIndex: number, field: string, value: string) => {
@@ -93,22 +82,22 @@ const EditableSkillsSection = ({ data, isEditing, onUpdate }: EditableSkillsSect
       ...newSkills[categoryIndex].skills[skillIndex],
       [field]: value
     };
-    onUpdate({ skills: newSkills });
+    onUpdate({ technicalSkills: newSkills });
   };
 
   const addCategory = () => {
     const newSkills = [...data, { title: "", skills: [] }];
-    onUpdate({ skills: newSkills });
+    onUpdate({ technicalSkills: newSkills });
   };
 
   const removeCategory = (categoryIndex: number) => {
     const newSkills = data.filter((_, index) => index !== categoryIndex);
-    onUpdate({ skills: newSkills });
+    onUpdate({ technicalSkills: newSkills });
   };
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-foreground">Compétences</h2>
+      <h2 className="text-2xl font-bold text-foreground">Compétences Techniques</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {data.map((category, categoryIndex) => {
@@ -242,4 +231,4 @@ const EditableSkillsSection = ({ data, isEditing, onUpdate }: EditableSkillsSect
   );
 };
 
-export default EditableSkillsSection;
+export default EditableTechnicalSkillsSection;

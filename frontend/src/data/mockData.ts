@@ -233,3 +233,18 @@ export const mockAnalytics = {
     averageMatchingScore: 78
   }
 };
+
+// État global pour le profil étudiant avec position
+export let studentProfileData = {
+  personalInfo: {
+    location: "Paris, France",
+    coordinates: [2.3522, 48.8566] as [number, number],
+  }
+};
+
+export const updateStudentLocation = (location: string, coordinates: [number, number]) => {
+  studentProfileData.personalInfo.location = location;
+  studentProfileData.personalInfo.coordinates = coordinates;
+};
+
+export const getStudentLocation = () => studentProfileData.personalInfo;

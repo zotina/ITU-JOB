@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FileText, Search, Filter, Calendar, Building2, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
+import { getApplications, clearNewFlag } from '@/data/applicationStore';
 
 type ApplicationStatus = 'accepted' | 'rejected' | 'pending';
 
@@ -17,6 +18,7 @@ interface Application {
   status: ApplicationStatus;
   salary: string;
   type: string;
+  isNew?: boolean;
 }
 
 const mockApplications: Application[] = [
@@ -116,10 +118,25 @@ const StudentApplications = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [applications, setApplications] = useState<Application[]>([]);
   const itemsPerPage = 5;
 
+  useEffect(() => {
+    const apps = getApplications();
+    setApplications(apps);
+    
+    // Clear new flags after a delay
+    const newApps = apps.filter(app => app.isNew);
+    if (newApps.length > 0) {
+      setTimeout(() => {
+        newApps.forEach(app => clearNewFlag(app.id));
+        setApplications(getApplications());
+      }, 3000);
+    }
+  }, []);
+
   // Filtrage
-  const filteredApplications = mockApplications.filter(app => {
+  const filteredApplications = applications.filter(app => {
     const matchesSearch = app.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          app.position.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
@@ -139,10 +156,10 @@ const StudentApplications = () => {
 
   // Statistiques
   const stats = {
-    total: mockApplications.length,
-    accepted: mockApplications.filter(a => a.status === 'accepted').length,
-    rejected: mockApplications.filter(a => a.status === 'rejected').length,
-    pending: mockApplications.filter(a => a.status === 'pending').length,
+    total: applications.length,
+    accepted: applications.filter(a => a.status === 'accepted').length,
+    rejected: applications.filter(a => a.status === 'rejected').length,
+    pending: applications.filter(a => a.status === 'pending').length,
   };
 
   return (
@@ -233,12 +250,18 @@ const StudentApplications = () => {
           </Card>
         ) : (
           paginatedApplications.map((app) => (
-            <Card key={app.id} className="hover:shadow-lg transition-shadow">
+            <Card 
+              key={app.id} 
+              className={`hover:shadow-lg transition-all ${app.isNew ? 'ring-2 ring-primary animate-pulse' : ''}`}
+            >
               <CardContent className="pt-6">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex-1 space-y-2">
                     <div className="flex items-start justify-between gap-4">
                       <div>
+                        {app.isNew && (
+                          <Badge className="mb-2 bg-primary">Nouvelle candidature</Badge>
+                        )}
                         <h3 className="text-xl font-semibold">{app.position}</h3>
                         <div className="flex items-center gap-2 text-muted-foreground mt-1">
                           <Building2 className="w-4 h-4" />
@@ -263,12 +286,6 @@ const StudentApplications = () => {
                       <Badge variant="outline">{app.type}</Badge>
                       <Badge variant="outline">{app.salary}</Badge>
                     </div>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
-                      Voir détails
-                    </Button>
                   </div>
                 </div>
               </CardContent>

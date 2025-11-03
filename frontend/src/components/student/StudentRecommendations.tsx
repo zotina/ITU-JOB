@@ -2,8 +2,32 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Sparkles, TrendingUp, Target, Lightbulb, Star, ArrowRight, Briefcase } from 'lucide-react';
+import { addApplication } from '@/data/applicationStore';
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const StudentRecommendations = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState<number | null>(null);
+
+  const handleApply = (job: typeof jobRecommendations[0], index: number) => {
+    setLoading(index);
+    setTimeout(() => {
+      addApplication({
+        company: job.company,
+        position: job.title,
+        location: job.location,
+        salary: job.salary,
+        type: 'CDI',
+      });
+      setLoading(null);
+      toast({ title: "Succès", description: "Candidature envoyée !" });
+      setTimeout(() => navigate('/student/applications'), 1000);
+    }, 1500);
+  };
   const profileImprovements = [
     {
       title: 'Ajoutez des compétences en demande',
@@ -166,9 +190,9 @@ const StudentRecommendations = () => {
 
                 <div className="flex items-center justify-between pt-2">
                   <span className="text-sm font-medium text-primary">{job.salary}</span>
-                  <Button size="sm" className="gap-2">
-                    Voir l'offre
-                    <ArrowRight className="w-4 h-4" />
+                  <Button size="sm" className="gap-2" onClick={() => handleApply(job, index)} disabled={loading === index}>
+                    {loading === index ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                    {loading === index ? 'Envoi...' : 'Postuler'}
                   </Button>
                 </div>
               </div>

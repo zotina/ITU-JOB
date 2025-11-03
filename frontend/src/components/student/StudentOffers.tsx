@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Building2, MapPin, Euro, Clock, Star, Filter, Loader2 } from 'lucide-react';
 import { mockOffers } from '@/data/mockData';
+import { addApplication } from '@/data/applicationStore';
 import { SearchInput } from '@/components/ui/search-input';
 import { 
   Pagination,
@@ -15,18 +16,19 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 
 const StudentOffers = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [locationFilter, setLocationFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [techFilter, setTechFilter] = useState('all');
   const [sortBy, setSortBy] = useState('match');
   const [currentPage, setCurrentPage] = useState(1);
-  const [loading, setLoading] = useState<number | null>(null);
+  const [loading, setLoading] = useState<string | null>(null);
   const itemsPerPage = 6;
 
   const recommendedOffers = useMemo(() => {
@@ -71,15 +73,29 @@ const StudentOffers = () => {
   const uniqueTypes = [...new Set(mockOffers.map(offer => offer.type))];
   const uniqueTechs = [...new Set(mockOffers.flatMap(offer => offer.technologies))].slice(0, 10);
 
-  const handleApply = (offerId: number) => {
+  const handleApply = (offerId: string, offerTitle: string, company: string, location: string, salary: string, type: string) => {
     setLoading(offerId);
     setTimeout(() => {
+      addApplication({
+        company,
+        position: offerTitle,
+        location,
+        salary,
+        type,
+        offerId
+      });
+      
       setLoading(null);
       toast({
         title: "Succès",
         description: "Candidature envoyée avec succès !",
         variant: "default",
-      })
+      });
+      
+      // Redirect to applications page after a short delay
+      setTimeout(() => {
+        navigate('/student/applications');
+      }, 1000);
     }, 1500);
   };
 
@@ -125,7 +141,11 @@ const StudentOffers = () => {
 
       <div className="p-6 pt-0">
         <div className="flex gap-2 pt-2">
-          <Button className="flex-1" onClick={() => handleApply(offer.id)} disabled={loading === offer.id}>
+          <Button 
+            className="flex-1" 
+            onClick={() => handleApply(offer.id, offer.title, offer.company, offer.location, offer.salary, offer.type)} 
+            disabled={loading === offer.id}
+          >
             {loading === offer.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
             {loading === offer.id ? 'Envoi...' : 'Postuler'}
           </Button>
@@ -141,17 +161,6 @@ const StudentOffers = () => {
 
   return (
     <div className="p-6 space-y-8">
-      {/* Offres recommandées */}
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2 mb-4">
-          <Star className="w-6 h-6 text-primary" />
-          Offres recommandées pour vous
-        </h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {recommendedOffers.map(offer => renderOfferCard(offer, true))}
-        </div>
-      </div>
-
       {/* Toutes les offres */}
       <div>
         <h2 className="text-2xl font-bold tracking-tight mb-4">Toutes les offres</h2>

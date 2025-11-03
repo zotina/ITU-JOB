@@ -13,9 +13,12 @@ interface ProfileProgressBadgeProps {
 const calculateCompletion = (profileData: ProfileData): number => {
   let score = 0;
   const weights = {
-    personalInfo: 50,
-    skills: 25,
-    experiences: 25,
+    personalInfo: 40,
+    technicalSkills: 15,
+    languages: 10,
+    softSkills: 10,
+    projects: 10,
+    experiences: 15,
   };
 
   const personalInfoFields = [
@@ -30,8 +33,20 @@ const calculateCompletion = (profileData: ProfileData): number => {
   });
   score += (personalInfoScore / personalInfoFields.length) * weights.personalInfo;
 
-  if (profileData.skills && profileData.skills.length > 0 && profileData.skills.some(s => s.skills.length > 0)) {
-    score += weights.skills;
+  if (profileData.technicalSkills && profileData.technicalSkills.length > 0 && profileData.technicalSkills.some(s => s.skills.length > 0)) {
+    score += weights.technicalSkills;
+  }
+
+  if (profileData.languages && profileData.languages.length > 0) {
+    score += weights.languages;
+  }
+
+  if (profileData.softSkills && profileData.softSkills.length > 0) {
+    score += weights.softSkills;
+  }
+
+  if (profileData.projects && profileData.projects.length > 0) {
+    score += weights.projects;
   }
 
   if (profileData.experiences && profileData.experiences.length > 0) {
@@ -57,31 +72,55 @@ const CompletionDetails = ({ profileData, startEditing }: { profileData: Profile
     (Object.values(profileData.personalInfo).filter(value => !!value).length / personalInfoFields.length) * 100
   );
 
-  const skillsCompletion = (profileData.skills && profileData.skills.length > 0 && profileData.skills.some(s => s.skills.length > 0)) ? 100 : 0;
+  const technicalSkillsCompletion = (profileData.technicalSkills && profileData.technicalSkills.length > 0 && profileData.technicalSkills.some(s => s.skills.length > 0)) ? 100 : 0;
+  const languagesCompletion = (profileData.languages && profileData.languages.length > 0) ? 100 : 0;
+  const softSkillsCompletion = (profileData.softSkills && profileData.softSkills.length > 0) ? 100 : 0;
+  const projectsCompletion = (profileData.projects && profileData.projects.length > 0) ? 100 : 0;
   const experiencesCompletion = (profileData.experiences && profileData.experiences.length > 0) ? 100 : 0;
 
   return (
     <div className="p-4 bg-card text-foreground rounded-lg shadow-xl border w-80">
       <h3 className="font-bold text-lg mb-4">Détails de la progression</h3>
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div>
           <div className="flex justify-between items-center mb-1">
-            <h4 className="font-semibold text-md">Informations personnelles</h4>
-            <span className="text-sm font-bold text-primary">{personalInfoCompletion}%</span>
+            <h4 className="font-semibold text-sm">Informations personnelles</h4>
+            <span className="text-xs font-bold text-primary">{personalInfoCompletion}%</span>
           </div>
           <Progress value={personalInfoCompletion} />
         </div>
         <div>
           <div className="flex justify-between items-center mb-1">
-            <h4 className="font-semibold text-md">Compétences</h4>
-            <span className="text-sm font-bold text-primary">{skillsCompletion}%</span>
+            <h4 className="font-semibold text-sm">Compétences techniques</h4>
+            <span className="text-xs font-bold text-primary">{technicalSkillsCompletion}%</span>
           </div>
-          <Progress value={skillsCompletion} />
+          <Progress value={technicalSkillsCompletion} />
         </div>
         <div>
           <div className="flex justify-between items-center mb-1">
-            <h4 className="font-semibold text-md">Expériences</h4>
-            <span className="text-sm font-bold text-primary">{experiencesCompletion}%</span>
+            <h4 className="font-semibold text-sm">Langues</h4>
+            <span className="text-xs font-bold text-primary">{languagesCompletion}%</span>
+          </div>
+          <Progress value={languagesCompletion} />
+        </div>
+        <div>
+          <div className="flex justify-between items-center mb-1">
+            <h4 className="font-semibold text-sm">Soft Skills</h4>
+            <span className="text-xs font-bold text-primary">{softSkillsCompletion}%</span>
+          </div>
+          <Progress value={softSkillsCompletion} />
+        </div>
+        <div>
+          <div className="flex justify-between items-center mb-1">
+            <h4 className="font-semibold text-sm">Projets</h4>
+            <span className="text-xs font-bold text-primary">{projectsCompletion}%</span>
+          </div>
+          <Progress value={projectsCompletion} />
+        </div>
+        <div>
+          <div className="flex justify-between items-center mb-1">
+            <h4 className="font-semibold text-sm">Expériences</h4>
+            <span className="text-xs font-bold text-primary">{experiencesCompletion}%</span>
           </div>
           <Progress value={experiencesCompletion} />
         </div>

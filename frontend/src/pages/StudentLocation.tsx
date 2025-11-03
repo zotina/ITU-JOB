@@ -168,12 +168,11 @@ const StudentLocation = () => {
         <Card className="p-4">
           <div className="text-center">
             <p className="text-2xl font-bold text-primary">
-              {profileData.personalInfo.coordinates 
-                ? mockCompanies.filter(c => c.coordinates).length 
-                : '-'
-              }
+              {filteredCompanies.length}
             </p>
-            <p className="text-sm text-muted-foreground">Entreprises localisées</p>
+            <p className="text-sm text-muted-foreground">
+              Entreprises localisées {profileData.personalInfo.coordinates && `(rayon ${radius} km)`}
+            </p>
           </div>
         </Card>
       </div>
