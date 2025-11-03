@@ -24,7 +24,7 @@ const StudentPersonalTab = ({ showActions = true }: StudentPersonalTabProps) => 
     updateEditingData, 
     startEditing, 
     startEditingWithData,
-    saveEditing,
+    saveChanges,
     cancelEditing 
   } = useProfileData();
   
@@ -64,8 +64,8 @@ const StudentPersonalTab = ({ showActions = true }: StudentPersonalTabProps) => 
 
   const handleSave = () => {
     // Sauvegarder les modifications
-    if (saveEditing) {
-      saveEditing();
+    if (saveChanges) {
+      saveChanges();
     }
     
     toast({
@@ -167,11 +167,11 @@ const StudentPersonalTab = ({ showActions = true }: StudentPersonalTabProps) => 
             </>
           ) : (
             <>
-              <Button onClick={handleSave} className="gap-2">
+              <Button onClick={handleSave} className="gap-2" type="button">
                 <Save className="w-4 h-4" />
                 Sauvegarder
               </Button>
-              <Button onClick={handleCancel} variant="outline" className="gap-2">
+              <Button onClick={handleCancel} variant="outline" className="gap-2" type="button">
                 <X className="w-4 h-4" />
                 Annuler
               </Button>
