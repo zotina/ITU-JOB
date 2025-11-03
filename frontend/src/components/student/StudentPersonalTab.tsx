@@ -181,12 +181,25 @@ const StudentPersonalTab = ({ showActions = true, isRecruiterView = false }: Stu
         </div>
       )}
       
-      <EditableProfileHeader
-        profileData={profileData}
-        isEditing={isEditing}
-        onUpdate={updateEditingData}
-        startEditing={startEditing}
-      />
+      {!isRecruiterView && (
+        <EditableProfileHeader
+          profileData={profileData}
+          isEditing={isEditing}
+          onUpdate={updateEditingData}
+          startEditing={startEditing}
+        />
+      )}
+      {isRecruiterView && (
+        <div className="mb-6">
+          <EditableProfileHeader
+            profileData={profileData}
+            isEditing={isEditing}
+            onUpdate={updateEditingData}
+            startEditing={startEditing}
+            hideHeader={true}
+          />
+        </div>
+      )}
       <EditableTechnicalSkillsSection 
         data={profileData.technicalSkills}
         isEditing={isEditing}

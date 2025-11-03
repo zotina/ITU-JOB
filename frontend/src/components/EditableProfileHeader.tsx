@@ -15,9 +15,10 @@ interface EditableProfileHeaderProps {
   isEditing: boolean;
   onUpdate: (data: Partial<ProfileData>) => void;
   startEditing: () => void;
+  hideHeader?: boolean;
 }
 
-const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing }: EditableProfileHeaderProps) => {
+const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing, hideHeader = false }: EditableProfileHeaderProps) => {
   const { personalInfo } = profileData;
 
   const updatePersonalInfo = (field: string, value: string | boolean | [number, number]) => {
@@ -174,9 +175,11 @@ const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing 
 
   return (
     <Card className="relative p-8 bg-gradient-to-br from-card to-muted/20 border-0 shadow-elegant">
-      <div className="absolute top-4 right-4">
-        <ProfileProgressBadge profileData={profileData} startEditing={startEditing} />
-      </div>
+      {!hideHeader && (
+        <div className="absolute top-4 right-4">
+          <ProfileProgressBadge profileData={profileData} startEditing={startEditing} />
+        </div>
+      )}
       <div className="flex flex-col md:flex-row gap-8 items-start">
         <div className="relative">
           <img
@@ -189,8 +192,12 @@ const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing 
         
         <div className="flex-1 space-y-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">{personalInfo.name}</h1>
-            <p className="text-xl text-muted-foreground mb-3">{personalInfo.title}</p>
+            {!hideHeader && (
+              <>
+                <h1 className="text-3xl font-bold text-foreground mb-2">{personalInfo.name}</h1>
+                <p className="text-xl text-muted-foreground mb-3">{personalInfo.title}</p>
+              </>
+            )}
             <p className="text-muted-foreground max-w-2xl leading-relaxed">
               {personalInfo.description}
             </p>

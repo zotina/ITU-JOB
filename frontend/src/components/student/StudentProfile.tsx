@@ -41,11 +41,15 @@ const StudentProfile = ({ isRecruiterView = false }: { isRecruiterView?: boolean
       <div className="max-w-7xl mx-auto space-y-8">
         <Tabs defaultValue="personal" className="w-full">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-2 max-w-4xl mx-auto">
-            <TabsTrigger value="personal" className="gap-2">
-              <User className="w-4 h-4" />
-              <span className="hidden md:inline">Fiche Personnel</span>
-              <span className="md:hidden">Profil</span>
-            </TabsTrigger>
+              {!isRecruiterView && (
+                <TabsTrigger value="personal" className="gap-2">
+                  <User className="w-4 h-4" />
+                    <>
+                      <span className="hidden md:inline">Fiche Personnel</span>
+                      <span className="md:hidden">Profil</span>
+                    </>
+                </TabsTrigger>
+              )}
             {!isRecruiterView && (
               <TabsTrigger value="recommendations" className="gap-2">
                 <Sparkles className="w-4 h-4" />
