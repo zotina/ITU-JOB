@@ -12,22 +12,26 @@ import { Edit3, Save, X, Loader2, FileText, Upload } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { preRempliCV } from "@/data/mockData";
-import { useNavigate } from "react-router-dom";
 
 interface StudentPersonalTabProps {
-  startEditing: () => void;
-  onSave: () => void;
-  onCancel: () => void;
   showActions?: boolean;
 }
 
-const StudentPersonalTab = ({ startEditing, onSave, onCancel, showActions = true }: StudentPersonalTabProps) => {
-  const { profileData, isEditing, updateEditingData, startEditingWithData } = useProfileData();
+const StudentPersonalTab = ({ showActions = true }: StudentPersonalTabProps) => {
+  const { 
+    profileData, 
+    isEditing, 
+    updateEditingData, 
+    startEditing, 
+    startEditingWithData,
+    saveEditing,
+    cancelEditing 
+  } = useProfileData();
+  
   const [isImporting, setIsImporting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -36,9 +40,9 @@ const StudentPersonalTab = ({ startEditing, onSave, onCancel, showActions = true
   };
 
   const handleImportCV = async () => {
-    // Commencer la simulation de 7 secondes
     setIsImporting(true);
-    setIsDialogOpen(false); // Fermer le dialogue
+    setIsDialogOpen(false);
+    
     toast({
       title: "Import du CV en cours...",
       description: "Veuillez patienter, nous analysons votre document.",
@@ -50,11 +54,28 @@ const StudentPersonalTab = ({ startEditing, onSave, onCancel, showActions = true
     // Passer en mode édition avec les données pré-remplies
     startEditingWithData(preRempliCV);
     setIsImporting(false);
+    setSelectedFile(null);
+    
     toast({
       title: "CV importé avec succès !",
-      description: "Votre profil a été pré-rempli. Veuillez vérifier les informations.",
+      description: "Votre profil a été pré-rempli. Veuillez vérifier et sauvegarder les informations.",
     });
-    // Ne pas rediriger, rester sur la page actuelle en mode édition
+  };
+
+  const handleSave = () => {
+    saveEditing(); // Cette fonction doit sauvegarder ET sortir du mode édition
+    toast({
+      title: "Profil sauvegardé",
+      description: "Vos modifications ont été enregistrées avec succès.",
+    });
+  };
+
+  const handleCancel = () => {
+    cancelEditing(); // Cette fonction doit annuler ET sortir du mode édition
+    toast({
+      title: "Modifications annulées",
+      description: "Les modifications n'ont pas été enregistrées.",
+    });
   };
 
   return (
@@ -107,7 +128,10 @@ const StudentPersonalTab = ({ startEditing, onSave, onCancel, showActions = true
                     <Button 
                       type="button" 
                       variant="outline" 
-                      onClick={() => setIsDialogOpen(false)}
+                      onClick={() => {
+                        setIsDialogOpen(false);
+                        setSelectedFile(null);
+                      }}
                     >
                       Annuler
                     </Button>
@@ -135,11 +159,11 @@ const StudentPersonalTab = ({ startEditing, onSave, onCancel, showActions = true
             </>
           ) : (
             <>
-              <Button onClick={onSave} className="gap-2">
+              <Button onClick={handleSave} className="gap-2">
                 <Save className="w-4 h-4" />
                 Sauvegarder
               </Button>
-              <Button onClick={onCancel} variant="outline" className="gap-2">
+              <Button onClick={handleCancel} variant="outline" className="gap-2">
                 <X className="w-4 h-4" />
                 Annuler
               </Button>
