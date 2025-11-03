@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MapPin, Briefcase, Star, Mail, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { mockUsers } from '@/data/mockData';
+import { getStudentProfile } from '@/data/mockData';
+import { ProfileData } from '@/hooks/useProfileData';
 
 const RecruiterStudentSearch = () => {
   const navigate = useNavigate();
@@ -14,39 +17,88 @@ const RecruiterStudentSearch = () => {
   const [skillFilter, setSkillFilter] = useState('all');
   const [availabilityFilter, setAvailabilityFilter] = useState('all');
   const [levelFilter, setLevelFilter] = useState('all');
+  const [locationFilter, setLocationFilter] = useState('all');
 
-  const mockStudents = [
-    {
-      id: 1,
-      name: 'Marie Dubois',
-      level: 'Licence 3',
-      skills: ['React', 'TypeScript', 'Node.js'],
-      availability: 'Disponible immédiatement',
-      location: 'Paris',
-      matchScore: 95,
-      avatar: '',
-    },
-    {
-      id: 2,
-      name: 'Thomas Martin',
-      level: 'Master 1',
-      skills: ['Python', 'Django', 'PostgreSQL'],
-      availability: 'Disponible en juin',
-      location: 'Lyon',
-      matchScore: 88,
-      avatar: '',
-    },
-    {
-      id: 3,
-      name: 'Sophie Bernard',
-      level: 'Master 2',
-      skills: ['Angular', 'Java', 'Spring Boot'],
-      availability: 'Disponible immédiatement',
-      location: 'Marseille',
-      matchScore: 92,
-      avatar: '',
-    },
-  ];
+  // Obtenir les données des étudiants depuis les profils complets
+  const allStudents = useMemo(() => {
+    // Pour chaque utilisateur étudiant, récupérer les informations pertinentes
+    const studentUsers = mockUsers.filter(user => user.type === 'student');
+    
+    return studentUsers.map(user => {
+      // Récupérer le profil complet de l'étudiant
+      const fullProfile = getStudentProfile();
+
+      // Extraire les compétences techniques
+      const allSkills = fullProfile.technicalSkills.flatMap(category => 
+        category.skills.map(skill => skill.name)
+      );
+
+      // Extraire les langues
+      const languages = fullProfile.languages.map(lang => lang.name);
+
+      // Extraire les projets
+      const projects = fullProfile.projects.map(project => project.title);
+
+      // Extraire les expériences
+      const experiences = fullProfile.experiences.map(exp => exp.title);
+
+      // Extraire les formations (pour le niveau d'études)
+      const formations = fullProfile.formations;
+
+      return {
+        id: user.id,
+        name: fullProfile.personalInfo.name,
+        email: user.email,
+        title: fullProfile.personalInfo.title,
+        level: formations.length > 0 ? formations[0].degree : 'N/A',
+        skills: allSkills,
+        availability: fullProfile.personalInfo.availability,
+        location: fullProfile.personalInfo.location,
+        matchScore: Math.floor(Math.random() * 40) + 60, // Score aléatoire entre 60 et 100 pour la démo
+        avatar: fullProfile.personalInfo.profileImage,
+        description: fullProfile.personalInfo.description,
+        languages: languages,
+        projects: projects,
+        experiences: experiences,
+        formations: formations,
+      };
+    });
+  }, []);
+
+  // Filtrer les étudiants
+  const filteredStudents = useMemo(() => {
+    return allStudents.filter(student => {
+      // Recherche textuelle
+      const matchesSearch = searchTerm === '' ||
+        student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        student.experiences.some(exp => exp.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        student.projects.some(project => project.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        student.formations.some(formation => formation.degree.toLowerCase().includes(searchTerm.toLowerCase()));
+
+      // Filtre par compétence
+      const matchesSkill = skillFilter === 'all' ||
+        student.skills.some(skill => skill.toLowerCase().includes(skillFilter.toLowerCase()));
+
+      // Filtre par disponibilité
+      const matchesAvailability = availabilityFilter === 'all' ||
+        student.availability.toLowerCase().includes(availabilityFilter.toLowerCase());
+
+      // Filtre par niveau d'études
+      const matchesLevel = levelFilter === 'all' ||
+        student.level.toLowerCase().includes(levelFilter.toLowerCase()) ||
+        (levelFilter === 'licence' && student.level.toLowerCase().includes('licence')) ||
+        (levelFilter === 'master' && student.level.toLowerCase().includes('master')) ||
+        (levelFilter === 'doctorat' && student.level.toLowerCase().includes('doctorat'));
+
+      // Filtre par localisation
+      const matchesLocation = locationFilter === 'all' ||
+        student.location.toLowerCase().includes(locationFilter.toLowerCase());
+
+      return matchesSearch && matchesSkill && matchesAvailability && matchesLevel && matchesLocation;
+    });
+  }, [allStudents, searchTerm, skillFilter, availabilityFilter, levelFilter, locationFilter]);
 
   return (
     <div className="space-y-6">
@@ -61,16 +113,16 @@ const RecruiterStudentSearch = () => {
             onChange={setSearchTerm}
           />
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Select value={skillFilter} onValueChange={setSkillFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="Compétences" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Toutes les compétences</SelectItem>
-                <SelectItem value="react">React</SelectItem>
-                <SelectItem value="python">Python</SelectItem>
-                <SelectItem value="java">Java</SelectItem>
+                {Array.from(new Set(allStudents.flatMap(s => s.skills))).slice(0, 10).map(skill => (
+                  <SelectItem key={skill} value={skill.toLowerCase()}>{skill}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
@@ -80,7 +132,7 @@ const RecruiterStudentSearch = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Toutes les disponibilités</SelectItem>
-                <SelectItem value="immediate">Immédiat</SelectItem>
+                <SelectItem value="disponible">Disponible immédiatement</SelectItem>
                 <SelectItem value="1month">Dans 1 mois</SelectItem>
                 <SelectItem value="3months">Dans 3 mois</SelectItem>
               </SelectContent>
@@ -97,12 +149,24 @@ const RecruiterStudentSearch = () => {
                 <SelectItem value="doctorat">Doctorat</SelectItem>
               </SelectContent>
             </Select>
+
+            <Select value={locationFilter} onValueChange={setLocationFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Localisation" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toutes les localisations</SelectItem>
+                {Array.from(new Set(allStudents.map(s => s.location))).map(location => (
+                  <SelectItem key={location} value={location.toLowerCase()}>{location}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
 
       <div className="grid grid-cols-1 gap-4">
-        {mockStudents.map((student) => (
+        {filteredStudents.map((student) => (
           <Card key={student.id} className="hover:shadow-elegant transition-all duration-300">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
@@ -124,11 +188,14 @@ const RecruiterStudentSearch = () => {
                   </div>
                   
                   <div className="flex flex-wrap gap-2">
-                    {student.skills.map((skill) => (
+                    {student.skills.slice(0, 5).map((skill) => (
                       <Badge key={skill} variant="secondary">
                         {skill}
                       </Badge>
                     ))}
+                    {student.skills.length > 5 && (
+                      <Badge variant="secondary">+{student.skills.length - 5}</Badge>
+                    )}
                   </div>
                   
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -150,6 +217,13 @@ const RecruiterStudentSearch = () => {
                     >
                       <User className="w-4 h-4 mr-2" />
                       Voir profil
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                    >
+                      <Mail className="w-4 h-4 mr-2" />
+                      Contacter
                     </Button>
                   </div>
                 </div>
