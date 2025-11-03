@@ -5,6 +5,7 @@ import StudentChatbot from '@/components/student/StudentChatbot';
 import StudentLocationPage from '@/pages/StudentLocation';
 import StudentProfile from '@/components/student/StudentProfile';
 import OfferDetailPage from '@/pages/OfferDetailPage';
+import CompanyProfile from '@/pages/CompanyProfile';
 
 const StudentDashboard = () => {
   return (
@@ -16,6 +17,7 @@ const StudentDashboard = () => {
       <Route path="/chatbot" element={<StudentChatbot />} />
       <Route path="/location" element={<StudentLocationPage />} />
       <Route path="/profile" element={<StudentProfile />} />
+      <Route path="/company/:id" element={<CompanyProfile />} />
     </Routes>
   );
 };

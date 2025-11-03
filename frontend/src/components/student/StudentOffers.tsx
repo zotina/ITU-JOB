@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Building2, MapPin, Euro, Clock, Star, Filter, Loader2 } from 'lucide-react';
-import { mockOffers } from '@/data/mockData';
+import { mockOffers, mockCompanies } from '@/data/mockData';
 import { addApplication } from '@/data/applicationStore';
 import { SearchInput } from '@/components/ui/search-input';
 import { 
@@ -109,12 +109,22 @@ const StudentOffers = () => {
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center cursor-pointer" onClick={() => {
+              const company = mockCompanies.find(c => c.name === offer.company);
+              if (company) {
+                navigate(`/student/company/${company.id}`);
+              }
+            }}>
               <Building2 className="w-6 h-6 text-primary" />
             </div>
             <div>
               <CardTitle className="text-lg">{offer.title}</CardTitle>
-              <p className="text-muted-foreground font-medium">{offer.company}</p>
+              <p className="text-muted-foreground font-medium cursor-pointer hover:text-primary hover:underline" onClick={() => {
+                const company = mockCompanies.find(c => c.name === offer.company);
+                if (company) {
+                  navigate(`/student/company/${company.id}`);
+                }
+              }}>{offer.company}</p>
             </div>
           </div>
           {isRecommended && (

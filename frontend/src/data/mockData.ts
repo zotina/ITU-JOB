@@ -176,44 +176,103 @@ export const mockPendingOffers = [
   }
 ];
 
+// Interface pour les entreprises
+export interface Company {
+  id: string;
+  name: string;
+  description: string;
+  logo?: string;
+  address: {
+    city: string;
+    country: string;
+  };
+  website?: string;
+  contact?: string;
+  coordinates: [number, number];
+  offers: number;
+}
+
 // Données d'entreprises pour la carte
-export const mockCompanies = [
+export const mockCompanies: Company[] = [
   {
     id: '1',
     name: 'TechStart Solutions',
-    location: 'Paris, France',
+    description: 'TechStart Solutions est une entreprise innovante spécialisée dans le développement d\'applications web et mobiles. Nous utilisons les dernières technologies pour créer des solutions sur mesure pour nos clients du monde entier.',
+    logo: '/src/assets/company-logos/techstart.png',
+    address: {
+      city: 'Paris',
+      country: 'France'
+    },
+    website: 'https://www.techstartsolutions.com',
+    contact: 'contact@techstartsolutions.com',
     coordinates: [2.3522, 48.8566] as [number, number],
     offers: 3
   },
   {
     id: '2',
     name: 'InnovateCorp',
-    location: 'Lyon, France',
+    description: 'InnovateCorp est un leader dans le développement de solutions logicielles pour les entreprises. Nous aidons nos clients à transformer leurs idées en produits numériques performants.',
+    logo: '/src/assets/company-logos/innovatecorp.png',
+    address: {
+      city: 'Lyon',
+      country: 'France'
+    },
+    website: 'https://www.innovatecorp.com',
+    contact: 'info@innovatecorp.com',
     coordinates: [4.8357, 45.7640] as [number, number],
     offers: 2
   },
   {
     id: '3',
     name: 'DataIntel Labs',
-    location: 'Marseille, France',
+    description: 'DataIntel Labs est un laboratoire de recherche et développement spécialisé dans l\'intelligence artificielle et l\'analyse de données. Nous transformons les données en insights stratégiques.',
+    logo: '/src/assets/company-logos/dataintellabs.png',
+    address: {
+      city: 'Marseille',
+      country: 'France'
+    },
+    website: 'https://www.dataintellabs.com',
+    contact: 'hello@dataintellabs.com',
     coordinates: [5.3698, 43.2965] as [number, number],
     offers: 1
   },
   {
     id: '4',
     name: 'MobileFirst Agency',
-    location: 'Bordeaux, France',
+    description: 'MobileFirst Agency conçoit et développe des applications mobiles natives et hybrides de haute qualité pour les marchés iOS et Android. Nous mettons l\'utilisateur au cœur de notre processus de conception.',
+    logo: '/src/assets/company-logos/mobilefirst.png',
+    address: {
+      city: 'Bordeaux',
+      country: 'France'
+    },
+    website: 'https://www.mobilefirstagency.com',
+    contact: 'contact@mobilefirstagency.com',
     coordinates: [-0.5792, 44.8378] as [number, number],
     offers: 2
   },
   {
     id: '5',
     name: 'DevCorp Solutions',
-    location: 'Toulouse, France',
+    description: 'DevCorp Solutions propose des services de développement logiciel complet, de l\'analyse des besoins à la maintenance. Notre équipe d\'experts accompagne les entreprises dans leur transformation digitale.',
+    logo: '/src/assets/company-logos/devcorpsolutions.png',
+    address: {
+      city: 'Toulouse',
+      country: 'France'
+    },
+    website: 'https://www.devcorp-solutions.com',
+    contact: 'contact@devcorp-solutions.com',
     coordinates: [1.4442, 43.6047] as [number, number],
     offers: 1
   }
 ];
+
+// Fonction pour mettre à jour les données de l'entreprise
+export const updateCompany = (companyId: string, updatedData: Partial<Company>) => {
+  const companyIndex = mockCompanies.findIndex(company => company.id === companyId);
+  if (companyIndex !== -1) {
+    mockCompanies[companyIndex] = { ...mockCompanies[companyIndex], ...updatedData };
+  }
+};
 
 // Données de notifications
 export interface Notification {
