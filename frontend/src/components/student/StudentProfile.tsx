@@ -4,8 +4,9 @@ import StudentRecommendations from "@/components/student/StudentRecommendations"
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { User, Sparkles } from "lucide-react";
+import { useLocation } from 'react-router-dom';
 
-const StudentProfile = () => {
+const StudentProfile = ({ isRecruiterView = false }: { isRecruiterView?: boolean }) => {
   const { 
     profileData, 
     isEditing, 
@@ -16,6 +17,7 @@ const StudentProfile = () => {
   } = useProfileData();
   
   const { toast } = useToast();
+  const location = useLocation();
 
   const handleSave = () => {
     saveChanges();
@@ -44,11 +46,13 @@ const StudentProfile = () => {
               <span className="hidden md:inline">Fiche Personnel</span>
               <span className="md:hidden">Profil</span>
             </TabsTrigger>
-            <TabsTrigger value="recommendations" className="gap-2">
-              <Sparkles className="w-4 h-4" />
-              <span className="hidden md:inline">Recommandations</span>
-              <span className="md:hidden">IA</span>
-            </TabsTrigger>
+            {!isRecruiterView && (
+              <TabsTrigger value="recommendations" className="gap-2">
+                <Sparkles className="w-4 h-4" />
+                <span className="hidden md:inline">Recommandations</span>
+                <span className="md:hidden">IA</span>
+              </TabsTrigger>
+            )}
           </TabsList>
           
           <TabsContent value="personal" className="mt-6">
@@ -57,12 +61,15 @@ const StudentProfile = () => {
               startEditing={startEditing}
               onSave={handleSave}
               onCancel={handleCancel}
+              isRecruiterView={isRecruiterView}
             />
           </TabsContent>
 
-          <TabsContent value="recommendations" className="mt-6">
-            <StudentRecommendations />
-          </TabsContent>
+          {!isRecruiterView && (
+            <TabsContent value="recommendations" className="mt-6">
+              <StudentRecommendations />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </div>

@@ -15,9 +15,10 @@ import { preRempliCV } from "@/data/mockData";
 
 interface StudentPersonalTabProps {
   showActions?: boolean;
+  isRecruiterView?: boolean;
 }
 
-const StudentPersonalTab = ({ showActions = true }: StudentPersonalTabProps) => {
+const StudentPersonalTab = ({ showActions = true, isRecruiterView = false }: StudentPersonalTabProps) => {
   const { 
     profileData, 
     isEditing, 
@@ -88,7 +89,7 @@ const StudentPersonalTab = ({ showActions = true }: StudentPersonalTabProps) => 
 
   return (
     <div className="space-y-8">
-      {showActions && (
+      {showActions && !isRecruiterView && (
         <div className="flex justify-end gap-2 mb-4">
           {!isEditing ? (
             <>
