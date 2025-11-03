@@ -29,9 +29,21 @@ export const calculateProfileProgression = (profile: ProfileData) => {
   progression_details['info_personnel'] = info_percentage;
 
   // ==========================================
-  // 2. FORMATIONS (15%) - Non existant dans ProfileData
+  // 2. FORMATIONS (15%)
   // ==========================================
-  const formation_percentage = 0; // Pas de données de formation dans le frontend
+  let formation_score = 0;
+  const formations = profile.formations || [];
+  if (formations.length > 0) {
+    formation_score += 40; // Base
+    formation_score += Math.min(20, (formations.length - 1) * 10); // Bonus quantité
+    for (const formation of formations.slice(0, 3)) {
+      if (formation.description && formation.description.length >= 50) formation_score += 8;
+      if (formation.fieldOfStudy) formation_score += 4;
+      // La localisation n'est pas dans la data de formation, on l'ignore
+      if (formation.period) formation_score += 4; // On se base sur `period`
+    }
+  }
+  const formation_percentage = Math.min(100, formation_score);
   progression_details['formation'] = formation_percentage;
 
   // ==========================================

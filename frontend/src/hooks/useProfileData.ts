@@ -39,6 +39,14 @@ export interface ProfileData {
     description: string;
     technologies: string[];
   }[];
+  formations: {
+    id: string;
+    institution: string;
+    degree: string;
+    fieldOfStudy?: string;
+    period: string;
+    description?: string;
+  }[];
 }
 
 const initialProfileData: ProfileData = {
@@ -113,6 +121,23 @@ const initialProfileData: ProfileData = {
       type: "CDI",
       description: "Direction de l'équipe frontend et architecture des applications React",
       technologies: ["React", "TypeScript", "Node.js", "PostgreSQL"]
+    }
+  ],
+  formations: [
+    {
+      id: "1",
+      institution: "Université de Paris",
+      degree: "Master en Informatique",
+      fieldOfStudy: "Génie Logiciel",
+      period: "2019 - 2021",
+      description: "Spécialisation en développement d'applications web et mobiles. Projet de fin d'études sur l'optimisation des performances des bases de données NoSQL."
+    },
+    {
+      id: "2",
+      institution: "École 42",
+      degree: "Architecte en technologies numériques",
+      period: "2016 - 2019",
+      description: "Formation par projets axée sur la programmation C, les algorithmes et les systèmes Unix."
     }
   ]
 };

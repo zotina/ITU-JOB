@@ -1,5 +1,21 @@
 # Historique des Modifications
 
+## 03-11-2025: Ajout de la section "Formations"
+
+- **Objectif :** Ajouter une section complète pour gérer le parcours académique de l'étudiant.
+- **Actions :**
+    1.  **Mise à jour de la structure de données (`useProfileData.ts`) :**
+        - L'interface `ProfileData` a été étendue pour inclure un tableau `formations`.
+        - Des données de test ont été ajoutées à `initialProfileData` pour cette nouvelle section.
+    2.  **Création du composant (`EditableFormationSection.tsx`) :**
+        - Un nouveau composant a été créé pour afficher la liste des formations et permettre leur ajout, modification et suppression en mode édition.
+    3.  **Intégration au profil (`StudentPersonalTab.tsx`) :**
+        - La nouvelle section "Formations" est maintenant visible dans l'onglet du profil personnel.
+    4.  **Mise à jour du calcul de progression (`profileProgression.ts`) :**
+        - La fonction de calcul de la complétion du profil a été mise à jour pour inclure le score de la section "Formations", la rendant plus précise.
+
+---
+
 ## 03-11-2025: Refonte du calcul de progression du profil
 
 - **Objectif :** Remplacer l'ancien calcul de complétion du profil par une nouvelle logique pondérée plus détaillée, basée sur un modèle fourni.

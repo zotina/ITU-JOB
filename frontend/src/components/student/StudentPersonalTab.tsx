@@ -4,6 +4,7 @@ import EditableLanguagesSection from "@/components/EditableLanguagesSection";
 import EditableSoftSkillsSection from "@/components/EditableSoftSkillsSection";
 import EditableProjectsSection from "@/components/EditableProjectsSection";
 import EditableExperienceSection from "@/components/EditableExperienceSection";
+import EditableFormationSection from "@/components/EditableFormationSection";
 import { useProfileData } from "@/hooks/useProfileData";
 import { Button } from "@/components/ui/button";
 import { Edit3, Save, X } from "lucide-react";
@@ -71,6 +72,11 @@ const StudentPersonalTab = ({ isEditing, startEditing, onSave, onCancel, showAct
       />
       <EditableExperienceSection 
         data={profileData.experiences}
+        isEditing={isEditing}
+        onUpdate={updateEditingData}
+      />
+      <EditableFormationSection 
+        data={profileData.formations}
         isEditing={isEditing}
         onUpdate={updateEditingData}
       />
