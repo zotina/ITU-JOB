@@ -2,10 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, Star, CheckCircle, X, MessageCircle, Send, Filter, User } from 'lucide-react';
-import { mockCandidates } from '@/data/mockData';
+import { MapPin, Star, CheckCircle, X, MessageCircle, User } from 'lucide-react';
+import { mockCandidates, mockOffers } from '@/data/mockData';
 import { useState, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { SearchInput } from '@/components/ui/search-input';
 import { 
@@ -16,56 +16,51 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
-import { useNavigate } from 'react-router-dom';
 
-const RecruiterCandidates = () => {
+const FilteredApplications = () => {
+  const location = useLocation();
   const navigate = useNavigate();
-  const [candidates, setCandidates] = useState(mockCandidates);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [locationFilter, setLocationFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('match');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
   const { toast } = useToast();
 
-  // Filtrage et tri des candidats
-  const filteredCandidates = useMemo(() => {
-    let filtered = candidates.filter(candidate => {
-      const matchesSearch = candidate.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           candidate.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           candidate.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase()));
-      const matchesStatus = statusFilter === 'all' || candidate.status === statusFilter;
-      const matchesLocation = locationFilter === 'all' || candidate.location.includes(locationFilter);
-      
-      return matchesSearch && matchesStatus && matchesLocation;
-    });
+  // Extraire l'ID de l'offre depuis les paramètres d'URL
+  const params = new URLSearchParams(location.search);
+  const offerId = params.get('offerId');
+  
+  // Trouver les détails de l'offre à partir de l'ID
+  const offer = mockOffers.find(offer => offer.id === offerId);
+  const offerTitle = offer?.title || '';
 
-    // Tri
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'match':
-          return b.matchingScore - a.matchingScore;
-        case 'name':
-          return a.name.localeCompare(b.name);
-        case 'experience':
-          return b.experience.localeCompare(a.experience);
-        default:
-          return 0;
-      }
-    });
+  // Filtrer les candidatures basées sur l'offre
+  const filteredApplications = useMemo(() => {
+    let applications = mockCandidates.filter(candidate => 
+      candidate.appliedJobs.includes(offerTitle)
+    );
 
-    return filtered;
-  }, [candidates, searchTerm, statusFilter, locationFilter, sortBy]);
+    // Filtre par recherche
+    if (searchTerm) {
+      applications = applications.filter(candidate => 
+        candidate.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        candidate.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        candidate.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+
+    // Filtre par statut
+    if (statusFilter !== 'all') {
+      applications = applications.filter(candidate => candidate.status === statusFilter);
+    }
+
+    return applications;
+  }, [offerTitle, searchTerm, statusFilter]);
 
   // Pagination
-  const totalPages = Math.ceil(filteredCandidates.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredApplications.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedCandidates = filteredCandidates.slice(startIndex, startIndex + itemsPerPage);
-
-  // Obtenir les valeurs uniques pour les filtres
-  const uniqueLocations = [...new Set(candidates.map(candidate => candidate.location))];
-  const uniqueStatuses = [...new Set(candidates.map(candidate => candidate.status))];
+  const paginatedApplications = filteredApplications.slice(startIndex, startIndex + itemsPerPage);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -83,39 +78,28 @@ const RecruiterCandidates = () => {
     }
   };
 
-  const handleAcceptCandidate = (candidateId: string) => {
-    setCandidates(prev => 
-      prev.map(candidate => 
-        candidate.id === candidateId 
-          ? { ...candidate, status: 'accepted' }
-          : candidate
-      )
-    );
-    
-    // Envoyer la notification prédéfinie
-    const candidate = candidates.find(c => c.id === candidateId);
+  const handleAcceptCandidate = (candidateName: string) => {
     toast({
       title: "Candidature acceptée",
-      description: `Notification envoyée à ${candidate?.name}`,
+      description: `Notification envoyée à ${candidateName}`,
     });
   };
 
-  const handleRejectCandidate = (candidateId: string) => {
-    setCandidates(prev => 
-      prev.map(candidate => 
-        candidate.id === candidateId 
-          ? { ...candidate, status: 'rejected' }
-          : candidate
-      )
-    );
+  const handleRejectCandidate = (candidateName: string) => {
+    toast({
+      title: "Candidature rejetée",
+      description: `Notification envoyée à ${candidateName}`,
+    });
   };
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Candidatures</h1>
+        <h1 className="text-2xl font-bold">
+          Candidatures pour {offerTitle}
+        </h1>
         <Badge variant="secondary">
-          {filteredCandidates.length} candidat{filteredCandidates.length !== 1 ? 's' : ''}
+          {filteredApplications.length} candidat{filteredApplications.length !== 1 ? 's' : ''}
         </Badge>
       </div>
 
@@ -128,50 +112,23 @@ const RecruiterCandidates = () => {
             onChange={setSearchTerm}
           />
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Statut" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les statuts</SelectItem>
-                <SelectItem value="pending">En attente</SelectItem>
-                <SelectItem value="accepted">Accepté</SelectItem>
-                <SelectItem value="rejected">Refusé</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={locationFilter} onValueChange={setLocationFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Localisation" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toutes les villes</SelectItem>
-                {uniqueLocations.map(location => (
-                  <SelectItem key={location} value={location}>{location}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger>
-                <SelectValue placeholder="Trier par" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="match">Meilleur match</SelectItem>
-                <SelectItem value="name">Nom</SelectItem>
-                <SelectItem value="experience">Expérience</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <select 
+              value={statusFilter} 
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="border rounded-md p-2"
+            >
+              <option value="all">Tous les statuts</option>
+              <option value="pending">En attente</option>
+              <option value="accepted">Accepté</option>
+              <option value="rejected">Refusé</option>
+            </select>
 
             <Button variant="outline" onClick={() => {
               setSearchTerm('');
               setStatusFilter('all');
-              setLocationFilter('all');
-              setSortBy('match');
               setCurrentPage(1);
             }}>
-              <Filter className="w-4 h-4 mr-2" />
               Réinitialiser
             </Button>
           </div>
@@ -179,7 +136,7 @@ const RecruiterCandidates = () => {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {paginatedCandidates.map((candidate) => (
+        {paginatedApplications.map((candidate) => (
           <Card key={candidate.id} className="hover:shadow-elegant transition-all duration-300">
             <CardHeader className="pb-4">
               <div className="flex items-start justify-between">
@@ -235,36 +192,35 @@ const RecruiterCandidates = () => {
               </div>
 
               <div className="space-y-2">
-                <p className="text-sm font-medium">Candidatures :</p>
-                {candidate.appliedJobs.map((job, index) => (
-                  <div key={index} className="text-xs p-2 bg-muted rounded flex items-center justify-between">
-                    <span>{job}</span>
-                    <Badge className={getStatusColor(candidate.status)}>
-                      {getStatusText(candidate.status)}
-                    </Badge>
-                  </div>
-                ))}
+                <p className="text-sm font-medium">Candidature pour:</p>
+                <div className="text-xs p-2 bg-muted rounded">
+                  {offerTitle}
+                </div>
               </div>
 
               <div className="flex gap-2 pt-2">
                 <Button 
                   size="sm" 
                   className="flex-1"
-                  onClick={() => handleAcceptCandidate(candidate.id)}
+                  onClick={() => handleAcceptCandidate(candidate.name)}
                   disabled={candidate.status !== 'pending'}
                 >
                   <CheckCircle className="w-4 h-4 mr-1" />
                   Accepter
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1"
-                  onClick={() => handleRejectCandidate(candidate.id)}
-                  disabled={candidate.status !== 'pending'}>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1"
+                  onClick={() => handleRejectCandidate(candidate.name)}
+                  disabled={candidate.status !== 'pending'}
+                >
                   <X className="w-4 h-4 mr-1" />
                   Refuser
                 </Button>
                 <Button 
                   variant="outline" 
-                  size="sm"
+                  size="sm" 
                   onClick={() => navigate(`/recruiter/student-profile/${candidate.id}`)}
                 >
                   <User className="w-4 h-4 mr-1" />
@@ -312,4 +268,4 @@ const RecruiterCandidates = () => {
   );
 };
 
-export default RecruiterCandidates;
+export default FilteredApplications;

@@ -1,5 +1,17 @@
 # Historique des Modifications
 
+## 03-11-2025: Flow profil recruteur - Mes offres & Voir candidatures
+
+- **Objectif :** Implémenter le flow complet pour le recruteur permettant de voir les candidatures par offre et d'accéder aux profils étudiants.
+- **Actions :**
+    1.  **Modification de `RecruiterOffers.tsx` :** Le bouton "Voir candidatures" redirige maintenant vers `/recruiter/candidates?offerId={id}` pour filtrer les candidatures par offre.
+    2.  **Création de `FilteredApplications.tsx` :** Page pour afficher les candidatures filtrées par offer_id, avec recherche et pagination.
+    3.  **Création de `RecruiterStudentProfile.tsx` :** Page de profil étudiant version recruteur affichant uniquement les champs autorisés (nom, email, expérience, compétences, langues, position, etc.).
+    4.  **Mise à jour de `RecruiterDashboard.tsx` :** Ajout des routes pour les nouvelles pages.
+    5.  **Ajout du bouton "Voir profil" :** Dans la liste des candidatures, ajout d'un bouton pour accéder au profil complet de l'étudiant.
+
+---
+
 ## 03-11-2025: Suppression des sections Top Postes, CV & Export et Statistiques
 
 - **Objectif :** Réduire le profil étudiant aux sections Fiche Personnel et Recommandations uniquement.

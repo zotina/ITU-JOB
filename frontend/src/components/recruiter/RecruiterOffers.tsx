@@ -174,7 +174,7 @@ const RecruiterOffers = () => {
                   <Button variant="outline" size="sm">
                     Sourcing IA
                   </Button>
-                  <Button size="sm">
+                  <Button size="sm" onClick={() => navigate(`/recruiter/candidates?offerId=${offer.id}`)}>
                     Voir candidatures
                   </Button>
                   <Button variant="outline" size="sm">

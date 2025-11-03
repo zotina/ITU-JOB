@@ -5,9 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { SearchInput } from '@/components/ui/search-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MapPin, Briefcase, Star, Mail } from 'lucide-react';
+import { MapPin, Briefcase, Star, Mail, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const RecruiterStudentSearch = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [skillFilter, setSkillFilter] = useState('all');
   const [availabilityFilter, setAvailabilityFilter] = useState('all');
@@ -145,7 +147,12 @@ const RecruiterStudentSearch = () => {
                       <Mail className="w-4 h-4 mr-2" />
                       Contacter
                     </Button>
-                    <Button size="sm" variant="outline">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => navigate(`/recruiter/student-profile/${student.id}`)}
+                    >
+                      <User className="w-4 h-4 mr-2" />
                       Voir profil
                     </Button>
                   </div>

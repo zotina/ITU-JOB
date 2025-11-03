@@ -7,6 +7,8 @@ import RecruiterChatbot from '@/components/recruiter/RecruiterChatbot';
 import RecruiterProfile from '@/components/recruiter/RecruiterProfile';
 import RecruiterCreateOffer from '@/pages/RecruiterCreateOffer';
 import RecruiterStudentSearch from '@/components/recruiter/RecruiterStudentSearch';
+import FilteredApplications from '@/pages/FilteredApplications';
+import RecruiterStudentProfile from '@/pages/RecruiterStudentProfile';
 
 const RecruiterDashboard = () => {
   return (
@@ -15,6 +17,8 @@ const RecruiterDashboard = () => {
       <Route path="/offers" element={<RecruiterOffers />} />
       <Route path="/create-offer" element={<RecruiterCreateOffer />} />
       <Route path="/candidates" element={<RecruiterCandidates />} />
+      <Route path="/candidates/filtered" element={<FilteredApplications />} />
+      <Route path="/student-profile/:id" element={<RecruiterStudentProfile />} />
       <Route path="/student-search" element={<RecruiterStudentSearch />} />
       <Route path="/notifications" element={<RecruiterNotifications />} />
       <Route path="/analytics" element={<RecruiterAnalytics />} />
