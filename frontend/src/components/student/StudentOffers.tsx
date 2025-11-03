@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,10 @@ import { Toaster } from "@/components/ui/toaster"
 const StudentOffers = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const companiesFilter = searchParams.get('companies')?.split(',') || [];
+
   const [searchTerm, setSearchTerm] = useState('');
   const [locationFilter, setLocationFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -39,6 +43,7 @@ const StudentOffers = () => {
 
   const allOffers = useMemo(() => {
     let filtered = mockOffers.filter(offer => {
+      const matchesCompanies = companiesFilter.length > 0 ? companiesFilter.includes(offer.company) : true;
       const matchesSearch = offer.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            offer.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            offer.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -46,7 +51,7 @@ const StudentOffers = () => {
       const matchesType = typeFilter === 'all' || offer.type === typeFilter;
       const matchesTech = techFilter === 'all' || offer.technologies.some(tech => tech.toLowerCase().includes(techFilter.toLowerCase()));
       
-      return matchesSearch && matchesLocation && matchesType && matchesTech;
+      return matchesCompanies && matchesSearch && matchesLocation && matchesType && matchesTech;
     });
 
     filtered.sort((a, b) => {
@@ -211,6 +216,21 @@ const StudentOffers = () => {
                 </SelectContent>
               </Select>
             </div>
+            {companiesFilter.length > 0 && (
+              <div className="pt-4">
+                <Badge variant="secondary" className="text-sm p-2">
+                  Filtre actif : {companiesFilter.join(', ')}
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-4 w-4 ml-2"
+                    onClick={() => setSearchParams({})}
+                  >
+                    &times;
+                  </Button>
+                </Badge>
+              </div>
+            )}
           </CardContent>
         </Card>
 

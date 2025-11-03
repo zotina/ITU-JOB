@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+ 
 import { Card } from '@/components/ui/card';
 import { MapPin, Navigation, Edit } from 'lucide-react';
 import LeafletMap from '@/components/ui/leaflet-map';
-import { mockCompanies } from '@/data/mockData';
+import { mockCompanies, mockOffers } from '@/data/mockData';
 import { useProfileData } from '@/hooks/useProfileData';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -10,6 +12,7 @@ import LeafletLocationPicker from '@/components/ui/leaflet-location-picker';
 import { useToast } from '@/hooks/use-toast';
 
 const StudentLocation = () => {
+  const navigate = useNavigate();
   const { profileData, setProfileData } = useProfileData();
   const { toast } = useToast();
   const [radius, setRadius] = useState(50); // Default radius in km
@@ -55,6 +58,17 @@ const StudentLocation = () => {
         return distance <= radius;
       })
     : mockCompanies;
+
+  const offersInRadius = mockOffers.filter(offer => 
+    filteredCompanies.some(company => company.name === offer.company)
+  );
+
+  const handleNavigateToOffers = () => {
+    const companyNames = filteredCompanies.map(c => c.name).join(',');
+    if (companyNames) {
+      navigate(`/student/offers?companies=${encodeURIComponent(companyNames)}`);
+    }
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -149,20 +163,16 @@ const StudentLocation = () => {
       />
 
       {/* Statistiques */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-4">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-primary">{mockCompanies.length}</p>
-            <p className="text-sm text-muted-foreground">Entreprises partenaires</p>
-          </div>
-        </Card>
-        
-        <Card className="p-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card 
+          className="p-4 cursor-pointer hover:bg-muted/50 transition-colors"
+          onClick={handleNavigateToOffers}
+        >
           <div className="text-center">
             <p className="text-2xl font-bold text-primary">
-              {mockCompanies.reduce((acc, company) => acc + company.offers, 0)}
+              {offersInRadius.length}
             </p>
-            <p className="text-sm text-muted-foreground">Offres disponibles</p>
+            <p className="text-sm text-muted-foreground">Offres disponibles {profileData.personalInfo.coordinates && `(rayon ${radius} km)`}</p>
           </div>
         </Card>
         
