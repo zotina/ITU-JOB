@@ -7,43 +7,54 @@ import EditableExperienceSection from "@/components/EditableExperienceSection";
 import EditableFormationSection from "@/components/EditableFormationSection";
 import { useProfileData } from "@/hooks/useProfileData";
 import { Button } from "@/components/ui/button";
-import { Edit3, Save, X, Loader2, FileText } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Edit3, Save, X, Loader2, FileText, Upload } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { preRempliCV } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
 
 interface StudentPersonalTabProps {
-  isEditing: boolean;
   startEditing: () => void;
   onSave: () => void;
   onCancel: () => void;
   showActions?: boolean;
 }
 
-const StudentPersonalTab = ({ isEditing, startEditing, onSave, onCancel, showActions = true }: StudentPersonalTabProps) => {
-  const { profileData, updateEditingData, startEditingWithData } = useProfileData();
+const StudentPersonalTab = ({ startEditing, onSave, onCancel, showActions = true }: StudentPersonalTabProps) => {
+  const { profileData, isEditing, updateEditingData, startEditingWithData } = useProfileData();
   const [isImporting, setIsImporting] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleImportCV = () => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setSelectedFile(event.target.files[0]);
+    }
+  };
+
+  const handleImportCV = async () => {
+    // Commencer la simulation de 7 secondes
     setIsImporting(true);
+    setIsDialogOpen(false); // Fermer le dialogue
     toast({
       title: "Import du CV en cours...",
       description: "Veuillez patienter, nous analysons votre document.",
     });
 
-    setTimeout(() => {
-      startEditingWithData(preRempliCV);
-      setIsImporting(false);
-      toast({
-        title: "CV importé avec succès !",
-        description: "Votre profil a été pré-rempli. Veuillez vérifier les informations.",
-      });
-      // Rediriger vers la page d'édition du profil
-      navigate('/student/profile');
-    }, 7000);
+    // Simulation de traitement pendant 7 secondes
+    await new Promise(resolve => setTimeout(resolve, 7000));
+
+    // Passer en mode édition avec les données pré-remplies
+    startEditingWithData(preRempliCV);
+    setIsImporting(false);
+    toast({
+      title: "CV importé avec succès !",
+      description: "Votre profil a été pré-rempli. Veuillez vérifier les informations.",
+    });
+    // Ne pas rediriger, rester sur la page actuelle en mode édition
   };
 
   return (
@@ -52,14 +63,71 @@ const StudentPersonalTab = ({ isEditing, startEditing, onSave, onCancel, showAct
         <div className="flex justify-end gap-2 mb-4">
           {!isEditing ? (
             <>
-              <Button onClick={handleImportCV} variant="outline" className="gap-2" disabled={isImporting}>
-                {isImporting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <FileText className="w-4 h-4" />
-                )}
-                Importer un CV
-              </Button>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="gap-2" disabled={isImporting}>
+                    {isImporting ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <FileText className="w-4 h-4" />
+                    )}
+                    Importer un CV
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Importer un CV</DialogTitle>
+                    <DialogDescription>
+                      Sélectionnez votre fichier CV à importer. Nous l'analyserons pour pré-remplir votre profil.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="flex items-center justify-center w-full">
+                      <label htmlFor="cv-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80">
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                          <p className="text-sm text-muted-foreground">
+                            {selectedFile ? selectedFile.name : 'Cliquez pour télécharger'}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            PDF, DOC, DOCX (MAX. 10MB)
+                          </p>
+                        </div>
+                        <input 
+                          id="cv-upload" 
+                          type="file" 
+                          className="hidden" 
+                          accept=".pdf,.doc,.docx" 
+                          onChange={handleFileChange}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => setIsDialogOpen(false)}
+                    >
+                      Annuler
+                    </Button>
+                    <Button 
+                      type="button" 
+                      onClick={handleImportCV} 
+                      disabled={!selectedFile || isImporting}
+                    >
+                      {isImporting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Traitement...
+                        </>
+                      ) : (
+                        'Importer et analyser'
+                      )}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
               <Button onClick={startEditing} className="gap-2">
                 <Edit3 className="w-4 h-4" />
                 Modifier le profil
