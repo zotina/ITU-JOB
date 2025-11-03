@@ -9,18 +9,19 @@ import { useState } from "react";
 import { mockCompanies } from "@/data/mockData";
 
 const StudentLocationTab = () => {
-  const { profileData, updateEditingData } = useProfileData();
+  const { profileData, setProfileData } = useProfileData();
   const { toast } = useToast();
   const [isGettingLocation, setIsGettingLocation] = useState(false);
 
   const handleLocationChange = (location: string, coordinates?: [number, number]) => {
-    updateEditingData({
+    setProfileData(prevData => ({
+      ...prevData,
       personalInfo: {
-        ...profileData.personalInfo,
+        ...prevData.personalInfo,
         location,
         coordinates
       }
-    });
+    }));
     
     toast({
       title: "Localisation mise à jour",

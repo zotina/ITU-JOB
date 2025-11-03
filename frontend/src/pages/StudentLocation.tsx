@@ -10,18 +10,19 @@ import LeafletLocationPicker from '@/components/ui/leaflet-location-picker';
 import { useToast } from '@/hooks/use-toast';
 
 const StudentLocation = () => {
-  const { profileData, updateEditingData } = useProfileData();
+  const { profileData, setProfileData } = useProfileData();
   const { toast } = useToast();
   const [radius, setRadius] = useState(50); // Default radius in km
 
   const handleLocationChange = (location: string, coordinates?: [number, number]) => {
-    updateEditingData({
+    setProfileData(prevData => ({
+      ...prevData,
       personalInfo: {
-        ...profileData.personalInfo,
+        ...prevData.personalInfo,
         location,
         coordinates
       }
-    });
+    }));
     
     toast({
       title: "Localisation mise à jour",

@@ -143,6 +143,7 @@ export const useProfileData = () => {
 
   return {
     profileData: isEditing ? editingData : profileData,
+    setProfileData, // Exposer la fonction de mise à jour directe
     isEditing,
     startEditing,
     cancelEditing,
