@@ -143,10 +143,6 @@ const RecruiterStudentSearch = () => {
                   </div>
                   
                   <div className="flex gap-2 pt-2">
-                    <Button size="sm">
-                      <Mail className="w-4 h-4 mr-2" />
-                      Contacter
-                    </Button>
                     <Button 
                       size="sm" 
                       variant="outline"

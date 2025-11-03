@@ -171,14 +171,8 @@ const RecruiterOffers = () => {
                 
                 <div className="flex gap-2">
                   <RecommendedProfiles offerTitle={offer.title} />
-                  <Button variant="outline" size="sm">
-                    Sourcing IA
-                  </Button>
                   <Button size="sm" onClick={() => navigate(`/recruiter/candidates?offerId=${offer.id}`)}>
                     Voir candidatures
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    En attente validation
                   </Button>
                 </div>
               </div>

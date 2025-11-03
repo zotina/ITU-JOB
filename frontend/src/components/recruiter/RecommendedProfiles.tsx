@@ -2,14 +2,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Star, MapPin, Mail } from 'lucide-react';
+import { Star, MapPin, Mail, User } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useNavigate } from 'react-router-dom';
 
 interface RecommendedProfilesProps {
   offerTitle: string;
 }
 
 const RecommendedProfiles = ({ offerTitle }: RecommendedProfilesProps) => {
+  const navigate = useNavigate();
   const recommendedStudents = [
     {
       id: 1,
@@ -98,11 +100,12 @@ const RecommendedProfiles = ({ offerTitle }: RecommendedProfilesProps) => {
                     </div>
                     
                     <div className="flex gap-2 pt-1">
-                      <Button size="sm" variant="outline">
-                        <Mail className="w-3 h-3 mr-1" />
-                        Contacter
-                      </Button>
-                      <Button size="sm" variant="ghost">
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        onClick={() => navigate(`/recruiter/student-profile/${student.id}`)}
+                      >
+                        <User className="w-4 h-4 mr-1" />
                         Voir profil
                       </Button>
                     </div>
