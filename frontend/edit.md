@@ -1,5 +1,13 @@
 # Historique des Modifications
 
+## 03-11-2025: Nettoyage de l'affichage du profil
+
+- **Action :** Suppression de l'affichage de la localisation de l'en-tête principal du profil étudiant (`EditableProfileHeader.tsx`).
+- **Raison :** La gestion de la localisation est désormais centralisée dans son propre onglet/page dédié(e) ("Location"). Cette modification évite la redondance et clarifie l'interface.
+- **Impact :** L'adresse n'est plus visible ni modifiable directement sous le nom de l'étudiant. Elle reste gérée dans la section "Location".
+
+---
+
 ## 03-11-2025: Correction du bug de mise à jour de la localisation
 
 - **Problème :** La modification de la localisation via le sélecteur sur la carte mettait à jour une valeur dans un état temporaire, mais ne la sauvegardait jamais dans l'état principal du profil. En conséquence, les changements n'étaient jamais répercutés dans l'interface.

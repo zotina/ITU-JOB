@@ -112,23 +112,6 @@ const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing 
               </div>
               
               <div>
-                <Label htmlFor="location" className="flex items-center">Localisation
-                  {!personalInfo.location && <span className="ml-2 w-2 h-2 rounded-full bg-red-500"></span>}
-                </Label>
-                <div className="space-y-2">
-                  <Input
-                    id="location"
-                    value={personalInfo.location}
-                    onChange={(e) => updatePersonalInfo("location", e.target.value)}
-                  />
-                  <LocationPicker
-                    currentLocation={personalInfo.location}
-                    onLocationChange={handleLocationChange}
-                  />
-                </div>
-              </div>
-              
-              <div>
                 <Label htmlFor="linkedin" className="flex items-center">LinkedIn
                   {!personalInfo.linkedin && <span className="ml-2 w-2 h-2 rounded-full bg-red-500"></span>}
                 </Label>
@@ -221,10 +204,6 @@ const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing 
             <div className="flex items-center gap-2">
               <Phone className="w-4 h-4 text-primary" />
               <span>{personalInfo.phone}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-primary" />
-              <span>{personalInfo.location}</span>
             </div>
             <div className="flex items-center gap-2">
               <Linkedin className="w-4 h-4 text-primary" />
