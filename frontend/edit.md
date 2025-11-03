@@ -1,5 +1,29 @@
 # Historique des Modifications
 
+## 03-11-2025: Redirection après import de CV et synchronisation avec mockData
+
+- **Objectif :** Assurer la redirection vers la page d'édition du profil après l'import du CV et synchroniser les modifications avec les données de mockData.
+- **Actions :**
+    1.  **Ajout de la redirection (`StudentPersonalTab.tsx`) :** Après les 7 secondes d'import du CV, l'application redirige maintenant vers `/student/profile` pour afficher le profil en mode édition avec les données pré-remplies.
+    2.  **Mise à jour de la structure de données (`mockData.ts`) :** Le fichier a été enrichi pour contenir une structure complète de profil étudiant, avec des fonctions d'import/export (`getStudentProfile`, `updateStudentProfile`).
+    3.  **Synchronisation du hook (`useProfileData.ts`) :** Le hook lit désormais les données initiales depuis `mockData` et met à jour `mockData` lors de la sauvegarde des modifications.
+    4.  **Vérification de la complétude des données :** Confirmation que `preRempliCV` contient des données cohérentes pour toutes les sections du profil.
+
+---
+
+## 03-11-2025: Ajout de la simulation d'import de CV
+
+- **Objectif :** Permettre de pré-remplir le profil étudiant en simulant l'import et l'analyse d'un CV.
+- **Actions :**
+    1.  **Création de données de test (`mockData.ts`) :** Un nouvel objet `preRempliCV` a été créé pour servir de source de données pour le pré-remplissage.
+    2.  **Extension du hook (`useProfileData.ts`) :** Une nouvelle fonction `startEditingWithData` a été ajoutée pour permettre de passer en mode édition en injectant un jeu de données externe.
+    3.  **Ajout du bouton et de la logique (`StudentPersonalTab.tsx`) :**
+        - Un bouton "Importer un CV" a été ajouté à l'interface.
+        - Au clic, une simulation de 7 secondes se lance, affichant un spinner.
+        - À la fin du délai, le formulaire d'édition du profil est affiché, pré-rempli avec les données du `preRempliCV`.
+
+---
+
 ## 03-11-2025: Ajout de la section "Formations"
 
 - **Objectif :** Ajouter une section complète pour gérer le parcours académique de l'étudiant.

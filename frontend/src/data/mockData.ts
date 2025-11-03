@@ -234,17 +234,198 @@ export const mockAnalytics = {
   }
 };
 
+import { ProfileData } from '@/hooks/useProfileData';
+
 // État global pour le profil étudiant avec position
-export let studentProfileData = {
+export let studentProfileData: ProfileData = {
   personalInfo: {
+    name: "Alexandre Martin",
+    title: "Développeur Full Stack",
+    description: "Passionné par le développement web moderne avec 5 ans d'expérience dans la création d'applications React et Node.js. Spécialisé dans l'architecture frontend et l'optimisation des performances.",
+    email: "alexandre.martin@email.com",
+    phone: "+33 6 12 34 56 78",
     location: "Paris, France",
-    coordinates: [2.3522, 48.8566] as [number, number],
-  }
+    coordinates: [2.3522, 48.8566],
+    linkedin: "linkedin.com/in/alexandre-martin",
+    github: "github.com/alexandre-martin",
+    website: "alexandre-martin.dev",
+    availability: "Disponible immédiatement",
+    remoteWork: true,
+    profileImage: "/src/assets/profile-photo.jpg"
+  },
+  technicalSkills: [
+    {
+      title: "Développement Frontend",
+      skills: [
+        { name: "React", level: "Expert" },
+        { name: "TypeScript", level: "Avancé" },
+        { name: "Next.js", level: "Avancé" },
+        { name: "Tailwind CSS", level: "Expert" },
+        { name: "Vue.js", level: "Intermédiaire" }
+      ]
+    },
+    {
+      title: "Développement Backend",
+      skills: [
+        { name: "Node.js", level: "Avancé" },
+        { name: "Express", level: "Avancé" },
+        { name: "PostgreSQL", level: "Avancé" },
+        { name: "MongoDB", level: "Intermédiaire" },
+        { name: "Docker", level: "Intermédiaire" }
+      ]
+    }
+  ],
+  languages: [
+    { name: "Français", level: "Natif" },
+    { name: "Anglais", level: "Courant" },
+    { name: "Espagnol", level: "Intermédiaire" }
+  ],
+  softSkills: [
+    "Leadership d'équipe",
+    "Communication efficace",
+    "Gestion de projet",
+    "Travail d'équipe",
+    "Résolution de problèmes",
+    "Adaptabilité"
+  ],
+  projects: [
+    {
+      title: "Plateforme E-commerce",
+      description: "Application complète de commerce électronique avec React, Node.js et Stripe",
+      link: "github.com/alexandre/ecommerce"
+    },
+    {
+      title: "Dashboard Analytics",
+      description: "Tableau de bord d'analyse de données en temps réel avec D3.js",
+      link: "github.com/alexandre/dashboard"
+    }
+  ],
+  experiences: [
+    {
+      title: "Lead Developer",
+      company: "TechStart Solutions",
+      location: "Paris, France",
+      period: "2021 - Présent",
+      type: "CDI",
+      description: "Direction de l'équipe frontend et architecture des applications React",
+      technologies: ["React", "TypeScript", "Node.js", "PostgreSQL"]
+    }
+  ],
+  formations: [
+    {
+      id: "1",
+      institution: "Université de Paris",
+      degree: "Master en Informatique",
+      fieldOfStudy: "Génie Logiciel",
+      period: "2019 - 2021",
+      description: "Spécialisation en développement d'applications web et mobiles. Projet de fin d'études sur l'optimisation des performances des bases de données NoSQL."
+    },
+    {
+      id: "2",
+      institution: "École 42",
+      degree: "Architecte en technologies numériques",
+      period: "2016 - 2019",
+      description: "Formation par projets axée sur la programmation C, les algorithmes et les systèmes Unix."
+    }
+  ]
 };
 
+export const updateStudentProfile = (newProfileData: ProfileData) => {
+  studentProfileData = newProfileData;
+};
+
+export const getStudentProfile = () => studentProfileData;
+
+// Ancienne fonction pour la localisation
 export const updateStudentLocation = (location: string, coordinates: [number, number]) => {
   studentProfileData.personalInfo.location = location;
   studentProfileData.personalInfo.coordinates = coordinates;
 };
 
 export const getStudentLocation = () => studentProfileData.personalInfo;
+
+
+
+export const preRempliCV: ProfileData = {
+  personalInfo: {
+    name: "Jeanne Dupont",
+    title: "Data Scientist & Analyste de Données",
+    description: "Analyste de données curieuse et motivée, avec une première expérience en machine learning et une passion pour la résolution de problèmes complexes. Je cherche à appliquer mes compétences analytiques et de programmation dans un environnement stimulant.",
+    email: "jeanne.dupont.cv@email.com",
+    phone: "+33 7 98 76 54 32",
+    location: "Lyon, France",
+    coordinates: [4.8357, 45.7640],
+    linkedin: "linkedin.com/in/jeanne-dupont-cv",
+    github: "github.com/jeanne-dupont-cv",
+    website: "jeanne-dupont.io",
+    availability: "Disponible à partir de septembre",
+    remoteWork: true,
+    profileImage: "/src/assets/profile-photo.jpg"
+  },
+  technicalSkills: [
+    {
+      title: "Science des Données",
+      skills: [
+        { name: "Python", level: "Avancé" },
+        { name: "Pandas & NumPy", level: "Avancé" },
+        { name: "Scikit-learn", level: "Intermédiaire" },
+        { name: "SQL", level: "Avancé" },
+        { name: "Tableau", level: "Intermédiaire" }
+      ]
+    },
+    {
+      title: "Développement",
+      skills: [
+        { name: "Git", level: "Avancé" },
+        { name: "Docker", level: "Débutant" },
+        { name: "API REST", level: "Intermédiaire" }
+      ]
+    }
+  ],
+  languages: [
+    { name: "Français", level: "Natif" },
+    { name: "Anglais", level: "Courant" }
+  ],
+  softSkills: [
+    "Esprit critique",
+    "Analyse de données",
+    "Communication",
+    "Autonomie",
+    "Curiosité intellectuelle"
+  ],
+  projects: [
+    {
+      title: "Analyse de sentiment sur des avis clients",
+      description: "Projet universitaire utilisant le NLP pour classifier des milliers d'avis clients. Modèle basé sur Scikit-learn avec un score F1 de 88%.",
+      link: "github.com/jeanne-dupont-cv/nlp-project"
+    }
+  ],
+  experiences: [
+    {
+      title: "Stage - Data Analyst",
+      company: "DataIntel Labs",
+      location: "Lyon, France",
+      period: "Mars 2023 - Août 2023",
+      type: "Stage",
+      description: "Nettoyage et analyse de grands ensembles de données clients pour identifier des tendances de consommation. Création de dashboards de suivi sur Tableau.",
+      technologies: ["Python", "SQL", "Tableau"]
+    }
+  ],
+  formations: [
+    {
+      id: "1",
+      institution: "Université Claude Bernard Lyon 1",
+      degree: "Master en Science des Données",
+      fieldOfStudy: "Statistiques et Informatique",
+      period: "2021 - 2023",
+      description: "Master spécialisé dans l'apprentissage automatique, les bases de données et la visualisation de données."
+    },
+    {
+      id: "2",
+      institution: "Université Lumière Lyon 2",
+      degree: "Licence en Économie et Gestion",
+      period: "2018 - 2021",
+      description: "Parcours économétrie."
+    }
+  ]
+};
