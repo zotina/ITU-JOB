@@ -83,41 +83,41 @@ class ProfilService
                 );
             }
 
-            if (isset($data['competences_etudiant'])) {
+            if (isset($data['competences'])) {
                 $this->competencesEtudiantRepository->deleteByEtudiantId($id);
-                foreach ($data['competences_etudiant'] as $competence) {
+                foreach ($data['competences'] as $competence) {
                     $competence['id_profil_etudiant'] = $id;
                     $this->competencesEtudiantRepository->create($competence);
                 }
             }
 
-            if (isset($data['langues_etudiant'])) {
+            if (isset($data['langues'])) {
                 $this->languesEtudiantRepository->deleteByEtudiantId($id);
-                foreach ($data['langues_etudiant'] as $langue) {
+                foreach ($data['langues'] as $langue) {
                     $langue['id_profil_etudiant'] = $id;
                     $this->languesEtudiantRepository->create($langue);
                 }
             }
 
-            if (isset($data['soft_skills_etudiant'])) {
+            if (isset($data['soft_skills'])) {
                 $this->softSkillsEtudiantRepository->deleteByEtudiantId($id);
-                foreach ($data['soft_skills_etudiant'] as $softSkill) {
+                foreach ($data['soft_skills'] as $softSkill) {
                     $softSkill['id_profil_etudiant'] = $id;
                     $this->softSkillsEtudiantRepository->create($softSkill);
                 }
             }
 
-            if (isset($data['experience_professionnelle'])) {
+            if (isset($data['experiences'])) {
                 $this->experienceProfessionnelleRepository->deleteByEtudiantId($id);
-                foreach ($data['experience_professionnelle'] as $experience) {
+                foreach ($data['experiences'] as $experience) {
                     $experience['id_profil_etudiant'] = $id;
                     $this->experienceProfessionnelleRepository->create($experience);
                 }
             }
 
-            if (isset($data['formation'])) {
+            if (isset($data['formations'])) {
                 $this->formationRepository->deleteByEtudiantId($id);
-                foreach ($data['formation'] as $formation) {
+                foreach ($data['formations'] as $formation) {
                     $formation['id_profil_etudiant'] = $id;
                     $this->formationRepository->create($formation);
                 }

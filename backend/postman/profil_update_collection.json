@@ -28,51 +28,412 @@
                         {
                             "key": "photo",
                             "type": "file",
-                            "src": "/path/to/your/image.jpg"
+                            "src": "/path/to/your/image.jpg",
+                            "description": "Optionnel : photo de profil"
                         },
                         {
                             "key": "info_personnel[titre]",
-                            "value": "Développeur Full-Stack Junior",
+                            "value": "Développeur Java",
                             "type": "text"
                         },
                         {
                             "key": "info_personnel[bio]",
-                            "value": "Passionné par le développement web et les nouvelles technologies.",
+                            "value": "En tant que développeur avec une passion pour l'architecture des bases de données, je suis actuellement en 3ème année à ITUniversity.",
                             "type": "text"
                         },
                         {
                             "key": "info_personnel[date_naissance]",
-                            "value": "2000-01-01",
-                            "type": "text"
+                            "value": "",
+                            "type": "text",
+                            "description": "Laisser vide si null"
                         },
                         {
                             "key": "info_personnel[ville]",
-                            "value": "Paris",
+                            "value": "Antananarivo",
                             "type": "text"
                         },
                         {
                             "key": "info_personnel[pays]",
-                            "value": "France",
+                            "value": "",
+                            "type": "text",
+                            "description": "Laisser vide si null"
+                        },
+                        {
+                            "key": "info_personnel[linkedin_url]",
+                            "value": "https://www.linkedin.com/in/zo-tina-rasetrarinjanahary-659638272/",
                             "type": "text"
                         },
                         {
-                            "key": "competences_etudiant[0][competence]",
+                            "key": "info_personnel[github_url]",
+                            "value": "",
+                            "type": "text"
+                        },
+                        {
+                            "key": "info_personnel[portfolio_url]",
+                            "value": "",
+                            "type": "text"
+                        },
+
+                        {
+                            "key": "formations[0][diplome]",
+                            "value": "Développeur Java",
+                            "type": "text"
+                        },
+                        {
+                            "key": "formations[0][etablissement]",
+                            "value": "IT University",
+                            "type": "text"
+                        },
+                        {
+                            "key": "formations[0][domaine_etude]",
+                            "value": "Développement informatique",
+                            "type": "text"
+                        },
+                        {
+                            "key": "formations[0][date_debut]",
+                            "value": "2022-08-01",
+                            "type": "text"
+                        },
+                        {
+                            "key": "formations[0][date_fin]",
+                            "value": "2025-06-01",
+                            "type": "text"
+                        },
+                        {
+                            "key": "formations[0][description]",
+                            "value": "À IT University, je me suis vraiment plongé dans le développement informatique, avec une affection particulière pour l'architecture des bases de données et le développement full-stack Java.",
+                            "type": "text"
+                        },
+
+                        {
+                            "key": "experiences[0][titre_poste]",
+                            "value": "Consultant en Digitalisation et Formateur",
+                            "type": "text"
+                        },
+                        {
+                            "key": "experiences[0][nom_entreprise]",
+                            "value": "Communes de Mahitsy",
+                            "type": "text"
+                        },
+                        {
+                            "key": "experiences[0][type_contrat]",
+                            "value": "",
+                            "type": "text"
+                        },
+                        {
+                            "key": "experiences[0][date_debut]",
+                            "value": "2024-10-01",
+                            "type": "text"
+                        },
+                        {
+                            "key": "experiences[0][date_fin]",
+                            "value": "2024-10-31",
+                            "type": "text"
+                        },
+                        {
+                            "key": "experiences[0][description]",
+                            "value": "Formation de professionnels des administrations communales à l'utilisation d'outils de digitalisation des registres d'état civil. J'ai proposé des recommandations pour la mise en place d'un système automatisé de génération de registres (naissances, décès, etc.), contribuant ainsi à la modernisation des processus administratifs grâce à des solutions innovantes pour l'automatisation des copies de registres.",
+                            "type": "text"
+                        },
+
+                        {
+                            "key": "competences[0][nom_competence]",
                             "value": "PHP",
                             "type": "text"
                         },
                         {
-                            "key": "competences_etudiant[0][niveau]",
-                            "value": "avance",
+                            "key": "competences[0][categorie]",
+                            "value": "Backend",
                             "type": "text"
                         },
                         {
-                            "key": "langues_etudiant[0][langue]",
+                            "key": "competences[0][niveau]",
+                            "value": "Avancé",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[1][nom_competence]",
+                            "value": "Java",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[1][categorie]",
+                            "value": "Backend",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[1][niveau]",
+                            "value": "Avancé",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[2][nom_competence]",
+                            "value": "JavaScript",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[2][categorie]",
+                            "value": "Frontend",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[2][niveau]",
+                            "value": "Avancé",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[3][nom_competence]",
+                            "value": "PostgreSQL",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[3][categorie]",
+                            "value": "Base de données",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[3][niveau]",
+                            "value": "Avancé",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[4][nom_competence]",
+                            "value": "MySQL",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[4][categorie]",
+                            "value": "Base de données",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[4][niveau]",
+                            "value": "Avancé",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[5][nom_competence]",
+                            "value": "Laravel",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[5][categorie]",
+                            "value": "Backend",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[5][niveau]",
+                            "value": "Avancé",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[6][nom_competence]",
+                            "value": "Spring Boot",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[6][categorie]",
+                            "value": "Backend",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[6][niveau]",
+                            "value": "Avancé",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[7][nom_competence]",
+                            "value": "React Native",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[7][categorie]",
+                            "value": "Mobile",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[7][niveau]",
+                            "value": "Avancé",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[8][nom_competence]",
+                            "value": "Docker",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[8][categorie]",
+                            "value": "DevOps",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[8][niveau]",
+                            "value": "Avancé",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[9][nom_competence]",
+                            "value": "Git",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[9][categorie]",
+                            "value": "DevOps",
+                            "type": "text"
+                        },
+                        {
+                            "key": "competences[9][niveau]",
+                            "value": "Avancé",
+                            "type": "text"
+                        },
+
+                        {
+                            "key": "projets[0][nom_projet]",
+                            "value": "HRMS",
+                            "type": "text"
+                        },
+                        {
+                            "key": "projets[0][description]",
+                            "value": "Conception et développement d'une plateforme web intégrée pour la gestion des ressources humaines, incluant un module complet pour la gestion des employés, le calcul automatisé des fiches de paie et un système de gestion des congés avec approbation et suivi en temps réel.",
+                            "type": "text"
+                        },
+                        {
+                            "key": "projets[0][url_projet]",
+                            "value": "",
+                            "type": "text"
+                        },
+                        {
+                            "key": "projets[0][technologies][0]",
+                            "value": "Java",
+                            "type": "text"
+                        },
+                        {
+                            "key": "projets[0][technologies][1]",
+                            "value": "JavaScript",
+                            "type": "text"
+                        },
+                        {
+                            "key": "projets[0][technologies][2]",
+                            "value": "MySQL",
+                            "type": "text"
+                        },
+
+                        {
+                            "key": "projets[1][nom_projet]",
+                            "value": "E-Kaly",
+                            "type": "text"
+                        },
+                        {
+                            "key": "projets[1][description]",
+                            "value": "Conception complète de l'architecture de base de données pour la plateforme de livraison E-KALY, incluant un backend robuste avec un système d'assignation automatique des livreurs via géolocalisation.",
+                            "type": "text"
+                        },
+                        {
+                            "key": "projets[1][url_projet]",
+                            "value": "",
+                            "type": "text"
+                        },
+                        {
+                            "key": "projets[1][technologies][0]",
+                            "value": "Java",
+                            "type": "text"
+                        },
+                        {
+                            "key": "projets[1][technologies][1]",
+                            "value": "JavaScript",
+                            "type": "text"
+                        },
+                        {
+                            "key": "projets[1][technologies][2]",
+                            "value": "MySQL",
+                            "type": "text"
+                        },
+                        {
+                            "key": "projets[1][technologies][3]",
+                            "value": "Spring Boot",
+                            "type": "text"
+                        },
+
+                        {
+                            "key": "projets[2][nom_projet]",
+                            "value": "Framework Java personnalisé",
+                            "type": "text"
+                        },
+                        {
+                            "key": "projets[2][description]",
+                            "value": "Création d'un framework Java sur mesure, inspiré de Spring, conçu pour optimiser la légèreté et l'efficacité des applications web.",
+                            "type": "text"
+                        },
+                        {
+                            "key": "projets[2][url_projet]",
+                            "value": "",
+                            "type": "text"
+                        },
+                        {
+                            "key": "projets[2][technologies][0]",
+                            "value": "Java",
+                            "type": "text"
+                        },
+                        {
+                            "key": "projets[2][technologies][1]",
+                            "value": "Spring Boot",
+                            "type": "text"
+                        },
+
+                        {
+                            "key": "langues[0][nom_langue]",
+                            "value": "Français",
+                            "type": "text"
+                        },
+                        {
+                            "key": "langues[0][niveau]",
+                            "value": "C1",
+                            "type": "text"
+                        },
+                        {
+                            "key": "langues[1][nom_langue]",
                             "value": "Anglais",
                             "type": "text"
                         },
                         {
-                            "key": "langues_etudiant[0][niveau]",
-                            "value": "courant",
+                            "key": "langues[1][niveau]",
+                            "value": "B2",
+                            "type": "text"
+                        },
+
+                        {
+                            "key": "soft_skills[0][nom_soft_skill]",
+                            "value": "Capacité d'adaptation rapide",
+                            "type": "text"
+                        },
+                        {
+                            "key": "soft_skills[1][nom_soft_skill]",
+                            "value": "Collaboration en équipe",
+                            "type": "text"
+                        },
+                        {
+                            "key": "soft_skills[2][nom_soft_skill]",
+                            "value": "Gestion efficace du temps",
+                            "type": "text"
+                        },
+                        {
+                            "key": "soft_skills[3][nom_soft_skill]",
+                            "value": "Présentation de projets",
+                            "type": "text"
+                        },
+                        {
+                            "key": "soft_skills[4][nom_soft_skill]",
+                            "value": "Communication efficace",
+                            "type": "text"
+                        },
+                        {
+                            "key": "soft_skills[5][nom_soft_skill]",
+                            "value": "Leadership et gestion d'équipe",
+                            "type": "text"
+                        },
+                        {
+                            "key": "soft_skills[6][nom_soft_skill]",
+                            "value": "Analyse des besoins des clients",
                             "type": "text"
                         }
                     ]
@@ -88,7 +449,7 @@
                         "ETU-00001"
                     ]
                 },
-                "description": "Update a student's profile. This is a multipart/form-data request."
+                "description": "Mise à jour complète du profil étudiant avec toutes les données fournies."
             },
             "response": []
         },
