@@ -3,28 +3,20 @@ import { Bell } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Card } from '@/components/ui/card';
+import { mockNotifications, Notification } from '@/data/mockData';
+import { useNavigate } from 'react-router-dom';
 
 interface NotificationsPopoverProps {
   count: number;
 }
 
 const NotificationsPopover = ({ count }: NotificationsPopoverProps) => {
-  const notifications = [
-    {
-      id: 1,
-      title: 'Nouvelle candidature reçue',
-      message: 'Jean Dupont a postulé pour le poste de Développeur Full Stack',
-      time: 'Il y a 5 minutes',
-      unread: true,
-    },
-    {
-      id: 2,
-      title: 'Offre validée',
-      message: 'Votre offre "Développeur React" a été validée et publiée',
-      time: 'Il y a 2 heures',
-      unread: true,
-    },
-  ];
+  const navigate = useNavigate();
+  
+  // Utiliser les notifications de mockData mais trier par ordre de récence (les plus récentes d'abord)
+  const notifications = [...mockNotifications].sort((a, b) => 
+    a.read === b.read ? 0 : a.read ? 1 : -1 // Mettre les non lues en premier
+  );
 
   return (
     <Popover>
@@ -49,9 +41,28 @@ const NotificationsPopover = ({ count }: NotificationsPopoverProps) => {
             {notifications.map((notification) => (
               <Card
                 key={notification.id}
-                className={`p-3 cursor-pointer hover:bg-accent transition-colors ${
-                  notification.unread ? 'border-l-4 border-l-primary' : ''
-                }`}
+                className={`p-3 cursor-pointer hover:bg-accent transition-colors ${!notification.read ? 'border-l-4 border-l-primary' : ''}`}
+                onClick={() => {
+                  // Marquer la notification comme lue
+                  // (Dans une application réelle, on ferait une requête API pour mettre à jour l'état)
+                  
+                  // Rediriger en fonction du type
+                  switch (notification.type) {
+                    case 'candidate_application':
+                      navigate(`/recruiter/candidates?offerId=${notification.target}`);
+                      break;
+                    case 'offer_published':
+                      navigate(`/recruiter/offers`);
+                      // Pourrait éventuellement scroller à l'offre spécifique ou afficher un badge
+                      break;
+                    case 'message':
+                      // Rediriger vers la page de message (à implémenter)
+                      navigate(`/recruiter/messages`); // ou une autre page pertinente
+                      break;
+                    default:
+                      console.log('Unknown notification type');
+                  }
+                }}
               >
                 <div className="space-y-1">
                   <p className="text-sm font-medium">{notification.title}</p>

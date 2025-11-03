@@ -215,6 +215,61 @@ export const mockCompanies = [
   }
 ];
 
+// Données de notifications
+export interface Notification {
+  id: string;
+  type: 'candidate_application' | 'offer_published' | 'message';
+  target: string; // ID cible (ex: offre_id, candidature_id)
+  title: string;
+  message: string;
+  time: string;
+  read: boolean;
+  user: 'student' | 'recruiter';
+}
+
+export const mockNotifications: Notification[] = [
+  {
+    id: '1',
+    type: 'candidate_application',
+    target: '1',
+    title: 'Nouvelle candidature reçue',
+    message: 'Jean Dupont a postulé pour le poste de Développeur Full Stack',
+    time: 'Il y a 5 minutes',
+    read: false,
+    user: 'recruiter'
+  },
+  {
+    id: '2',
+    type: 'offer_published',
+    target: '1',
+    title: 'Offre validée',
+    message: 'Votre offre "Développeur React" a été validée et publiée',
+    time: 'Il y a 2 heures',
+    read: false,
+    user: 'recruiter'
+  },
+  {
+    id: '3',
+    type: 'candidate_application',
+    target: '2',
+    title: 'Nouvelle candidature',
+    message: 'Marie Martin a postulé pour le poste de Data Scientist',
+    time: 'Hier',
+    read: true,
+    user: 'recruiter'
+  },
+  {
+    id: '4',
+    type: 'message',
+    target: '5',
+    title: 'Nouveau message',
+    message: 'TechCorp vous a envoyé un message concernant votre candidature',
+    time: 'Il y a 3 jours',
+    read: false,
+    user: 'student'
+  }
+];
+
 export const mockAnalytics = {
   student: {
     applications: 12,
