@@ -1,5 +1,16 @@
 # Historique des Modifications
 
+## 03-11-2025: Suppression des sections Top Postes, CV & Export et Statistiques
+
+- **Objectif :** Réduire le profil étudiant aux sections Fiche Personnel et Recommandations uniquement.
+- **Actions :**
+    1.  **Modification de `StudentProfile.tsx` :** Suppression des onglets "Top Postes", "CV & Export" et "Statistiques".
+    2.  **Mise à jour de l'interface :** Le composant n'affiche plus que les onglets "Fiche Personnel" et "Recommandations".
+    3.  **Nettoyage des imports :** Suppression des imports inutiles des composants supprimés.
+    4.  **Ajustement de la grille :** Réduction du nombre de colonnes dans la liste des onglets de 5 à 2.
+
+---
+
 ## 03-11-2025: Redirection après import de CV et synchronisation avec mockData
 
 - **Objectif :** Assurer la redirection vers la page d'édition du profil après l'import du CV et synchroniser les modifications avec les données de mockData.
