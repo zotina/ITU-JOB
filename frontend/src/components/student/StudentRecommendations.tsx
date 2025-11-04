@@ -135,10 +135,6 @@ const StudentRecommendations = () => {
                   <p className="text-sm text-muted-foreground mb-3">
                     {improvement.description}
                   </p>
-                  <Button size="sm" variant="outline" className="gap-2">
-                    <Lightbulb className="w-4 h-4" />
-                    Appliquer
-                  </Button>
                 </div>
               </div>
             </div>

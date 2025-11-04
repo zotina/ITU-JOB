@@ -17,13 +17,15 @@ import {
   MapPin,
   GraduationCap,
   LogOut,
-  FileText
+  FileText,
+  Calendar
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const menuItems = [
   { title: 'Offres', url: '/student/offers', icon: Briefcase },
   { title: 'Mes Candidatures', url: '/student/applications', icon: FileText },
+  { title: 'Mes Rendez-vous', url: '/student/appointments', icon: Calendar },
   { title: 'Assistant IA', url: '/student/chatbot', icon: MessageCircle },
   { title: 'Localisation', url: '/student/location', icon: MapPin },
   { title: 'Mon Profil', url: '/student/profile', icon: User },

@@ -7,6 +7,7 @@ import { useParams } from 'react-router-dom';
 import { mockCompanies, updateCompany } from '@/data/mockData';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useLocation } from 'react-router-dom';
 
 interface RecruiterProfileProps {
   isReadOnly?: boolean; // Prop pour déterminer si le profil est en mode lecture seule
@@ -110,19 +111,25 @@ const RecruiterProfile = ({ isReadOnly = false }: RecruiterProfileProps) => {
   
   // Fonction pour sauvegarder les modifications
   const saveChanges = () => {
-    // Si ce n'est pas en mode lecture seule et que ce n'est pas une vue d'entreprise spécifique, on peut sauvegarder
-    if (!isReadOnly && !companyId) {
-      // Mettre à jour les données de l'entreprise dans le mockData
-      updateCompany(editedCompanyData.id, {
-        name: editedCompanyData.name,
-        description: editedCompanyData.description,
-        website: editedCompanyData.website,
-        contact: editedCompanyData.email,
-        address: {
-          city: editedCompanyData.location.includes(',') ? editedCompanyData.location.split(',')[0].trim() : editedCompanyData.location,
-          country: editedCompanyData.location.includes(',') ? editedCompanyData.location.split(',')[1].trim() : 'France'
+    // Si ce n'est pas en mode lecture seule, on peut sauvegarder
+    if (!isReadOnly) {
+      // Si ce n'est pas en mode visualisation d'une entreprise spécifique, mais le profil du recruteur connecté
+      if (!companyId) {
+        // Mettre à jour les données de l'entreprise du recruteur dans le mockData
+        // On suppose que l'entreprise du recruteur est stockée dans l'utilisateur connecté
+        if (editedCompanyData.id) {
+          updateCompany(editedCompanyData.id, {
+            name: editedCompanyData.name,
+            description: editedCompanyData.description,
+            website: editedCompanyData.website,
+            contact: editedCompanyData.email,
+            address: {
+              city: editedCompanyData.location.includes(',') ? editedCompanyData.location.split(',')[0].trim() : editedCompanyData.location,
+              country: editedCompanyData.location.includes(',') ? editedCompanyData.location.split(',')[1].trim() : 'France'
+            }
+          });
         }
-      });
+      }
       
       toast({
         title: "Profil mis à jour",

@@ -4,6 +4,7 @@ import RecruiterCandidates from '@/components/recruiter/RecruiterCandidates';
 import RecruiterAnalytics from '@/components/recruiter/RecruiterAnalytics';
 import RecruiterChatbot from '@/components/recruiter/RecruiterChatbot';
 import RecruiterProfile from '@/components/recruiter/RecruiterProfile';
+import RecruiterAppointments from '@/components/recruiter/RecruiterAppointments';
 import RecruiterCreateOffer from '@/pages/RecruiterCreateOffer';
 import RecruiterStudentSearch from '@/components/recruiter/RecruiterStudentSearch';
 import FilteredApplications from '@/pages/FilteredApplications';
@@ -22,6 +23,7 @@ const RecruiterDashboard = () => {
       <Route path="/analytics" element={<RecruiterAnalytics />} />
       <Route path="/chatbot" element={<RecruiterChatbot />} />
       <Route path="/profile" element={<RecruiterProfile />} />
+      <Route path="/appointments" element={<RecruiterAppointments />} />
     </Routes>
   );
 };

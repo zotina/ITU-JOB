@@ -1,5 +1,41 @@
 # Historique des Modifications
 
+## 04-11-2025: Ajout de la section Rendez-vous dans les sidebars
+
+- **Objectif :** Ajouter la section "Mes Rendez-vous" aux sidebars de chaque utilisateur pour permettre un accès direct depuis la navigation.
+- **Actions :**
+    1.  **Mise à jour de `src/components/sidebars/StudentSidebar.tsx` :** Ajout d'un lien "Mes Rendez-vous" pointant vers `/student/appointments`.
+    2.  **Mise à jour de `src/components/sidebars/RecruiterSidebar.tsx` :** Ajout d'un lien "Mes Rendez-vous" pointant vers `/recruiter/appointments`.
+    3.  **Importation de l'icône Calendar** dans les deux composants de sidebar.
+    4.  **Mise à jour de l'ordre des éléments** dans le menu pour une meilleure organisation.
+
+---
+
+## 04-11-2025: Déplacement de la section Rendez-vous vers les sidebars
+
+- **Objectif :** Déplacer la section "Mes Rendez-vous" des profils vers les sidebars de chaque utilisateur pour une meilleure organisation.
+- **Actions :**
+    1.  **Suppression de l'onglet Rendez-vous** des composants `StudentProfile.tsx` et `RecruiterProfile.tsx`.
+    2.  **Création de `src/components/student/StudentAppointments.tsx` :** Nouvelle page dédiée aux rendez-vous pour les étudiants.
+    3.  **Création de `src/components/recruiter/RecruiterAppointments.tsx` :** Nouvelle page dédiée aux rendez-vous pour les recruteurs.
+    4.  **Mise à jour de `StudentDashboard.tsx` :** Ajout de la route `/student/appointments` pour la page des rendez-vous étudiants.
+    5.  **Mise à jour de `RecruiterDashboard.tsx` :** Ajout de la route `/recruiter/appointments` pour la page des rendez-vous recruteurs.
+
+---
+
+## 04-11-2025: Ajout de la section Rendez-vous
+
+- **Objectif :** Ajouter une section "Mes Rendez-vous" commune aux profils étudiant et recruteur permettant de visualiser un calendrier des rendez-vous.
+- **Actions :**
+    1.  **Création de `src/types/appointment.ts` :** Définition de l'interface `Appointment` pour structurer les données de rendez-vous.
+    2.  **Création de `src/components/AppointmentCalendar.tsx` :** Composant réutilisable pour afficher un calendrier de rendez-vous avec navigation mensuelle et détails quotidiens.
+    3.  **Mise à jour de `src/data/mockData.ts` :** Ajout de données de test pour les rendez-vous (`mockAppointments`) et des fonctions utilitaires pour gérer les rendez-vous.
+    4.  **Mise à jour de `src/hooks/useProfileData.ts` :** Extension de l'interface `ProfileData` pour inclure une propriété `appointments`, et ajout des fonctions `addAppointment`, `updateAppointment`, et `deleteAppointment`.
+    5.  **Mise à jour de `src/components/student/StudentProfile.tsx` :** Ajout d'un nouvel onglet "Mes Rendez-vous" avec le composant `AppointmentCalendar` affichant les rendez-vous pour les étudiants (seulement les entretiens).
+    6.  **Mise à jour de `src/components/recruiter/RecruiterProfile.tsx` :** Réorganisation du composant pour utiliser un système d'onglets avec "Profil Entreprise" et "Mes Rendez-vous", intégrant le composant `AppointmentCalendar` pour les recruteurs.
+
+---
+
 ## 03-11-2025: Flow profil recruteur - Mes offres & Voir candidatures
 
 - **Objectif :** Implémenter le flow complet pour le recruteur permettant de voir les candidatures par offre et d'accéder aux profils étudiants.

@@ -458,6 +458,130 @@ export const updateStudentLocation = (location: string, coordinates: [number, nu
 
 export const getStudentLocation = () => studentProfileData.personalInfo;
 
+// Données de rendez-vous
+export interface Appointment {
+  id: string;
+  title: string;
+  description: string;
+  date: Date;
+  startTime: string; // Format: "HH:mm"
+  endTime: string; // Format: "HH:mm"
+  location: string;
+  status: 'pending' | 'confirmed' | 'rejected' | 'completed';
+  type: 'interview' | 'meeting' | 'other';
+  participants: string[]; // User IDs or emails
+  createdBy: string; // ID of the user who created the appointment
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export const mockAppointments: Appointment[] = [
+  {
+    id: '1',
+    title: 'Entretien Technique - Développeur Frontend',
+    description: 'Entretien technique avec l\'équipe de développement pour le poste de Développeur Frontend React',
+    date: new Date(2025, 10, 15), // Format: année, mois (0-indexé), jour
+    startTime: '10:00',
+    endTime: '11:00',
+    location: 'TechStart Solutions, Paris',
+    status: 'confirmed',
+    type: 'interview',
+    participants: ['student1', 'recruiter1'],
+    createdBy: 'recruiter1',
+    createdAt: new Date(2025, 10, 10),
+    updatedAt: new Date(2025, 10, 12)
+  },
+  {
+    id: '2',
+    title: 'Réunion de démarrage - Projet Mobile',
+    description: 'Réunion de présentation du projet mobile et des attentes pour les prochaines semaines',
+    date: new Date(2025, 10, 18),
+    startTime: '14:30',
+    endTime: '15:30',
+    location: 'InnovateCorp, Lyon',
+    status: 'pending',
+    type: 'meeting',
+    participants: ['recruiter2', 'student2'],
+    createdBy: 'recruiter2',
+    createdAt: new Date(2025, 10, 14),
+    updatedAt: new Date(2025, 10, 14)
+  },
+  {
+    id: '3',
+    title: 'Entretien Final - Data Scientist',
+    description: 'Entretien final pour le poste de Data Scientist. Discussion sur les conditions de travail et la rémunération',
+    date: new Date(2025, 10, 20),
+    startTime: '16:00',
+    endTime: '17:00',
+    location: 'DataIntel Labs, Marseille',
+    status: 'confirmed',
+    type: 'interview',
+    participants: ['recruiter3', 'student3'],
+    createdBy: 'recruiter3',
+    createdAt: new Date(2025, 10, 16),
+    updatedAt: new Date(2025, 10, 18)
+  },
+  {
+    id: '4',
+    title: 'Présentation du projet - Application React Native',
+    description: 'Présentation des spécifications techniques pour l\'application mobile React Native',
+    date: new Date(2025, 10, 22),
+    startTime: '09:30',
+    endTime: '10:30',
+    location: 'Télétravail',
+    status: 'pending',
+    type: 'meeting',
+    participants: ['recruiter4', 'student4'],
+    createdBy: 'recruiter4',
+    createdAt: new Date(2025, 10, 19),
+    updatedAt: new Date(2025, 10, 19)
+  },
+  {
+    id: '5',
+    title: 'Entretien RH - Développeur Full Stack',
+    description: 'Entretien RH pour le poste de Développeur Full Stack. Discussion sur la culture d\'entreprise',
+    date: new Date(2025, 10, 12),
+    startTime: '11:00',
+    endTime: '12:00',
+    location: 'TechStart Solutions, Paris',
+    status: 'completed',
+    type: 'interview',
+    participants: ['recruiter1', 'student1'],
+    createdBy: 'recruiter1',
+    createdAt: new Date(2025, 10, 8),
+    updatedAt: new Date(2025, 10, 12)
+  }
+];
+
+export const addAppointment = (appointment: Omit<Appointment, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const newAppointment: Appointment = {
+    ...appointment,
+    id: `appointment-${Date.now()}`,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
+  mockAppointments.push(newAppointment);
+  return newAppointment;
+};
+
+export const updateAppointment = (id: string, updatedData: Partial<Appointment>) => {
+  const appointmentIndex = mockAppointments.findIndex(app => app.id === id);
+  if (appointmentIndex !== -1) {
+    mockAppointments[appointmentIndex] = { 
+      ...mockAppointments[appointmentIndex], 
+      ...updatedData,
+      updatedAt: new Date()
+    };
+  }
+};
+
+export const deleteAppointment = (id: string) => {
+  const appointmentIndex = mockAppointments.findIndex(app => app.id === id);
+  if (appointmentIndex !== -1) {
+    mockAppointments.splice(appointmentIndex, 1);
+  }
+};
+
 
 
 export const preRempliCV: ProfileData = {

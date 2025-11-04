@@ -19,7 +19,8 @@ import {
   Building2,
   Bell,
   LogOut,
-  Search
+  Search,
+  Calendar
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -27,6 +28,7 @@ const menuItems = [
   { title: 'Mes Offres', url: '/recruiter/offers', icon: Briefcase },
   { title: 'Candidatures', url: '/recruiter/candidates', icon: Users },
   { title: 'Recherche étudiants', url: '/recruiter/student-search', icon: Search },
+  { title: 'Mes Rendez-vous', url: '/recruiter/appointments', icon: Calendar },
   { title: 'Analytiques', url: '/recruiter/analytics', icon: BarChart3 },
   { title: 'Assistant IA', url: '/recruiter/chatbot', icon: MessageCircle },
   { title: 'Mon Profil', url: '/recruiter/profile', icon: User },
