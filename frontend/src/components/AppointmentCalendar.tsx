@@ -73,17 +73,20 @@ const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <button 
-            onClick={goToToday}
-            className="px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-md"
-          >
-            Aujourd'hui
-          </button>
+          <div className="text-lg font-semibold px-4">
+            {format(currentDate, 'MMMM yyyy', { locale: fr })}
+          </div>
           <button 
             onClick={nextMonth}
             className="p-2 rounded-full hover:bg-gray-100"
           >
             <ChevronRight className="w-5 h-5" />
+          </button>
+          <button 
+            onClick={goToToday}
+            className="px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-md"
+          >
+            Aujourd'hui
           </button>
         </div>
       </div>

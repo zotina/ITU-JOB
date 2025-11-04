@@ -1,5 +1,14 @@
 # Historique des Modifications
 
+## 04-11-2025: Affichage du mois et de l'année dans le calendrier
+
+- **Objectif :** Afficher le mois et l'année en cours dans l'interface du calendrier pour une meilleure lisibilité.
+- **Actions :**
+    1.  **Mise à jour de `src/components/AppointmentCalendar.tsx` :** Ajout d'un élément affichant le mois et l'année en cours (format: "MMMM yyyy") au-dessus de la grille du calendrier.
+    2.  **Utilisation de la fonction `format` de `date-fns` :** Utilisation de la locale française pour l'affichage du mois en cours.
+
+---
+
 ## 04-11-2025: Ajout de la section Rendez-vous dans les sidebars
 
 - **Objectif :** Ajouter la section "Mes Rendez-vous" aux sidebars de chaque utilisateur pour permettre un accès direct depuis la navigation.
