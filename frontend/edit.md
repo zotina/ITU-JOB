@@ -1,5 +1,37 @@
 # Historique des Modifications
 
+## 07-11-2025: Suppression du tri dans la page des offres
+
+- **Objectif :** Supprimer la fonctionnalité de tri dans la page StudentOffers.tsx pour simplifier l'interface et garder une structure pertinente.
+- **Actions :**
+    1.  **Suppression de l'état sortBy :** Suppression de la variable d'état `sortBy` dans le composant `StudentOffers.tsx`.
+    2.  **Suppression du composant Select de tri :** Suppression du Select permettant de trier par "Pertinence", "Salaire" ou "Plus récent".
+    3.  **Simplification de la logique de tri :** Remplacement de la logique de tri dynamique par un tri fixe par pertinence (matchingScore).
+    4.  **Ajustement de la structure :** Modification de la grille de filtres de 4 colonnes à 3 colonnes pour conserver une disposition équilibrée après la suppression du filtre de tri.
+
+---
+
+## 07-11-2025: Nettoyage des données du frontend et création de données cohérentes pour Madagascar
+
+- **Objectif :** Remplacer les données de test actuelles par des données cohérentes pour Madagascar, en utilisant le cv.pdf comme source d'inspiration pour le profil étudiant.
+- **Actions :**
+    1.  **Nettoyage des données actuelles :** Remplacement complet du contenu de `src/data/mockData.ts` par des données réalistes et cohérentes avec le contexte malgache.
+    2.  **Création de données pour Madagascar :** Intégration de données pour les offres d'emploi, les candidats, les entreprises, les utilisateurs, les notifications, les statistiques et les profils.
+    3.  **Mise à jour du profil étudiant :** Remplacement des données de profil par défaut par un profil étudiant typique pour Madagascar, incluant des coordonnées, une formation, des expériences et des compétences adaptées au contexte local.
+    4.  **Adaptation des données de pré-remplissage CV :** Mise à jour de l'objet `preRempliCV` pour refléter les données d'un profil étudiant malgache.
+
+---
+
+## 07-11-2025: Remplacement du contenu de l'analytique du profile recruteur
+
+- **Objectif :** Mettre à jour l'interface de la page d'analytique recruteur avec un nouveau design plus complet et moderne.
+- **Actions :**
+    1.  **Remplacement complet du contenu de `src/components/recruiter/RecruiterAnalytics.tsx` :** Remplacement de l'ancienne interface avec des cartes KPI de base par un nouveau dashboard complet incluant des graphiques interactifs (linéaires, camembert et barres) grâce à la bibliothèque recharts.
+    2.  **Ajout de nouvelles fonctionnalités :** Les graphiques montrent l'évolution des candidatures, le statut des candidatures, les offres les plus populaires, ainsi qu'un tableau des dernières candidatures avec des scores de matching.
+    3.  **Préservation des dépendances :** Les bibliothèques `recharts` et `lucide-react` étaient déjà présentes dans le projet, donc aucune installation supplémentaire n'était nécessaire.
+
+---
+
 ## 04-11-2025: Affichage du mois et de l'année dans le calendrier
 
 - **Objectif :** Afficher le mois et l'année en cours dans l'interface du calendrier pour une meilleure lisibilité.

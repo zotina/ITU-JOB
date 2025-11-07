@@ -15,17 +15,18 @@ use thiagoalessio\TesseractOCR\TesseractOCR;
 class CvService
 {
     private string $groqApiKey;
+    private string $grokmodel;
     protected $profilEtudiantRepository;
 
     public function __construct(ProfilEtudiantRepository $profilEtudiantRepository)
     {
         $this->groqApiKey = env('GROQ_API_KEY');
+        $this->grokmodel = env('GROQ_MODEL');
         $this->profilEtudiantRepository = $profilEtudiantRepository;
     }
 
     public function importCvEnProfil(UploadedFile $cvPdf): array
     {
-        // ⚡ Augmenter le timeout pour cette opération
         set_time_limit(300);
         
         $cvText = $this->extractTextFromPdf($cvPdf);
@@ -52,7 +53,7 @@ class CvService
             'Authorization' => 'Bearer ' . $this->groqApiKey,
             'Content-Type' => 'application/json',
         ])->timeout(60)->post('https://api.groq.com/openai/v1/chat/completions', [
-            'model' => 'llama-3.3-70b-versatile',
+            'model' => $this->grokmodel,
             'messages' => [
                 ['role' => 'system', 'content' => 'You are an expert CV parsing assistant. Your sole task is to extract information from the provided CV text and return it ONLY as a single, valid JSON object. Do not include any introductory text, explanations, or markdown formatting. Just the JSON.'],
                 ['role' => 'user', 'content' => $prompt],

@@ -30,7 +30,6 @@ const StudentOffers = () => {
   const [locationFilter, setLocationFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [techFilter, setTechFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('match');
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState<string | null>(null);
   const itemsPerPage = 6;
@@ -54,21 +53,11 @@ const StudentOffers = () => {
       return matchesCompanies && matchesSearch && matchesLocation && matchesType && matchesTech;
     });
 
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'match':
-          return b.matchingScore - a.matchingScore;
-        case 'salary':
-          return parseInt(b.salary.replace(/\D/g, '')) - parseInt(a.salary.replace(/\D/g, ''));
-        case 'recent':
-          return new Date(b.posted || '2024-01-01').getTime() - new Date(a.posted || '2024-01-01').getTime();
-        default:
-          return 0;
-      }
-    });
+    // Tri par défaut par pertinence (matchingScore)
+    filtered.sort((a, b) => b.matchingScore - a.matchingScore);
 
     return filtered;
-  }, [searchTerm, locationFilter, typeFilter, techFilter, sortBy]);
+  }, [searchTerm, locationFilter, typeFilter, techFilter]);
 
   const totalPages = Math.ceil(allOffers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -195,7 +184,7 @@ const StudentOffers = () => {
               value={searchTerm}
               onChange={setSearchTerm}
             />
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Select value={locationFilter} onValueChange={setLocationFilter}>
                 <SelectTrigger><SelectValue placeholder="Localisation" /></SelectTrigger>
                 <SelectContent>
@@ -215,14 +204,6 @@ const StudentOffers = () => {
                 <SelectContent>
                   <SelectItem value="all">Toutes les technologies</SelectItem>
                   {uniqueTechs.map(tech => <SelectItem key={tech} value={tech}>{tech}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger><SelectValue placeholder="Trier par" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="match">Pertinence</SelectItem>
-                  <SelectItem value="salary">Salaire</SelectItem>
-                  <SelectItem value="recent">Plus récent</SelectItem>
                 </SelectContent>
               </Select>
             </div>
