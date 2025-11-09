@@ -1,5 +1,26 @@
 # Historique des Modifications
 
+## 09-11-2025: Mise à jour des candidatures pour Andriamalala Raviro
+
+- **Objectif :** Mettre à jour les données de candidature d'Andriamalala Raviro selon les spécifications.
+- **Actions :**
+    1. **Mise à jour de l'interface Application :** Ajout du champ studentName à l'interface Application dans applicationStore.ts.
+    2. **Ajout de nouvelles candidatures :** Rajout de 3 candidatures pour Andriamalala Raviro chez Airtel Madagascar, Microlink Madagascar et Yas Madagascar.
+    3. **Ajout au stage Orange :** Ajout d'Andriamalala Raviro à la candidature pour le stage Orange Madagascar.
+    4. **Mise à jour de la fonction addApplication :** Modification de la fonction pour supporter le champ studentName.
+
+---
+
+## 09-11-2025: Affichage des logos des entreprises dans la carte LeafletMap
+
+- **Objectif :** Remplacer l'icône générique d'entreprise par les logos réels des entreprises sur la carte LeafletMap.
+- **Actions :**
+    1. **Mise à jour de l'interface Company :** Ajout de la propriété logo à l'interface Company dans leaflet-map.tsx.
+    2. **Modification de leaflet-map.tsx :** Création d'icônes personnalisées pour chaque entreprise avec leur logo si disponible, avec fallback sur l'icône par défaut si pas de logo.
+    3. **Mise à jour de la légende :** Suppression de l'icône Building2 de la légende pour refléter les nouveaux marqueurs avec logos.
+
+---
+
 ## 09-11-2025: Affichage des logos des entreprises dans les cartes d'offres et les détails
 
 - **Objectif :** Remplacer l'icône générique Building2 par les logos réels des entreprises dans les cartes d'offres et les détails d'offres.

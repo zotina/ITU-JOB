@@ -20,6 +20,7 @@ interface Company {
   coordinates?: [number, number];
   offers: number;
   distance?: number;
+  logo?: string;
 }
 
 interface LeafletMapProps {
@@ -166,12 +167,23 @@ const LeafletMap = ({
               ? calculateDistance(studentCoordinates[1], studentCoordinates[0], lat, lng)
               : null;
             
+            // Créer un icône personnalisé avec le logo de l'entreprise si disponible
+            const companyMarkerIcon = company.logo ? 
+              L.icon({
+                iconUrl: company.logo,
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32],
+                className: 'company-logo-marker'
+              }) :
+              companyIcon; // Utiliser l'icône par défaut si pas de logo
+            
             return (
               <React.Fragment key={company.id}>
                 {/* Marqueur entreprise */}
                 <Marker
                   position={[lat, lng]}
-                  icon={companyIcon}
+                  icon={companyMarkerIcon}
                 >
                   <Popup>
                     <div className="p-3">
@@ -213,9 +225,7 @@ const LeafletMap = ({
             <span>Votre position</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
-            <div className="w-4 h-4 bg-green-500 rounded-sm flex items-center justify-center">
-              <Building2 className="w-2 h-2 text-white" />
-            </div>
+            <div className="w-4 h-4 bg-green-500 rounded-sm"></div>
             <span>Entreprises</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
