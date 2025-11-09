@@ -48,9 +48,18 @@ const RecruiterStudentSearch = () => {
     }
 
     const query = searchQuery.toLowerCase();
-    const searchTerms = query.split(' ').filter(term => term.length > 2);
+    // Extraire les termes de recherche en ignorant les mots courts et les mots vides courants
+    const searchTerms = query
+      .split(' ')
+      .filter(term => term.length > 2) // mots de plus de 2 caractères
+      .filter(term => !['dans', 'des', 'une', 'pour', 'sur', 'avec', 'dans', 'son', 'ses', 'ses'].includes(term)); // mots vides à ignorer
 
-    return allStudents.filter(student => {
+    if (searchTerms.length === 0) {
+      return allStudents;
+    }
+
+    // Calculer la pertinence pour chaque étudiant
+    const studentsWithRelevance = allStudents.map(student => {
       // Recherche dans tous les champs pertinents
       const searchableContent = [
         student.name,
@@ -66,9 +75,41 @@ const RecruiterStudentSearch = () => {
         ...student.formations.map(f => `${f.degree} ${f.field} ${f.institution}`)
       ].join(' ').toLowerCase();
 
-      // Vérifier si tous les termes de recherche sont présents
-      return searchTerms.every(term => searchableContent.includes(term));
+      // Calculer le score de pertinence
+      let relevanceScore = 0;
+      let matchedTerms = 0;
+      
+      searchTerms.forEach(term => {
+        if (searchableContent.includes(term)) {
+          matchedTerms++;
+          // Donner plus de poids à des correspondances exactes dans des champs clés
+          if (student.title.toLowerCase().includes(term)) relevanceScore += 3;
+          if (student.skills.some(skill => skill.toLowerCase().includes(term))) relevanceScore += 3;
+          if (student.location.toLowerCase().includes(term)) relevanceScore += 2;
+          if (student.availability.toLowerCase().includes(term)) relevanceScore += 2;
+          if (student.name.toLowerCase().includes(term)) relevanceScore += 1;
+          // Score par défaut pour les autres champs
+          relevanceScore += 1;
+        }
+      });
+
+      // Le score de pertinence est basé sur le nombre de termes correspondants et leur importance
+      const finalScore = matchedTerms > 0 ? relevanceScore / searchTerms.length : 0;
+      
+      return {
+        student,
+        relevanceScore: finalScore,
+        matchedTerms
+      };
     });
+
+    // Filtrer pour garder uniquement les étudiants avec au moins un terme de correspondance
+    const relevantStudents = studentsWithRelevance
+      .filter(item => item.matchedTerms > 0)
+      .sort((a, b) => b.relevanceScore - a.relevanceScore) // Trier par score de pertinence décroissant
+      .map(item => item.student);
+
+    return relevantStudents;
   }, [allStudents, searchQuery]);
 
   return (
@@ -80,7 +121,7 @@ const RecruiterStudentSearch = () => {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <SearchInput
-              placeholder="Recherche en langage naturel : ex. 'développeur React Paris disponible immédiatement' ou 'master intelligence artificielle Python'"
+              placeholder="Recherche en langage naturel : ex. 'développeur React Antananarivo disponible immédiatement' ou 'master intelligence artificielle Python'"
               value={searchQuery}
               onChange={setSearchQuery}
               className="text-base"
@@ -101,7 +142,7 @@ const RecruiterStudentSearch = () => {
         ) : (
           <>
             <p className="text-sm text-muted-foreground">
-              {filteredStudents.length} étudiant{filteredStudents.length > 1 ? 's' : ''} trouvé{filteredStudents.length > 1 ? 's' : ''}
+              {filteredStudents.length} étudiant{filteredStudents.length > 1 ? 's' : ''} trouvé{filteredStudents.length > 1 ? 's' : ''} pour "{searchQuery}"
             </p>
             <div className="grid grid-cols-1 gap-4">
               {filteredStudents.map((student) => (

@@ -1,14 +1,14 @@
 # Historique des Modifications
 
-## 09-11-2025: Correction de l'erreur dans le moteur de recherche étudiant et amélioration des chatbots
+## 09-11-2025: Amélioration du moteur de recherche en langage naturel et correction des erreurs
 
-- **Objectif :** Corriger l'erreur "Cannot read properties of undefined (reading 'length')" dans le composant RecruiterStudentSearch et améliorer les chatbots avec des conversations réalistes.
+- **Objectif :** Améliorer le moteur de recherche pour qu'il fonctionne correctement en langage naturel et corriger l'erreur dans le composant RecruiterStudentSearch.
 - **Actions :**
     1. **Correction de RecruiterStudentSearch.tsx :** Réparation de l'erreur liée à l'accès à des propriétés potentiellement undefined, notamment skills, en assurant une initialisation correcte des données à partir de mockCandidates.
-    2. **Mise à jour de la logique de données :** Modification de l'accès aux profils étudiants pour utiliser les données de mockCandidates au lieu d'un profil global.
-    3. **Mise à jour de RecruiterStudentProfile.tsx :** Ajout de la gestion des paramètres d'URL pour permettre l'affichage de profils spécifiques d'étudiants.
-    4. **Mise à jour de StudentProfile.tsx :** Ajout du paramètre studentId pour permettre l'affichage de profils spécifiques en mode recruteur.
-    5. **Amélioration des chatbots :** Suppression des fonctionnalités non supportées comme la planification d'entretiens et adaptation des conversations aux fonctionnalités réelles de la plateforme.
+    2. **Mise à jour de la logique de recherche en langage naturel :** Amélioration de l'algorithme de recherche pour traiter correctement les requêtes en langage naturel comme "développeur React Antananarivo disponible immédiatement", avec un système de score de pertinence pour classer les résultats.
+    3. **Mise à jour de la logique de données :** Modification de l'accès aux profils étudiants pour utiliser les données de mockCandidates au lieu d'un profil global.
+    4. **Mise à jour de RecruiterStudentProfile.tsx :** Ajout de la gestion des paramètres d'URL pour permettre l'affichage de profils spécifiques d'étudiants.
+    5. **Mise à jour de StudentProfile.tsx :** Ajout du paramètre studentId pour permettre l'affichage de profils spécifiques en mode recruteur.
 
 ---
 
