@@ -9,7 +9,7 @@ const RecruiterStudentProfile = () => {
     <div className="p-6">
       <div className="max-w-7xl mx-auto space-y-8">
         <h1 className="text-2xl font-bold">Profil de l'étudiant</h1>
-        <StudentProfile isRecruiterView={true} studentId={id} />
+        <StudentProfile isRecruiterView={true} />
       </div>
     </div>
   );

@@ -126,27 +126,27 @@ export const mockOffers = [
 export const mockCandidates = [
   {
     id: '1',
-    name: 'Andriamalala Raviro',
-    title: 'Développeur Full Stack',
-    location: 'Antananarivo, Madagascar',
-    matchingScore: 94,
-    skills: ['React', 'Node.js', 'MongoDB', 'Python', 'TypeScript'],
-    experience: '4 ans',
-    availability: 'Immédiate',
-    appliedJobs: ['Stage Développeur Web'],
-    status: 'pending'
-  },
-  {
-    id: '2',
     name: 'Rakotoarisoa Fanantenana',
     title: 'Data Scientist',
     location: 'Antananarivo, Madagascar',
-    matchingScore: 89,
+    matchingScore: 94,
     skills: ['Python', 'Machine Learning', 'SQL', 'TensorFlow', 'Pandas'],
     experience: '3 ans',
     availability: 'Disponible à partir de février',
     appliedJobs: ['Data Scientist'],
     status: 'accepted'
+  },
+  {
+    id: '2',
+    name: 'Andriamalala Raviro',
+    title: 'Développeur Full Stack',
+    location: 'Antananarivo, Madagascar',
+    matchingScore: 60,
+    skills: ['React', 'Node.js', 'MongoDB', 'Python', 'TypeScript'],
+    experience: '4 ans',
+    availability: 'Immédiate',
+    appliedJobs: ['Stage Développeur Web'],
+    status: 'pending'
   },
   {
     id: '3',

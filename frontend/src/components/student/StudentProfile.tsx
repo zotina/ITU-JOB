@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { User, Sparkles } from "lucide-react";
 import { useLocation } from 'react-router-dom';
 
-const StudentProfile = ({ isRecruiterView = false, studentId }: { isRecruiterView?: boolean, studentId?: string }) => {
+const StudentProfile = ({ isRecruiterView = false }: { isRecruiterView?: boolean }) => {
   const { 
     profileData, 
     isEditing, 

@@ -12,6 +12,16 @@
 
 ---
 
+## 09-11-2025: Correction de l'erreur d'export dans RecruiterStudentProfile
+
+- **Objectif :** Résoudre l'erreur de module "does not provide an export named 'default'" dans RecruiterStudentProfile.tsx.
+- **Actions :**
+    1. **Analyse de l'erreur :** Identification que la modification de StudentProfile pour accepter un studentId prop a causé des problèmes d'export.
+    2. **Réversion des changements :** Retrait du paramètre studentId de StudentProfile.tsx pour restaurer la compatibilité.
+    3. **Mise à jour de RecruiterStudentProfile :** Correction de l'appel de StudentProfile pour ne plus passer le studentId.
+
+---
+
 ## 09-11-2025: Amélioration des chatbots avec des conversations réalistes et suppression des fonctionnalités non supportées
 
 - **Objectif :** Créer des conversations par défaut réalistes pour les chatbots étudiant et recruteur, avec des discussions qui se poursuivent naturellement, tout en supprimant les fonctionnalités d'entretien qui ne sont pas prises en charge par la plateforme.
