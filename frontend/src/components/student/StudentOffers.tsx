@@ -46,9 +46,9 @@ const StudentOffers = () => {
       const matchesSearch = offer.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            offer.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            offer.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesLocation = locationFilter === 'all' || offer.location.includes(locationFilter);
+      const matchesLocation = locationFilter === 'all' || locationFilter === '' || offer.location.toLowerCase().includes(locationFilter.toLowerCase());
       const matchesType = typeFilter === 'all' || offer.type === typeFilter;
-      const matchesTech = techFilter === 'all' || offer.technologies.some(tech => tech.toLowerCase().includes(techFilter.toLowerCase()));
+      const matchesTech = techFilter === 'all' || techFilter === '' || offer.technologies.some(tech => tech.toLowerCase().includes(techFilter.toLowerCase()));
       
       return matchesCompanies && matchesSearch && matchesLocation && matchesType && matchesTech;
     });
@@ -63,9 +63,7 @@ const StudentOffers = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedOffers = allOffers.slice(startIndex, startIndex + itemsPerPage);
 
-  const uniqueLocations = [...new Set(mockOffers.map(offer => offer.location))];
   const uniqueTypes = [...new Set(mockOffers.map(offer => offer.type))];
-  const uniqueTechs = [...new Set(mockOffers.flatMap(offer => offer.technologies))].slice(0, 10);
 
   const handleApply = (offerId: string, offerTitle: string, company: string, location: string, salary: string, type: string) => {
     setLoading(offerId);
@@ -116,18 +114,16 @@ const StudentOffers = () => {
               }}>{offer.company}</p>
             </div>
           </div>
-          {isRecommended && (
             <Badge variant="secondary" className="bg-green-100 text-green-700 font-semibold">
               {offer.matchingScore}% Match
             </Badge>
-          )}
         </div>
       </CardHeader>
       
       <CardContent className="space-y-4 flex-grow">
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {offer.location}</div>
-          <div className="flex items-center gap-1"><Euro className="w-4 h-4" /> {offer.salary}</div>
+          <div className="flex items-center gap-1"> {offer.salary}</div>
           <div className="flex items-center gap-1"><Clock className="w-4 h-4" /> {offer.type}</div>
         </div>
         
@@ -185,13 +181,11 @@ const StudentOffers = () => {
               onChange={setSearchTerm}
             />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Select value={locationFilter} onValueChange={setLocationFilter}>
-                <SelectTrigger><SelectValue placeholder="Localisation" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes les villes</SelectItem>
-                  {uniqueLocations.map(location => <SelectItem key={location} value={location}>{location}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <SearchInput
+                placeholder="Rechercher par ville..."
+                value={locationFilter === 'all' ? '' : locationFilter}
+                onChange={(value) => setLocationFilter(value || 'all')}
+              />
               <Select value={typeFilter} onValueChange={setTypeFilter}>
                 <SelectTrigger><SelectValue placeholder="Type de contrat" /></SelectTrigger>
                 <SelectContent>
@@ -199,13 +193,11 @@ const StudentOffers = () => {
                   {uniqueTypes.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
                 </SelectContent>
               </Select>
-              <Select value={techFilter} onValueChange={setTechFilter}>
-                <SelectTrigger><SelectValue placeholder="Technologie" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes les technologies</SelectItem>
-                  {uniqueTechs.map(tech => <SelectItem key={tech} value={tech}>{tech}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <SearchInput
+                placeholder="Rechercher par technologie..."
+                value={techFilter === 'all' ? '' : techFilter}
+                onChange={(value) => setTechFilter(value || 'all')}
+              />
             </div>
             {companiesFilter.length > 0 && (
               <div className="pt-4">

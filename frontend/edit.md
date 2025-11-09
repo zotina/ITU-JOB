@@ -1,5 +1,16 @@
 # Historique des Modifications
 
+## 09-11-2025: Ajout de la section offres de stage dans le profil étudiant
+
+- **Objectif :** Ajouter des offres de stage dans la section "Toutes les offres" du profil étudiant, avec le type "stage" dans le select et rendre les champs technologie et ville libres.
+- **Actions :**
+    1. **Ajout des offres de stage :** Ajout de 4 nouvelles offres de stage dans les données de test.
+    2. **Mise à jour du type d'offre :** Ajout du type "Stage" aux données existantes pour permettre son utilisation dans les filtres.
+    3. **Rendre technologie libre :** Remplacement du Select de technologie par un champ de recherche libre pour permettre des filtres plus souples.
+    4. **Rendre ville libre :** Remplacement du Select de ville par un champ de recherche libre pour permettre des filtres plus souples.
+
+---
+
 ## 07-11-2025: Suppression du tri dans la page des offres
 
 - **Objectif :** Supprimer la fonctionnalité de tri dans la page StudentOffers.tsx pour simplifier l'interface et garder une structure pertinente.
