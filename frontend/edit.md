@@ -1,12 +1,12 @@
 # Historique des Modifications
 
-## 09-11-2025: Amélioration des chatbots avec des conversations réalistes
+## 09-11-2025: Amélioration des chatbots avec des conversations réalistes et suppression des fonctionnalités non supportées
 
-- **Objectif :** Créer des conversations par défaut réalistes pour les chatbots étudiant et recruteur, avec des discussions qui se poursuivent naturellement.
+- **Objectif :** Créer des conversations par défaut réalistes pour les chatbots étudiant et recruteur, avec des discussions qui se poursuivent naturellement, tout en supprimant les fonctionnalités d'entretien qui ne sont pas prises en charge par la plateforme.
 - **Actions :**
-    1. **Mise à jour de StudentChatbot.tsx :** Remplacement de la conversation par défaut par un échange réaliste basé sur le profil d'Andriamalala Raviro, ses candidatures en cours et ses besoins de carrière.
-    2. **Mise à jour de RecruiterChatbot.tsx :** Remplacement de la conversation par défaut par un échange réaliste basé sur les offres d'emploi du recruteur, les candidatures reçues et les besoins en recrutement.
-    3. **Amélioration des fonctions de réponse :** Mise en place de réponses contextuelles basées sur les entrées de l'utilisateur, avec des informations pertinentes sur les offres, candidatures, entretiens et compétences.
+    1. **Mise à jour de StudentChatbot.tsx :** Remplacement de la conversation par défaut par un échange réaliste basé sur le profil d'Andriamalala Raviro, ses candidatures en cours et ses besoins de carrière, sans référence à la planification d'entretiens.
+    2. **Mise à jour de RecruiterChatbot.tsx :** Remplacement de la conversation par défaut par un échange réaliste basé sur les offres d'emploi du recruteur, les candidatures reçues et les besoins en recrutement, avec suppression des références à la planification d'entretiens.
+    3. **Amélioration des fonctions de réponse :** Mise en place de réponses contextuelles basées sur les entrées de l'utilisateur, avec des informations pertinentes sur les offres, candidatures, tests techniques et compétences.
     4. **Mise à jour des actions rapides :** Adaptation des boutons d'actions rapides pour refléter les besoins réels des utilisateurs dans leur parcours de carrière ou de recrutement.
     5. **Ajout de gestion multi-ligne :** Utilisation de `whitespace-pre-line` pour permettre l'affichage correct des réponses formatées avec des sauts de ligne.
 

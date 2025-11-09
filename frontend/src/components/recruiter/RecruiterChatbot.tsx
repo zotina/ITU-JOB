@@ -19,7 +19,7 @@ const RecruiterChatbot = () => {
   };
 
   // Initial conversation flow with more realistic messages based on recruiter's current needs
-  const initialMessages: Message[] = [
+const initialMessages: Message[] = [
     {
       id: '1',
       type: 'bot',
@@ -35,31 +35,31 @@ const RecruiterChatbot = () => {
     {
       id: '3',
       type: 'bot',
-      content: 'Voici l\'analyse des 24 candidatures pour le poste de "Développeur Full Stack" :\n\n- 8 candidats ont un score de matching > 85%\n- 5 candidats ont des entretiens programmés\n- 3 candidats sont en attente de test technique\n- Les compétences les plus courantes : React (90%), Node.js (85%), JavaScript (80%)\n\nLe candidat avec le meilleur score est Andriamalala Raviro avec 92% de matching. Souhaitez-vous voir le profil détaillé de ce candidat ou planifier des entretiens ?',
+      content: 'Voici l\'analyse des 24 candidatures pour le poste de "Développeur Full Stack" :\n\n- 8 candidats ont un score de matching > 85%\n- 5 candidats ont été pré-sélectionnés pour une évaluation technique\n- 3 candidats sont en attente de test technique\n- Les compétences les plus courantes : React (90%), Node.js (85%), JavaScript (80%)\n\nLe candidat avec le meilleur score est Andriamalala Raviro avec 92% de matching. Souhaitez-vous voir le profil détaillé de ce candidat ou envoyer un test technique ?',
       timestamp: new Date(Date.now() - 40000) // 40 seconds ago
     },
     {
       id: '4',
       type: 'user',
-      content: 'Oui, montrez-moi le profil d\'Andriamalala Raviro et planifions un entretien',
+      content: 'Oui, montrez-moi le profil d\'Andriamalala Raviro',
       timestamp: new Date(Date.now() - 30000) // 30 seconds ago
     },
     {
       id: '5',
       type: 'bot',
-      content: 'Profil d\'Andriamalala Raviro (Score: 92%) :\n- Expérience : 3 ans en développement Java et Spring Boot\n- Compétences : Java, Spring Boot, React, TypeScript, PostgreSQL\n- Dernier poste : Développeur Full Stack chez une entreprise de technologie\n- Formation : Ingénieur en Informatique\n\nPour planifier l\'entretien, quand souhaitez-vous le programmer ? Je peux vous proposer :\n- Mardi 12 novembre à 10h\n- Mercredi 13 novembre à 14h\n- Jeudi 14 novembre à 9h\n\nSouhaitez-vous également envoyer un test technique à ce candidat avant l\'entretien ?',
+      content: 'Profil d\'Andriamalala Raviro (Score: 92%) :\n- Expérience : 3 ans en développement Java et Spring Boot\n- Compétences : Java, Spring Boot, React, TypeScript, PostgreSQL\n- Dernier poste : Développeur Full Stack chez une entreprise de technologie\n- Formation : Ingénieur en Informatique\n\n',
       timestamp: new Date(Date.now() - 20000) // 20 seconds ago
     },
     {
       id: '6',
       type: 'user',
-      content: 'Planifions l\'entretien pour mercredi 13 novembre à 14h et envoyons un test technique',
+      content: 'Oui, envoyez le test technique et proposez-moi d\'autres candidats pertinents',
       timestamp: new Date(Date.now() - 10000) // 10 seconds ago
     },
     {
       id: '7',
       type: 'bot',
-      content: 'Entretien planifié pour Andriamalala Raviro le mercredi 13 novembre à 14h. L\'invitation a été envoyée avec un lien de confirmation. Le test technique portera sur :\n- Développement d\'une API REST avec Spring Boot\n- Création d\'un composant React avec gestion d\'état\n- Durée : 2 heures\n- Délai de soumission : 3 jours ouvrables\n\nSouhaitez-vous créer une nouvelle offre d\'emploi ou analyser d\'autres candidatures ?',
+      content: 'Le test technique a été envoyé à Andriamalala Raviro. Voici d\'autres candidats pertinents pour ce poste :\n\n- Fanantenana R. (Score: 89%) - Forte expérience en React et Node.js\n- Hasina M. (Score: 87%) - Spécialiste en architecture logicielle\n- Marie C. (Score: 85%) - Expertise en développement backend\n\nSouhaitez-vous envoyer un test technique à l\'un de ces candidats ou créer une nouvelle offre d\'emploi ?',
       timestamp: new Date()
     }
   ];
@@ -185,23 +185,6 @@ const RecruiterChatbot = () => {
                 </div>
               ))}
               <div ref={messagesEndRef} />
-            </div>
-
-            {/* Actions rapides */}
-            <div className="p-4 border-t bg-muted/30">
-              <p className="text-sm font-medium mb-2">Actions rapides :</p>
-              <div className="flex flex-wrap gap-2">
-                {quickActions.map((action) => (
-                  <Button
-                    key={action}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleQuickAction(action)}
-                  >
-                    {action}
-                  </Button>
-                ))}
-              </div>
             </div>
 
             {/* Zone de saisie */}

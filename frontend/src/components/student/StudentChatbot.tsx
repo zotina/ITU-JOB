@@ -19,7 +19,7 @@ const StudentChatbot = () => {
   };
 
   // Initial conversation flow with more realistic messages based on user's profile and applications
-  const initialMessages: Message[] = [
+    const initialMessages: Message[] = [
     {
       id: '1',
       type: 'bot',
@@ -35,35 +35,36 @@ const StudentChatbot = () => {
     {
       id: '3',
       type: 'bot',
-      content: 'Voici l\'état de vos candidatures :\n\n1. "Stage Développeur Web" chez Orange Madagascar - En cours de traitement, réponse attendue dans 2 jours\n\n2. "Développeur Full Stack" - Entretien prévu le 15 novembre\n\n3. "Ingénieur DevOps" - En attente de votre réponse pour un entretien le 12 novembre\n\nSouhaitez-vous préparer l\'un de ces entretiens ou postuler à d\'autres offres ?',
+      content: 'Voici l\'état de vos candidatures :\n\n1. "Stage Développeur Web" chez Orange Madagascar - En cours de traitement, réponse attendue dans 2 jours\n\n2. "Développeur Full Stack" - Candidature en cours d\'analyse\n\n3. "Ingénieur DevOps" - Candidature reçue, en attente de réponse du recruteur\n\nSouhaitez-vous des conseils pour améliorer vos candidatures ou découvrir d\'autres offres ?',
       timestamp: new Date(Date.now() - 40000) // 40 seconds ago
     },
     {
       id: '4',
       type: 'user',
-      content: 'Je veux préparer l\'entretien du 15 novembre pour le poste de Développeur Full Stack',
+      content: 'Je veux améliorer mes candidatures pour avoir plus de chances d\'être retenu',
       timestamp: new Date(Date.now() - 30000) // 30 seconds ago
     },
     {
       id: '5',
       type: 'bot',
-      content: 'Excellent choix ! Pour le poste de Développeur Full Stack, voici les technologies clés à maîtriser : React, Node.js, PostgreSQL, Docker, et Git. Je vous recommande de réviser :\n\n- Les concepts de programmation asynchrone (promises, async/await)\n\n- Les hooks React (useState, useEffect, useContext)\n\n- La gestion d\'état avec Redux ou Context API\n\n- Les principes SOLID en programmation orientée objet\n\nSouhaitez-vous que je vous propose des questions d\'entretien techniques spécifiques ?',
+      content: 'Excellent objectif ! Voici mes recommandations pour améliorer vos candidatures :\n\n- Mettez en avant vos projets personnels et open-source dans votre profil\n\n- Ajoutez des détails spécifiques sur vos réalisations techniques\n\n- Assurez-vous que vos compétences clés (Java, Spring Boot, React) sont bien visibles\n\n- Personnalisez votre lettre de motivation pour chaque offre\n\nSouhaitez-vous que je vous aide à améliorer une section spécifique de votre profil ?',
       timestamp: new Date(Date.now() - 20000) // 20 seconds ago
     },
     {
       id: '6',
       type: 'user',
-      content: 'Oui, montrez-moi des questions techniques pour ce poste',
+      content: 'Oui, aidez-moi à améliorer la section expérience professionnelle',
       timestamp: new Date(Date.now() - 10000) // 10 seconds ago
     },
     {
       id: '7',
       type: 'bot',
-      content: 'Voici des questions techniques pour le poste de Développeur Full Stack :\n\n1. Pouvez-vous expliquer la différence entre React et Angular ?\n\n2. Qu\'est-ce qu\'un hook personnalisé dans React et comment le créez-vous ?\n\n3. Comment gérez-vous l\'authentification et la sécurité dans une application Full Stack ?\n\n4. Quelle est la différence entre une base de données relationnelle et une base de données NoSQL ?\n\n5. Comment optimisez-vous les performances d\'une application web ?\n\nPuis-je vous aider à préparer vos réponses à ces questions ?',
+      content: 'Voici comment améliorer votre section expérience professionnelle :\n\n1. Pour chaque poste, ajoutez des chiffres concrets (ex: "Développement d\'une application qui a amélioré la productivité de 25%")\n\n2. Utilisez des verbes d\'action (conçu, implémenté, optimisé, collaboré)\n\n3. Mettez en évidence les technologies spécifiques que vous avez utilisées\n\n4. Ajoutez les résultats obtenus et l\'impact de votre travail\n\n\nPuis-je vous aider à rédiger une description d\'expérience spécifique ?',
       timestamp: new Date()
     }
   ];
 
+  
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [newMessage, setNewMessage] = useState('');
 
