@@ -1,5 +1,25 @@
 # Historique des Modifications
 
+## 09-11-2025: Affichage des logos des entreprises dans les cartes d'offres et les détails
+
+- **Objectif :** Remplacer l'icône générique Building2 par les logos réels des entreprises dans les cartes d'offres et les détails d'offres.
+- **Actions :**
+    1. **Modification de StudentOffers.tsx :** Remplacement de l'icône Building2 par l'affichage du logo de l'entreprise si disponible.
+    2. **Modification de OfferDetailPage.tsx :** Remplacement de l'icône Building2 par l'affichage du logo de l'entreprise si disponible.
+    3. **Gestion des erreurs :** Ajout de gestion d'erreur pour afficher l'icône par défaut si le logo n'est pas disponible ou en cas d'erreur de chargement.
+
+---
+
+## 09-11-2025: Affichage des logos des entreprises dans les offres
+
+- **Objectif :** Remplacer l'icône générique Building2 par les logos réels des entreprises dans les cartes d'offres et les détails d'offres.
+- **Actions :**
+    1. **Modification de StudentOffers.tsx :** Remplacement de l'icône Building2 par l'affichage du logo de l'entreprise si disponible.
+    2. **Modification de StudentOfferDetail.tsx :** Remplacement de l'icône Building2 par l'affichage du logo de l'entreprise si disponible.
+    3. **Gestion des erreurs :** Ajout de gestion d'erreur pour afficher l'icône par défaut si le logo n'est pas disponible ou en cas d'erreur de chargement.
+
+---
+
 ## 09-11-2025: Ajout de la section offres de stage dans le profil étudiant
 
 - **Objectif :** Ajouter des offres de stage dans la section "Toutes les offres" du profil étudiant, avec le type "stage" dans le select et rendre les champs technologie et ville libres.

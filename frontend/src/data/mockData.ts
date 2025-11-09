@@ -19,7 +19,7 @@ export const mockOffers = [
   {
     id: '2',
     title: 'Data Scientist',
-    company: 'Telma Madagascar',
+    company: 'Yas Madagascar',
     location: 'Antananarivo, Madagascar',
     coordinates: [47.5061, -18.9121],
     salary: '2.5-3.5M MGA/mois',
@@ -94,7 +94,7 @@ export const mockOffers = [
   {
     id: '7',
     title: 'Stage DevOps Junior',
-    company: 'Telma Madagascar',
+    company: 'Yas Madagascar',
     location: 'Antananarivo, Madagascar',
     coordinates: [47.5061, -18.9121],
     salary: '',
@@ -265,21 +265,21 @@ export const mockCompanies: Company[] = [
     },
     website: 'https://www.orange.mg',
     contact: 'contact@orange.mg',
-    coordinates: [47.5061, -18.9121] as [number, number],
+    coordinates: [47.5229909, -18.8842199] as [number, number],
     offers: 5
   },
   {
     id: '2',
-    name: 'Telma Madagascar',
-    description: 'Telma Madagascar est l\'un des principaux opérateurs de téléphonie mobile à Madagascar. Nous nous engageons à fournir des services de télécommunication de qualité et des solutions numériques adaptées aux besoins de nos clients.',
-    logo: '/src/assets/company-logos/telma.png',
+    name: 'Yas Madagascar',
+    description: 'Yas Madagascar est l\'un des principaux opérateurs de téléphonie mobile à Madagascar. Nous nous engageons à fournir des services de télécommunication de qualité et des solutions numériques adaptées aux besoins de nos clients.',
+    logo: '/src/assets/company-logos/yas.png',
     address: {
       city: 'Antananarivo',
       country: 'Madagascar'
     },
-    website: 'https://www.telma.mg',
+    website: 'https://www.yas.mg',
     contact: 'info@telma.mg',
-    coordinates: [47.5061, -18.9121] as [number, number],
+    coordinates: [47.52566623322738, -18.909228523929638] as [number, number],
     offers: 3
   },
   {
@@ -293,7 +293,7 @@ export const mockCompanies: Company[] = [
     },
     website: 'https://www.airtel.mg',
     contact: 'hello@airtel.mg',
-    coordinates: [47.5061, -18.9121] as [number, number],
+    coordinates: [47.519278, -18.8753376] as [number, number],
     offers: 2
   },
   {

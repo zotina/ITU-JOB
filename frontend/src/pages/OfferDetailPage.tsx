@@ -74,7 +74,26 @@ const OfferDetailPage = () => {
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <Building2 className="w-8 h-8 text-primary" />
+                    {company && company.logo ? (
+                      <img 
+                        src={company.logo} 
+                        alt={`${offer.company} logo`}
+                        className="w-8 h-8 object-contain"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.onerror = null;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent) {
+                            const fallbackIcon = document.createElement('div');
+                            fallbackIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-primary"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" className="text-primary"/><path d="M6 12H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" className="text-primary"/></svg>';
+                            parent.appendChild(fallbackIcon);
+                          }
+                        }}
+                      />
+                    ) : (
+                      <Building2 className="w-8 h-8 text-primary" />
+                    )}
                   </div>
                   <div>
                     <CardTitle className="text-2xl font-bold">{offer.title}</CardTitle>

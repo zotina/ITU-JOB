@@ -102,7 +102,29 @@ const StudentOffers = () => {
                 navigate(`/student/company/${company.id}`);
               }
             }}>
-              <Building2 className="w-6 h-6 text-primary" />
+              {(() => {
+                const company = mockCompanies.find(c => c.name === offer.company);
+                return company && company.logo ? (
+                  <img 
+                    src={company.logo} 
+                    alt={`${offer.company} logo`}
+                    className="w-6 h-6 object-contain"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.onerror = null;
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent) {
+                        const fallbackIcon = document.createElement('div');
+                        fallbackIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-primary"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" className="text-primary"/><path d="M6 12H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" className="text-primary"/></svg>';
+                        parent.appendChild(fallbackIcon);
+                      }
+                    }}
+                  />
+                ) : (
+                  <Building2 className="w-6 h-6 text-primary" />
+                );
+              })()}
             </div>
             <div>
               <CardTitle className="text-lg">{offer.title}</CardTitle>
