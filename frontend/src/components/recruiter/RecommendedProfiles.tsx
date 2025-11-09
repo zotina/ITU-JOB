@@ -14,41 +14,32 @@ const RecommendedProfiles = ({ offerTitle }: RecommendedProfilesProps) => {
   const navigate = useNavigate();
   const recommendedStudents = [
     {
-      id: 1,
-      name: 'Claire Dubois',
-      level: 'Master 2',
-      skills: ['React', 'TypeScript', 'Node.js'],
-      location: 'Paris',
-      matchScore: 98,
+      id: '2',
+      name: 'Rakotoarisoa Fanantenana',
+      level: 'Data Scientist',
+      skills: ['Python', 'Machine Learning', 'SQL', 'TensorFlow', 'Pandas'],
+      location: 'Antananarivo, Madagascar',
+      matchScore: 94,
       avatar: '',
     },
     {
-      id: 2,
-      name: 'Lucas Martin',
-      level: 'Master 1',
-      skills: ['React', 'JavaScript', 'MongoDB'],
-      location: 'Lyon',
-      matchScore: 95,
+      id: '1',
+      name: 'Andriamalala Raviro',
+      level: 'Développeur Full Stack',
+      skills: ['React', 'Node.js', 'MongoDB', 'Python', 'TypeScript'],
+      location: 'Antananarivo, Madagascar',
+      matchScore: 82,
       avatar: '',
-    },
-    {
-      id: 3,
-      name: 'Emma Bernard',
-      level: 'Licence 3',
-      skills: ['React', 'CSS', 'Git'],
-      location: 'Toulouse',
-      matchScore: 92,
-      avatar: '',
-    },
-    {
-      id: 4,
-      name: 'Hugo Petit',
-      level: 'Master 2',
-      skills: ['React', 'Redux', 'Testing'],
-      location: 'Marseille',
-      matchScore: 90,
-      avatar: '',
-    },
+    }
+    // {
+    //   id: '3',
+    //   name: 'Razafindramary Hasina',
+    //   level: 'Développeur Mobile',
+    //   skills: ['React Native', 'Flutter', 'Firebase', 'JavaScript', 'Redux'],
+    //   location: 'Antananarivo, Madagascar',
+    //   matchScore: 85,
+    //   avatar: '',
+    // },
   ];
 
   return (

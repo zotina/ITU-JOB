@@ -158,7 +158,7 @@ const RecruiterOffers = () => {
               </div>
 
               <div className="flex items-center justify-between pt-4 border-t">
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                {/* <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Users className="w-4 h-4" />
                     <span>23 candidatures</span>
@@ -168,7 +168,7 @@ const RecruiterOffers = () => {
                     <span>156 vues</span>
                   </div>
                 </div>
-                
+                 */}
                 <div className="flex gap-2">
                   <RecommendedProfiles offerTitle={offer.title} />
                   <Button size="sm" onClick={() => navigate(`/recruiter/candidates?offerId=${offer.id}`)}>

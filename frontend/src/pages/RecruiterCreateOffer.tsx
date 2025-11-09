@@ -77,7 +77,7 @@ const RecruiterCreateOffer = () => {
             </div>
 
             {/* Entreprise */}
-            {!anonymousPost && (
+            {!anonymousPost || anonymousPost!=null && (
               <div className="space-y-2">
                 <Label htmlFor="company">Entreprise *</Label>
                 <Input
@@ -110,7 +110,7 @@ const RecruiterCreateOffer = () => {
               <Label htmlFor="location">Localisation *</Label>
               <Input
                 id="location"
-                placeholder="Ex: Paris, France"
+                placeholder="Ex: Antananarivo, Madagascar"
                 required
               />
             </div>
@@ -118,19 +118,19 @@ const RecruiterCreateOffer = () => {
             {/* Salaire */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="salaryMin">Salaire minimum (€)</Label>
+                <Label htmlFor="salaryMin">Salaire minimum</Label>
                 <Input
                   id="salaryMin"
                   type="number"
-                  placeholder="Ex: 35000"
+                  // placeholder="Ex: 35000"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="salaryMax">Salaire maximum (€)</Label>
+                <Label htmlFor="salaryMax">Salaire maximum</Label>
                 <Input
                   id="salaryMax"
                   type="number"
-                  placeholder="Ex: 45000"
+                  // placeholder="Ex: 45000"
                 />
               </div>
             </div>

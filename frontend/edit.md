@@ -1,5 +1,27 @@
 # Historique des Modifications
 
+## 09-11-2025: Mise à jour des profils recommandés avec les vrais candidats
+
+- **Objectif :** Remplacer les données fictives des profils recommandés par les vrais candidats du système.
+- **Actions :**
+    1. **Analyse des données existantes :** Identification des candidats réels dans le tableau mockCandidates.
+    2. **Mise à jour des données :** Remplacement des données factices par les profils réels de Andriamalala Raviro, Rakotoarisoa Fanantenana et Razafindramary Hasina.
+    3. **Conservation de la structure :** Adaptation des données réelles au format attendu par le composant RecommendedProfiles.
+    4. **Maintien de la navigation :** Conservation des liens vers les profils étudiants avec la bonne structure d'URL pour les recruteurs.
+
+---
+
+## 09-11-2025: Mise à jour des recommandations personnalisées dans le profil étudiant
+
+- **Objectif :** Adapter les recommandations du profil étudiant pour correspondre au marché malgache et au profil de l'utilisateur.
+- **Actions :**
+    1. **Analyse du profil prérempli :** Identification des compétences actuelles du profil (Java, Spring Boot, etc.).
+    2. **Analyse des offres disponibles :** Identification des tendances du marché malgache (technologies mobiles, cloud, etc.).
+    3. **Mise à jour des recommandations :** Remplacement des anciennes recommandations génériques par des recommandations contextuelles basées sur le marché de Madagascar.
+    4. **Personnalisation des conseils :** Adaptation des suggestions pour valoriser les compétences existantes et combler les écarts identifiés.
+
+---
+
 ## 09-11-2025: Gestion des sections optionnelles dans le profil étudiant
 
 - **Objectif :** Permettre aux sections du profil étudiant d'être nulles/vides tout en maintenant un design attrayant.
