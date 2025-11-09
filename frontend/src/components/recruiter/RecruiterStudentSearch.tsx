@@ -28,35 +28,35 @@ const RecruiterStudentSearch = () => {
       // Récupérer le profil complet de l'étudiant
       const fullProfile = getStudentProfile();
 
-      // Extraire les compétences techniques
-      const allSkills = fullProfile.technicalSkills.flatMap(category => 
+      // Extraire les compétences techniques avec vérification de nullité
+      const allSkills = fullProfile.technicalSkills ? fullProfile.technicalSkills.flatMap(category => 
         category.skills.map(skill => skill.name)
-      );
+      ) : [];
 
-      // Extraire les langues
-      const languages = fullProfile.languages.map(lang => lang.name);
+      // Extraire les langues avec vérification de nullité
+      const languages = fullProfile.languages ? fullProfile.languages.map(lang => lang.name) : [];
 
-      // Extraire les projets
-      const projects = fullProfile.projects.map(project => project.title);
+      // Extraire les projets avec vérification de nullité
+      const projects = fullProfile.projects ? fullProfile.projects.map(project => project.title) : [];
 
-      // Extraire les expériences
-      const experiences = fullProfile.experiences.map(exp => exp.title);
+      // Extraire les expériences avec vérification de nullité
+      const experiences = fullProfile.experiences ? fullProfile.experiences.map(exp => exp.title) : [];
 
-      // Extraire les formations (pour le niveau d'études)
-      const formations = fullProfile.formations;
+      // Extraire les formations (pour le niveau d'études) avec vérification de nullité
+      const formations = fullProfile.formations || [];
 
       return {
         id: user.id,
         name: fullProfile.personalInfo.name,
         email: user.email,
-        title: fullProfile.personalInfo.title,
+        title: fullProfile.personalInfo.title || 'N/A',
         level: formations.length > 0 ? formations[0].degree : 'N/A',
         skills: allSkills,
-        availability: fullProfile.personalInfo.availability,
-        location: fullProfile.personalInfo.location,
+        availability: fullProfile.personalInfo.availability || 'N/A',
+        location: fullProfile.personalInfo.location || 'N/A',
         matchScore: Math.floor(Math.random() * 40) + 60, // Score aléatoire entre 60 et 100 pour la démo
         avatar: fullProfile.personalInfo.profileImage,
-        description: fullProfile.personalInfo.description,
+        description: fullProfile.personalInfo.description || 'Aucune description disponible',
         languages: languages,
         projects: projects,
         experiences: experiences,
@@ -217,13 +217,6 @@ const RecruiterStudentSearch = () => {
                     >
                       <User className="w-4 h-4 mr-2" />
                       Voir profil
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                    >
-                      <Mail className="w-4 h-4 mr-2" />
-                      Contacter
                     </Button>
                   </div>
                 </div>

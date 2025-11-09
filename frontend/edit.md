@@ -1,5 +1,16 @@
 # Historique des Modifications
 
+## 09-11-2025: Correction de l'erreur dans la recherche d'étudiants
+
+- **Objectif :** Résoudre l'erreur "Cannot read properties of undefined (reading 'flatMap')" sur la page de recherche des étudiants.
+- **Actions :**
+    1. **Diagnostic de l'erreur :** Identification du problème dans RecruiterStudentSearch.tsx ligne 32 avec l'appel à flatMap sur des propriétés potentiellement nulles.
+    2. **Ajout de vérifications de nullité :** Mise en place de protections pour les propriétés techniques du profil (technicalSkills, languages, projects, experiences, formations).
+    3. **Gestion des cas vides :** Remplacement des propriétés manquantes par des valeurs par défaut appropriées.
+    4. **Préservation de la fonctionnalité :** Maintien du comportement global du composant tout en le rendant plus robuste.
+
+---
+
 ## 09-11-2025: Mise à jour des profils recommandés avec les vrais candidats
 
 - **Objectif :** Remplacer les données fictives des profils recommandés par les vrais candidats du système.
