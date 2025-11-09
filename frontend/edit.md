@@ -1,5 +1,17 @@
 # Historique des Modifications
 
+## 09-11-2025: Correction de l'erreur dans le moteur de recherche étudiant et amélioration des chatbots
+
+- **Objectif :** Corriger l'erreur "Cannot read properties of undefined (reading 'length')" dans le composant RecruiterStudentSearch et améliorer les chatbots avec des conversations réalistes.
+- **Actions :**
+    1. **Correction de RecruiterStudentSearch.tsx :** Réparation de l'erreur liée à l'accès à des propriétés potentiellement undefined, notamment skills, en assurant une initialisation correcte des données à partir de mockCandidates.
+    2. **Mise à jour de la logique de données :** Modification de l'accès aux profils étudiants pour utiliser les données de mockCandidates au lieu d'un profil global.
+    3. **Mise à jour de RecruiterStudentProfile.tsx :** Ajout de la gestion des paramètres d'URL pour permettre l'affichage de profils spécifiques d'étudiants.
+    4. **Mise à jour de StudentProfile.tsx :** Ajout du paramètre studentId pour permettre l'affichage de profils spécifiques en mode recruteur.
+    5. **Amélioration des chatbots :** Suppression des fonctionnalités non supportées comme la planification d'entretiens et adaptation des conversations aux fonctionnalités réelles de la plateforme.
+
+---
+
 ## 09-11-2025: Amélioration des chatbots avec des conversations réalistes et suppression des fonctionnalités non supportées
 
 - **Objectif :** Créer des conversations par défaut réalistes pour les chatbots étudiant et recruteur, avec des discussions qui se poursuivent naturellement, tout en supprimant les fonctionnalités d'entretien qui ne sont pas prises en charge par la plateforme.

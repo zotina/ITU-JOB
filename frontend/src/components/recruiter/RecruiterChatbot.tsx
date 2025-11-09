@@ -35,7 +35,7 @@ const initialMessages: Message[] = [
     {
       id: '3',
       type: 'bot',
-      content: 'Voici l\'analyse des 24 candidatures pour le poste de "Développeur Full Stack" :\n\n- 8 candidats ont un score de matching > 85%\n- 5 candidats ont été pré-sélectionnés pour une évaluation technique\n- 3 candidats sont en attente de test technique\n- Les compétences les plus courantes : React (90%), Node.js (85%), JavaScript (80%)\n\nLe candidat avec le meilleur score est Andriamalala Raviro avec 92% de matching. Souhaitez-vous voir le profil détaillé de ce candidat ou envoyer un test technique ?',
+      content: 'Voici l\'analyse des 24 candidatures pour le poste de "Développeur Full Stack" :\n\n- 8 candidats ont un score de matching > 85%\n- 5 candidats ont été pré-sélectionnés pour une évaluation technique\n- 3 candidats sont en attente de test technique\n- Les compétences les plus courantes : React (90%), Node.js (85%), JavaScript (80%)\n\nLe candidat avec le meilleur score est Andriamalala Raviro avec 92% de matching. Souhaitez-vous voir le profil détaillé de ce candidat ?',
       timestamp: new Date(Date.now() - 40000) // 40 seconds ago
     },
     {
