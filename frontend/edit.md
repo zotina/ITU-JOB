@@ -1,5 +1,17 @@
 # Historique des Modifications
 
+## 09-11-2025: Amélioration des chatbots avec des conversations réalistes
+
+- **Objectif :** Créer des conversations par défaut réalistes pour les chatbots étudiant et recruteur, avec des discussions qui se poursuivent naturellement.
+- **Actions :**
+    1. **Mise à jour de StudentChatbot.tsx :** Remplacement de la conversation par défaut par un échange réaliste basé sur le profil d'Andriamalala Raviro, ses candidatures en cours et ses besoins de carrière.
+    2. **Mise à jour de RecruiterChatbot.tsx :** Remplacement de la conversation par défaut par un échange réaliste basé sur les offres d'emploi du recruteur, les candidatures reçues et les besoins en recrutement.
+    3. **Amélioration des fonctions de réponse :** Mise en place de réponses contextuelles basées sur les entrées de l'utilisateur, avec des informations pertinentes sur les offres, candidatures, entretiens et compétences.
+    4. **Mise à jour des actions rapides :** Adaptation des boutons d'actions rapides pour refléter les besoins réels des utilisateurs dans leur parcours de carrière ou de recrutement.
+    5. **Ajout de gestion multi-ligne :** Utilisation de `whitespace-pre-line` pour permettre l'affichage correct des réponses formatées avec des sauts de ligne.
+
+---
+
 ## 09-11-2025: Correction de l'erreur dans la recherche d'étudiants
 
 - **Objectif :** Résoudre l'erreur "Cannot read properties of undefined (reading 'flatMap')" sur la page de recherche des étudiants.
