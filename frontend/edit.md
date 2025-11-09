@@ -1,5 +1,37 @@
 # Historique des Modifications
 
+## 09-11-2025: Gestion des sections optionnelles dans le profil étudiant
+
+- **Objectif :** Permettre aux sections du profil étudiant d'être nulles/vides tout en maintenant un design attrayant.
+- **Actions :**
+    1. **Mise à jour de l'interface ProfileData :** Rendre les sections techniques (compétences, langues, soft skills, projets, expériences, formations) optionnelles (nullable).
+    2. **Mise à jour des données de profil :** Configurer le profil étudiant pour avoir uniquement les informations personnelles de base et laisser les autres sections à undefined.
+    3. **Mise à jour des composants :** Ajouter des vérifications null/sécurité pour éviter les erreurs de type `Cannot read properties of undefined (reading 'map')` dans tous les composants éditables.
+    4. **Amélioration UX :** Ajouter des messages et boutons utiles pour guider l'utilisateur lorsqu'une section est vide.
+    5. **Mise à jour des données de pré-remplissage :** S'assurer que preRempliCV suit la même structure que le profil principal.
+
+---
+
+## 09-11-2025: Remplacement de l'icône Building2 par le logo de l'entreprise dans StudentApplications
+
+- **Objectif :** Remplacer l'icône générique Building2 par le logo réel de l'entreprise dans la page de gestion des candidatures des étudiants.
+- **Actions :**
+    1. **Mise à jour de l'interface Application :** Ajout de la propriété logo à l'interface Application dans applicationStore.ts.
+    2. **Mise à jour des données de candidature :** Ajout des chemins vers les logos des entreprises dans le store de candidatures.
+    3. **Modification de StudentApplications.tsx :** Remplacement de l'icône Building2 par l'affichage du logo de l'entreprise si disponible.
+    4. **Gestion des erreurs :** Ajout d'une gestion d'erreur pour afficher une initiale de l'entreprise si le logo n'est pas disponible ou en cas d'erreur de chargement.
+    5. **Suppression de l'import inutilisé :** Suppression de l'import de Building2 puisque l'icône n'est plus utilisée.
+
+---
+
+## 09-11-2025: Mise à jour des candidatures pour Andriamalala Raviro dans le profil recruteur
+
+- **Objectif :** Mettre à jour les données de candidature d'Andriamalala Raviro dans le profil recruteur selon les spécifications.
+- **Actions :**
+    1. **Modification des appliedJobs :** Changement de ['Développeur Full Stack', 'Ingénieur DevOps'] à ['Stage Développeur Web'] dans le tableau mockCandidates.
+
+---
+
 ## 09-11-2025: Mise à jour des candidatures pour Andriamalala Raviro
 
 - **Objectif :** Mettre à jour les données de candidature d'Andriamalala Raviro selon les spécifications.
