@@ -40,52 +40,70 @@ const EditableSoftSkillsSection = ({ data, isEditing, onUpdate }: EditableSoftSk
         </div>
         
         <div className="space-y-3">
-          {data.length === 0 && isEditing && (
-            <div className="text-center p-4 border-dashed border-2 border-muted-foreground/20 rounded-lg">
-              <p className="text-sm text-muted-foreground">Aucune compétence ajoutée.</p>
-            </div>
-          )}
-
-          {isEditing ? (
-            <div className="space-y-2">
-              {data.map((skill, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <div className="flex-1 relative">
-                    <Input
-                      value={skill}
-                      onChange={(e) => updateSoftSkill(index, e.target.value)}
-                      placeholder="Nom de la compétence"
-                      className="pr-8"
-                    />
-                    {!skill && <span className="absolute right-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-red-500"></span>}
+          {data && data.length > 0 ? (
+            isEditing ? (
+              <div className="space-y-2">
+                {data.map((skill, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <div className="flex-1 relative">
+                      <Input
+                        value={skill}
+                        onChange={(e) => updateSoftSkill(index, e.target.value)}
+                        placeholder="Nom de la compétence"
+                        className="pr-8"
+                      />
+                      {!skill && <span className="absolute right-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-red-500"></span>}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeSoftSkill(index)}
+                      className="px-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => removeSoftSkill(index)}
-                    className="px-2"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={addSoftSkill}
-                className="w-full mt-2"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Ajouter une compétence
-              </Button>
-            </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={addSoftSkill}
+                  className="w-full mt-2"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Ajouter une compétence
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {data.map((skill, index) => (
+                  <Badge key={index} variant="secondary" className="text-sm">
+                    {skill}
+                  </Badge>
+                ))}
+              </div>
+            )
           ) : (
-            <div className="flex flex-wrap gap-2">
-              {data.map((skill, index) => (
-                <Badge key={index} variant="secondary" className="text-sm">
-                  {skill}
-                </Badge>
-              ))}
+            <div className="space-y-3">
+              {isEditing ? (
+                <div className="text-center p-4 border-dashed border-2 border-muted-foreground/20 rounded-lg">
+                  <p className="text-sm text-muted-foreground">Aucune compétence ajoutée.</p>
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-center">Aucune compétence personnelle à afficher</p>
+              )}
+              
+              {isEditing && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={addSoftSkill}
+                  className="w-full mt-2"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Ajouter une compétence
+                </Button>
+              )}
             </div>
           )}
         </div>

@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileText, Search, Filter, Calendar, Building2, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
+import { FileText, Search, Filter, Calendar, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getApplications, clearNewFlag } from '@/data/applicationStore';
 
 type ApplicationStatus = 'accepted' | 'rejected' | 'pending';
@@ -30,7 +30,8 @@ const mockApplications: Application[] = [
     appliedDate: '2024-01-15',
     status: 'pending',
     salary: '120k - 150k MAD',
-    type: 'Full-time'
+    type: 'Full-time',
+    logo: '/src/assets/company-logos/google.png'
   },
   {
     id: '2',
@@ -40,7 +41,8 @@ const mockApplications: Application[] = [
     appliedDate: '2024-01-10',
     status: 'accepted',
     salary: '110k - 140k MAD',
-    type: 'Full-time'
+    type: 'Full-time',
+    logo: '/src/assets/company-logos/microsoft.png'
   },
   {
     id: '3',
@@ -50,7 +52,8 @@ const mockApplications: Application[] = [
     appliedDate: '2024-01-05',
     status: 'rejected',
     salary: '100k - 130k MAD',
-    type: 'Full-time'
+    type: 'Full-time',
+    logo: '/src/assets/company-logos/amazon.png'
   },
   {
     id: '4',
@@ -60,7 +63,8 @@ const mockApplications: Application[] = [
     appliedDate: '2024-01-20',
     status: 'pending',
     salary: '130k - 160k MAD',
-    type: 'Full-time'
+    type: 'Full-time',
+    logo: '/src/assets/company-logos/meta.png'
   },
   {
     id: '5',
@@ -70,7 +74,8 @@ const mockApplications: Application[] = [
     appliedDate: '2023-12-28',
     status: 'accepted',
     salary: '115k - 145k MAD',
-    type: 'Full-time'
+    type: 'Full-time',
+    logo: '/src/assets/company-logos/apple.png'
   },
   {
     id: '6',
@@ -80,7 +85,8 @@ const mockApplications: Application[] = [
     appliedDate: '2023-12-20',
     status: 'rejected',
     salary: '125k - 155k MAD',
-    type: 'Contract'
+    type: 'Contract',
+    logo: '/src/assets/company-logos/netflix.png'
   },
   {
     id: '7',
@@ -90,7 +96,8 @@ const mockApplications: Application[] = [
     appliedDate: '2024-01-25',
     status: 'pending',
     salary: '105k - 135k MAD',
-    type: 'Full-time'
+    type: 'Full-time',
+    logo: '/src/assets/company-logos/tesla.png'
   },
   {
     id: '8',
@@ -100,7 +107,8 @@ const mockApplications: Application[] = [
     appliedDate: '2024-01-18',
     status: 'pending',
     salary: '95k - 125k MAD',
-    type: 'Full-time'
+    type: 'Full-time',
+    logo: '/src/assets/company-logos/spotify.png'
   },
 ];
 
@@ -264,7 +272,24 @@ const StudentApplications = () => {
                         )}
                         <h3 className="text-xl font-semibold">{app.position}</h3>
                         <div className="flex items-center gap-2 text-muted-foreground mt-1">
-                          <Building2 className="w-4 h-4" />
+                          {app.logo ? (
+                            <img 
+                              src={app.logo} 
+                              alt={`${app.company} logo`} 
+                              className="w-4 h-4 object-contain"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.onerror = null;
+                                target.style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <div className="w-4 h-4 rounded bg-gray-200 flex items-center justify-center">
+                              <span className="text-xs font-medium text-gray-600">
+                                {app.company.charAt(0)}
+                              </span>
+                            </div>
+                          )}
                           <span>{app.company}</span>
                         </div>
                       </div>

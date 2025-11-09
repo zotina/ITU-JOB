@@ -133,7 +133,7 @@ export const mockCandidates = [
     skills: ['React', 'Node.js', 'MongoDB', 'Python', 'TypeScript'],
     experience: '4 ans',
     availability: 'Immédiate',
-    appliedJobs: ['Développeur Full Stack', 'Ingénieur DevOps'],
+    appliedJobs: ['Stage Développeur Web'],
     status: 'pending'
   },
   {
@@ -352,41 +352,41 @@ export const mockNotifications: Notification[] = [
     type: 'candidate_application',
     target: '1',
     title: 'Nouvelle candidature reçue',
-    message: 'Andriamalala Raviro a postulé pour le poste de Développeur Full Stack',
+    message: 'Andriamalala Raviro a postulé pour le poste de Stage Développeur Web',
     time: 'Il y a 5 minutes',
     read: false,
     user: 'recruiter'
-  },
-  {
-    id: '2',
-    type: 'offer_published',
-    target: '1',
-    title: 'Offre validée',
-    message: 'Votre offre "Développeur Full Stack" a été validée et publiée',
-    time: 'Il y a 2 heures',
-    read: false,
-    user: 'recruiter'
-  },
-  {
-    id: '3',
-    type: 'candidate_application',
-    target: '2',
-    title: 'Nouvelle candidature',
-    message: 'Rakotoarisoa Fanantenana a postulé pour le poste de Data Scientist',
-    time: 'Hier',
-    read: true,
-    user: 'recruiter'
-  },
-  {
-    id: '4',
-    type: 'message',
-    target: '5',
-    title: 'Nouveau message',
-    message: 'Orange Madagascar vous a envoyé un message concernant votre candidature',
-    time: 'Il y a 3 jours',
-    read: false,
-    user: 'student'
   }
+  // {
+  //   id: '2',
+  //   type: 'offer_published',
+  //   target: '1',
+  //   title: 'Offre validée',
+  //   message: 'Votre offre "Développeur Full Stack" a été validée et publiée',
+  //   time: 'Il y a 2 heures',
+  //   read: false,
+  //   user: 'recruiter'
+  // },
+  // {
+  //   id: '3',
+  //   type: 'candidate_application',
+  //   target: '2',
+  //   title: 'Nouvelle candidature',
+  //   message: 'Rakotoarisoa Fanantenana a postulé pour le poste de Data Scientist',
+  //   time: 'Hier',
+  //   read: true,
+  //   user: 'recruiter'
+  // },
+  // {
+  //   id: '4',
+  //   type: 'message',
+  //   target: '5',
+  //   title: 'Nouveau message',
+  //   message: 'Orange Madagascar vous a envoyé un message concernant votre candidature',
+  //   time: 'Il y a 3 jours',
+  //   read: false,
+  //   user: 'student'
+  // }
 ];
 
 export const mockAnalytics = {
@@ -409,99 +409,29 @@ export const mockAnalytics = {
 };
 
 import { ProfileData } from '@/hooks/useProfileData';
-
 // État global pour le profil étudiant avec position
 export let studentProfileData: ProfileData = {
   personalInfo: {
-    name: "Andriamalala Raviro",
-    title: "Développeur Full Stack",
-    description: "Passionné par le développement web moderne avec 4 ans d'expérience dans la création d'applications React et Node.js. Spécialisé dans l'architecture frontend et l'optimisation des performances. Expert dans les technologies web modernes et la conception de solutions scalables.",
-    email: "andriamalala.raviro@etu.uit.mg",
-    phone: "+261 34 12 345 678",
+    name: "Rasetrarinjanahary Zo Tina",
+    email: "zotinafifi@gmail.com",
+    phone: "+261382010328",
+    // title: "Développeur Full Stack",
+    // description: "Je suis passionné par le développement informatique et les technologies de pointe. Je cherche à rejoindre une équipe dynamique pour contribuer à des projets innovants.",
     location: "Antananarivo, Madagascar",
-    coordinates: [47.5061, -18.9121],
-    linkedin: "linkedin.com/in/andriamalala-raviro",
-    github: "github.com/andriamalala-raviro",
-    website: "andriamalala-raviro.mg",
-    availability: "Disponible immédiatement",
-    remoteWork: true,
-    profileImage: "/src/assets/profile-photo.jpg"
+    coordinates: [-18.9121064, 47.5255857],
+    linkedin: "linkedin.com/in/zo-tina-rasetrarinjanahary",
+    // github: "github.com/zotina",
+    // website: "zotina.mg",
+    // availability: "Disponible immédiatement",
+    // remoteWork: true,
+    profileImage: "/src/assets/non-profil.png"
   },
-  technicalSkills: [
-    {
-      title: "Développement Frontend",
-      skills: [
-        { name: "React", level: "Expert" },
-        { name: "TypeScript", level: "Avancé" },
-        { name: "Next.js", level: "Avancé" },
-        { name: "Tailwind CSS", level: "Expert" },
-        { name: "Vue.js", level: "Intermédiaire" }
-      ]
-    },
-    {
-      title: "Développement Backend",
-      skills: [
-        { name: "Node.js", level: "Avancé" },
-        { name: "Express", level: "Avancé" },
-        { name: "PostgreSQL", level: "Avancé" },
-        { name: "MongoDB", level: "Avancé" },
-        { name: "Docker", level: "Intermédiaire" }
-      ]
-    }
-  ],
-  languages: [
-    { name: "Français", level: "Natif" },
-    { name: "Anglais", level: "Courant" },
-    { name: "Malgache", level: "Natif" }
-  ],
-  softSkills: [
-    "Leadership d'équipe",
-    "Communication efficace",
-    "Gestion de projet",
-    "Travail d'équipe",
-    "Résolution de problèmes",
-    "Adaptabilité"
-  ],
-  projects: [
-    {
-      title: "Plateforme E-commerce locale",
-      description: "Application complète de commerce électronique avec React, Node.js et MongoDB, adaptée au marché malgache",
-      link: "github.com/andriamalala/ecommerce-malgache"
-    },
-    {
-      title: "Dashboard Analytics",
-      description: "Tableau de bord d'analyse de données en temps réel avec D3.js et Python",
-      link: "github.com/andriamalala/dashboard"
-    }
-  ],
-  experiences: [
-    {
-      title: "Lead Developer",
-      company: "SystAsia Madagascar",
-      location: "Antananarivo, Madagascar",
-      period: "2022 - Présent",
-      type: "CDI",
-      description: "Direction de l'équipe frontend et architecture des applications React pour les services bancaires et de télécommunication",
-      technologies: ["React", "TypeScript", "Node.js", "MongoDB"]
-    }
-  ],
-  formations: [
-    {
-      id: "1",
-      institution: "Institut Universitaire de Technologie d'Antananarivo",
-      degree: "Master en Informatique",
-      fieldOfStudy: "Génie Logiciel",
-      period: "2020 - 2022",
-      description: "Spécialisation en développement d'applications web et mobiles. Projet de fin d'études sur l'optimisation des performances des bases de données NoSQL."
-    },
-    {
-      id: "2",
-      institution: "Université d'Antananarivo",
-      degree: "Licence en Informatique",
-      period: "2017 - 2020",
-      description: "Formation fondamentale en informatique, programmation orientée objet et systèmes d'information."
-    }
-  ]
+  technicalSkills: undefined,
+  languages: undefined,
+  softSkills: undefined,
+  projects: undefined,
+  experiences: undefined,
+  formations: undefined
 };
 
 export const updateStudentProfile = (newProfileData: ProfileData) => {
@@ -646,87 +576,125 @@ export const deleteAppointment = (id: string) => {
 
 export const preRempliCV: ProfileData = {
   personalInfo: {
-    name: "Andriamalala Raviro",
-    title: "Ingénieur Logiciel & Développeur Full Stack",
-    description: "Ingénieur logiciel passionné et motivé, avec une expérience solide en développement web et mobile. Je cherche à appliquer mes compétences techniques dans un environnement technologique stimulant à Madagascar.",
-    email: "andriamalala.raviro@etu.uit.mg",
-    phone: "+261 34 12 345 678",
-    location: "Antananarivo, Madagascar",
-    coordinates: [47.5061, -18.9121],
-    linkedin: "linkedin.com/in/andriamalala-raviro",
-    github: "github.com/andriamalala-raviro",
-    website: "andriamalala-raviro.mg",
-    availability: "Disponible immédiatement",
+    name: "Rasetrarinjanahary Zo Tina",
+    title: "Développeur Java",
+    description: "En tant que développeur avec une passion pour l'architecture des bases de données, je suis actuellement en 3ème année à ITUniversity. Mon engagement dans la conception de systèmes robustes et évolutifs me permet de transformer les besoins systèmes en solutions adaptées, particulièrement grâce à mes compétences en développement et en gestion de projet. Je m'investis dans le développement et la conception d'applications, en analysant les besoins des clients pour proposer des solutions innovantes qui renforcent la performance des systèmes existants.",
+    email: "zotinafifi@gmail.com",
+    phone: "+261382010328",
+    location: "Antananarivo 105 Ambohidratrimo",
+    coordinates: [-18.7667, 47.4333],
+    linkedin: "linkedin.com/in/zo-tina-rasetrarinjanahary-659638272",
+    github: "",
+    website: "",
+    availability: "Disponible",
     remoteWork: true,
-    profileImage: "/src/assets/profile-photo.jpg"
+    profileImage: "/src/assets/profil.jpeg"
   },
   technicalSkills: [
     {
-      title: "Technologies Web",
+      title: "Langages de programmation",
       skills: [
-        { name: "React", level: "Expert" },
-        { name: "TypeScript", level: "Avancé" },
-        { name: "Next.js", level: "Avancé" },
-        { name: "Node.js", level: "Avancé" },
-        { name: "Express", level: "Avancé" }
+        { name: "Java", level: "Avancé" },
+        { name: "PHP", level: "Avancé" },
+        { name: "JavaScript", level: "Avancé" },
+        { name: "Python", level: "Intermédiaire" }
       ]
     },
     {
-      title: "Base de données & Autres",
+      title: "Bases de données",
       skills: [
-        { name: "MongoDB", level: "Avancé" },
         { name: "PostgreSQL", level: "Avancé" },
+        { name: "MySQL", level: "Avancé" },
+        { name: "Oracle", level: "Intermédiaire" }
+      ]
+    },
+    {
+      title: "Frameworks et Technologies",
+      skills: [
+        { name: "Laravel", level: "Avancé" },
+        { name: "Spring Boot", level: "Avancé" },
+        { name: "Vue.js", level: "Avancé" },
+        { name: "Express.js", level: "Avancé" },
+        { name: "React Native", level: "Intermédiaire" }
+      ]
+    },
+    {
+      title: "DevOps et Outils",
+      skills: [
         { name: "Docker", level: "Intermédiaire" },
-        { name: "Git", level: "Expert" }
+        { name: "Git", level: "Avancé" },
+        { name: "Gantt", level: "Avancé" },
+        { name: "Looping", level: "Avancé" }
+      ]
+    },
+    {
+      title: "Compétences techniques avancées",
+      skills: [
+        { name: "Architecture de systèmes distribués", level: "Avancé" },
+        { name: "Conception de bases de données", level: "Expert" },
+        { name: "Services REST", level: "Avancé" },
+        { name: "Optimisation des performances", level: "Avancé" },
+        { name: "Pipeline CI/CD", level: "Intermédiaire" },
+        { name: "ETL", level: "Intermédiaire" }
       ]
     }
   ],
   languages: [
-    { name: "Malgache", level: "Natif" },
-    { name: "Français", level: "Natif" },
-    { name: "Anglais", level: "Courant" }
+    { name: "Français", level: "Avancé (C1)" },
+    { name: "Anglais", level: "Intermédiaire supérieur (B2)" },
+    { name: "Malgache", level: "Natif" }
   ],
   softSkills: [
-    "Leadership",
-    "Résolution de problèmes",
-    "Communication",
-    "Autonomie",
-    "Travail d'équipe",
-    "Adaptabilité"
+    "Capacité d'adaptation rapide",
+    "Forte collaboration en équipe",
+    "Gestion efficace du temps",
+    "Présentation de projets",
+    "Communication efficace",
+    "Leadership et gestion d'équipe",
+    "Analyse des besoins des clients"
   ],
   projects: [
     {
-      title: "Système de gestion scolaire pour écoles malgaches",
-      description: "Projet universitaire d'un système de gestion scolaire adapté aux besoins locaux. Technologies: React, Node.js, MongoDB.",
-      link: "github.com/andriamalala/school-management"
+      title: "Framework Java personnalisé",
+      description: "Création d'un framework Java sur mesure, inspiré de Spring, conçu pour optimiser la légèreté et l'efficacité des applications web. Développement de modules essentiels tels que l'authentification, la validation, le téléchargement de fichiers, ainsi que des services REST et la gestion des sessions, permettant aux développeurs de se concentrer uniquement sur des fonctionnalités nécessaires sans complexité superflue.",
+      link: "",
+      technologies: ["Java", "Framework", "REST", "Authentification"],
+      period: "Jan 2025 - Jan 2025"
+    },
+    {
+      title: "E-Kaly",
+      description: "Conception complète de l'architecture de base de données pour la plateforme de livraison E-KALY, incluant un backend robuste avec un système d'assignation automatique des livreurs via géolocalisation. Mise en œuvre d'alertes automatiques optimisant le processus de commande, et création d'une interface intuitive pour la sélection de restaurants et visualisation des plats du jour.",
+      link: "",
+      technologies: ["Géolocalisation", "Spring Boot", "JavaScript", "HTML", "MySQL"],
+      period: "Apr 2024 - Jun 2024"
+    },
+    {
+      title: "HRMS - Système de Gestion des Ressources Humaines",
+      description: "Conception et développement d'une plateforme web intégrée pour la gestion des ressources humaines, incluant un module complet pour la gestion des employés, le calcul automatisé des fiches de paie et un système de gestion des congés avec approbation et suivi en temps réel.",
+      link: "",
+      technologies: ["Gestion RH", "Full-stack", "Base de données relationnelle", "Workflow"],
+      period: "Feb 2024 - Feb 2024"
     }
   ],
   experiences: [
     {
-      title: "Développeur Full Stack",
-      company: "SystAsia Madagascar",
-      location: "Antananarivo, Madagascar",
-      period: "Juin 2023 - Août 2023",
-      type: "Stage",
-      description: "Développement d'une application mobile pour un service de transfert d'argent local. Collaboration avec l'équipe technique pour la conception et l'implémentation.",
-      technologies: ["React Native", "Node.js", "MongoDB"]
+      title: "Consultant en Digitalisation et Formateur",
+      company: "Communes de Mahitsy",
+      location: "Mahitsy, Ambohidratrimo, Antananarivo",
+      period: "Oct 2024 - Oct 2024",
+      type: "Mission",
+      description: "Formation de professionnels des administrations communales à l'utilisation d'outils de digitalisation des registres d'état civil. J'ai proposé des recommandations pour la mise en place d'un système automatisé de génération de registres (naissances, décès, etc.), contribuant ainsi à la modernisation des processus administratifs grâce à des solutions innovantes pour l'automatisation des copies de registres.",
+      technologies: ["Formation", "Conseil en digitalisation", "Administration publique", "Transformation numérique", "Processus administratifs", "Gestion de données"]
     }
   ],
   formations: [
     {
       id: "1",
-      institution: "Institut Universitaire de Technologie d'Antananarivo",
-      degree: "Master en Informatique",
-      fieldOfStudy: "Génie Logiciel",
-      period: "2020 - 2022",
-      description: "Spécialisation en développement d'applications web et mobiles. Mémoire sur l'optimisation des performances des applications web à forte charge."
-    },
-    {
-      id: "2",
-      institution: "Université d'Antananarivo",
-      degree: "Licence en Informatique",
-      period: "2017 - 2020",
-      description: "Formation fondamentale en informatique avec des cours en programmation, algorithmique et systèmes d'information."
+      institution: "IT University",
+      degree: "Développeur Java",
+      fieldOfStudy: "Développement informatique - Architecture des bases de données et développement full-stack Java",
+      period: "Aug 2022 - Jun 2025",
+      description: "À IT University, je me suis vraiment plongé dans le développement informatique, avec une affection particulière pour l'architecture des bases de données et le développement full-stack Java. J'ai eu l'occasion de maîtriser des langages comme PHP, Python et JavaScript, et de me familiariser avec des frameworks comme Laravel et Spring Boot. J'ai aussi développé une bonne poigne avec les bases de données PostgreSQL et MySQL, et j'ai touché à des sujets plus avancés comme la conteneurisation avec Docker, les pipelines CI/CD, le Gantt Looping et l'ETF."
     }
   ]
 };

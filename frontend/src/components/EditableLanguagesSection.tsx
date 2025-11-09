@@ -52,71 +52,77 @@ const EditableLanguagesSection = ({ data, isEditing, onUpdate }: EditableLanguag
         </div>
         
         <div className="space-y-3">
-          {data.length === 0 && isEditing && (
-            <div className="text-center p-4 border-dashed border-2 border-muted-foreground/20 rounded-lg">
-              <p className="text-sm text-muted-foreground">Aucune langue ajoutée.</p>
-            </div>
-          )}
-
-          {data.map((language, index) => (
-            <div key={index}>
-              {isEditing ? (
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 relative">
-                    <Input
-                      value={language.name}
-                      onChange={(e) => updateLanguage(index, "name", e.target.value)}
-                      placeholder="Nom de la langue"
-                      className="pr-8"
-                    />
-                    {!language.name && <span className="absolute right-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-red-500"></span>}
+          {data && data.length > 0 ? (
+            data.map((language, index) => (
+              <div key={index}>
+                {isEditing ? (
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 relative">
+                      <Input
+                        value={language.name}
+                        onChange={(e) => updateLanguage(index, "name", e.target.value)}
+                        placeholder="Nom de la langue"
+                        className="pr-8"
+                      />
+                      {!language.name && <span className="absolute right-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-red-500"></span>}
+                    </div>
+                    <Select
+                      value={language.level}
+                      onValueChange={(value) => updateLanguage(index, "level", value)}
+                    >
+                      <SelectTrigger className="w-40">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {languageLevels.map(option => (
+                          <SelectItem key={option} value={option}>{option}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeLanguage(index)}
+                      className="px-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
-                  <Select
-                    value={language.level}
-                    onValueChange={(value) => updateLanguage(index, "level", value)}
-                  >
-                    <SelectTrigger className="w-40">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {languageLevels.map(option => (
-                        <SelectItem key={option} value={option}>{option}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => removeLanguage(index)}
-                    className="px-2"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <span className="text-foreground font-medium">{language.name}</span>
+                    <Badge 
+                      variant="secondary" 
+                      className={`text-xs ${getLevelColor(language.level)}`}
+                    >
+                      {language.level}
+                    </Badge>
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <div className="space-y-3">
+              {isEditing ? (
+                <div className="text-center p-4 border-dashed border-2 border-muted-foreground/20 rounded-lg">
+                  <p className="text-sm text-muted-foreground">Aucune langue ajoutée.</p>
                 </div>
               ) : (
-                <div className="flex items-center justify-between">
-                  <span className="text-foreground font-medium">{language.name}</span>
-                  <Badge 
-                    variant="secondary" 
-                    className={`text-xs ${getLevelColor(language.level)}`}
-                  >
-                    {language.level}
-                  </Badge>
-                </div>
+                <p className="text-muted-foreground text-center">Aucune langue à afficher</p>
+              )}
+              
+              {isEditing && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={addLanguage}
+                  className="w-full mt-2"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Ajouter une langue
+                </Button>
               )}
             </div>
-          ))}
-          
-          {isEditing && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={addLanguage}
-              className="w-full mt-2"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Ajouter une langue
-            </Button>
           )}
         </div>
       </Card>

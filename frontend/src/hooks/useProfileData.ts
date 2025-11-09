@@ -5,34 +5,34 @@ import { Appointment } from "@/types/appointment";
 export interface ProfileData {
   personalInfo: {
     name: string;
-    title: string;
-    description: string;
+    title?: string;
+    description?: string;
     email: string;
     phone: string;
-    location: string;
+    location?: string;
     coordinates?: [number, number];
-    linkedin: string;
+    linkedin?: string;
     github?: string;
     website?: string;
-    availability: string;
-    remoteWork: boolean;
-    profileImage: string;
+    availability?: string;
+    remoteWork?: boolean;
+    profileImage?: string;
   };
-  technicalSkills: {
+  technicalSkills?: {
     title: string;
     skills: { name: string; level: string }[];
   }[];
-  languages: {
+  languages?: {
     name: string;
     level: string;
   }[];
-  softSkills: string[];
-  projects: {
+  softSkills?: string[];
+  projects?: {
     title: string;
     description: string;
     link?: string;
   }[];
-  experiences: {
+  experiences?: {
     title: string;
     company: string;
     location: string;
@@ -41,7 +41,7 @@ export interface ProfileData {
     description: string;
     technologies: string[];
   }[];
-  formations: {
+  formations?: {
     id: string;
     institution: string;
     degree: string;

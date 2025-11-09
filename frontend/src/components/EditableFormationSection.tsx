@@ -52,49 +52,65 @@ const EditableFormationSection = ({ data, isEditing, onUpdate }: EditableFormati
         )}
       </CardHeader>
       <CardContent className="space-y-6">
-        {data.map((formation, index) => (
-          <div key={formation.id} className="p-4 border rounded-lg relative">
+        {data && data.length > 0 ? (
+          data.map((formation, index) => (
+            <div key={formation.id} className="p-4 border rounded-lg relative">
+              {isEditing ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label>Institution</Label>
+                      <Input value={formation.institution} onChange={(e) => handleUpdate(index, 'institution', e.target.value)} />
+                    </div>
+                    <div>
+                      <Label>Diplôme</Label>
+                      <Input value={formation.degree} onChange={(e) => handleUpdate(index, 'degree', e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label>Domaine d'étude</Label>
+                      <Input value={formation.fieldOfStudy} onChange={(e) => handleUpdate(index, 'fieldOfStudy', e.target.value)} />
+                    </div>
+                    <div>
+                      <Label>Période</Label>
+                      <Input value={formation.period} onChange={(e) => handleUpdate(index, 'period', e.target.value)} />
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Description</Label>
+                    <Textarea value={formation.description} onChange={(e) => handleUpdate(index, 'description', e.target.value)} />
+                  </div>
+                  <Button variant="destructive" size="sm" onClick={() => removeFormation(index)} className="absolute top-2 right-2 gap-2">
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div>
+                  <h3 className="font-semibold text-lg">{formation.degree}</h3>
+                  <p className="text-md font-medium text-muted-foreground">{formation.institution}</p>
+                  <p className="text-sm text-muted-foreground">{formation.fieldOfStudy}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{formation.period}</p>
+                  <p className="mt-2 text-sm leading-relaxed">{formation.description}</p>
+                </div>
+              )}
+            </div>
+          ))
+        ) : (
+          <div className="text-center py-8 text-muted-foreground">
             {isEditing ? (
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label>Institution</Label>
-                    <Input value={formation.institution} onChange={(e) => handleUpdate(index, 'institution', e.target.value)} />
-                  </div>
-                  <div>
-                    <Label>Diplôme</Label>
-                    <Input value={formation.degree} onChange={(e) => handleUpdate(index, 'degree', e.target.value)} />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label>Domaine d'étude</Label>
-                    <Input value={formation.fieldOfStudy} onChange={(e) => handleUpdate(index, 'fieldOfStudy', e.target.value)} />
-                  </div>
-                  <div>
-                    <Label>Période</Label>
-                    <Input value={formation.period} onChange={(e) => handleUpdate(index, 'period', e.target.value)} />
-                  </div>
-                </div>
-                <div>
-                  <Label>Description</Label>
-                  <Textarea value={formation.description} onChange={(e) => handleUpdate(index, 'description', e.target.value)} />
-                </div>
-                <Button variant="destructive" size="sm" onClick={() => removeFormation(index)} className="absolute top-2 right-2 gap-2">
-                  <Trash2 className="w-4 h-4" />
+                <p>Aucune formation ajoutée</p>
+                <Button variant="outline" size="sm" onClick={addFormation} className="gap-2">
+                  <PlusCircle className="w-4 h-4" />
+                  Ajouter une formation
                 </Button>
               </div>
             ) : (
-              <div>
-                <h3 className="font-semibold text-lg">{formation.degree}</h3>
-                <p className="text-md font-medium text-muted-foreground">{formation.institution}</p>
-                <p className="text-sm text-muted-foreground">{formation.fieldOfStudy}</p>
-                <p className="text-sm text-muted-foreground mt-1">{formation.period}</p>
-                <p className="mt-2 text-sm leading-relaxed">{formation.description}</p>
-              </div>
+              <p>Aucune formation à afficher</p>
             )}
           </div>
-        ))}
+        )}
       </CardContent>
     </Card>
   );

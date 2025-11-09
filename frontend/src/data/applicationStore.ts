@@ -10,98 +10,69 @@ export interface Application {
   status: ApplicationStatus;
   salary: string;
   type: string;
+  logo?: string;
+  studentName?: string;
   offerId?: string;
   isNew?: boolean;
 }
 
 let applicationStore: Application[] = [
+  // Nouvelles candidatures pour Andriamalala Raviro
   {
-    id: '1',
-    company: 'Google',
-    position: 'Software Engineer',
-    location: 'Mountain View, CA',
-    appliedDate: '2024-01-15',
+    id: '9',
+    company: 'Airtel Madagascar',
+    position: 'Développeur Mobile',
+    location: 'Antananarivo, Madagascar',
+    appliedDate: '2025-01-28',
     status: 'pending',
-    salary: '120k - 150k MAD',
-    type: 'Full-time'
+    salary: '1.8-2.8M MGA/mois',
+    type: 'CDI',
+    logo: '/src/assets/company-logos/airtel.png',
+    studentName: 'Andriamalala Raviro'
   },
   {
-    id: '2',
-    company: 'Microsoft',
-    position: 'Frontend Developer',
-    location: 'Redmond, WA',
-    appliedDate: '2024-01-10',
-    status: 'accepted',
-    salary: '110k - 140k MAD',
-    type: 'Full-time'
-  },
-  {
-    id: '3',
-    company: 'Amazon',
-    position: 'DevOps Engineer',
-    location: 'Seattle, WA',
-    appliedDate: '2024-01-05',
-    status: 'rejected',
-    salary: '100k - 130k MAD',
-    type: 'Full-time'
-  },
-  {
-    id: '4',
-    company: 'Meta',
-    position: 'Backend Developer',
-    location: 'Menlo Park, CA',
-    appliedDate: '2024-01-20',
+    id: '12',
+    company: 'Orange Madagascar',
+    position: 'Stage Développeur Web',
+    location: 'Antananarivo, Madagascar',
+    appliedDate: '2025-11-09',
     status: 'pending',
-    salary: '130k - 160k MAD',
-    type: 'Full-time'
+    salary: '',
+    type: 'Stage',
+    logo: '/src/assets/company-logos/orange.png',
+    studentName: 'Andriamalala Raviro'
   },
   {
-    id: '5',
-    company: 'Apple',
-    position: 'iOS Developer',
-    location: 'Cupertino, CA',
-    appliedDate: '2023-12-28',
-    status: 'accepted',
-    salary: '115k - 145k MAD',
-    type: 'Full-time'
-  },
-  {
-    id: '6',
-    company: 'Netflix',
-    position: 'Full Stack Developer',
-    location: 'Los Gatos, CA',
-    appliedDate: '2023-12-20',
-    status: 'rejected',
-    salary: '125k - 155k MAD',
-    type: 'Contract'
-  },
-  {
-    id: '7',
-    company: 'Tesla',
-    position: 'Software Engineer',
-    location: 'Palo Alto, CA',
-    appliedDate: '2024-01-25',
+    id: '11',
+    company: 'Yas Madagascar',
+    position: 'Data Scientist',
+    location: 'Antananarivo, Madagascar',
+    appliedDate: '2025-01-30',
     status: 'pending',
-    salary: '105k - 135k MAD',
-    type: 'Full-time'
+    salary: '2.5-3.5M MGA/mois',
+    type: 'CDI',
+    logo: '/src/assets/company-logos/yas.png',
+    studentName: 'Andriamalala Raviro'
   },
   {
-    id: '8',
-    company: 'Spotify',
-    position: 'Data Engineer',
-    location: 'Stockholm, Sweden',
-    appliedDate: '2024-01-18',
+    id: '10',
+    company: 'Microlink Madagascar',
+    position: 'Développeur Web',
+    location: 'Antananarivo, Madagascar',
+    appliedDate: '2025-01-29',
     status: 'pending',
-    salary: '95k - 125k MAD',
-    type: 'Full-time'
-  },
+    salary: '',
+    type: 'Stage',
+    logo: '/src/assets/company-logos/microlink.png',
+    studentName: 'Andriamalala Raviro'
+  }
 ];
 
 export const getApplications = (): Application[] => {
   return applicationStore;
 };
 
-export const addApplication = (application: Omit<Application, 'id' | 'appliedDate' | 'status'>): Application => {
+export const addApplication = (application: Omit<Application, 'id' | 'appliedDate' | 'status'> & { studentName?: string }): Application => {
   const newApplication: Application = {
     ...application,
     id: Date.now().toString(),
