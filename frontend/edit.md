@@ -12,6 +12,29 @@
 
 ---
 
+## 11-11-2025: Mise en place de Firebase pour la centralisation des données
+
+- **Objectif :** Centraliser les données dans Firebase tout en maintenant la compatibilité avec les données existantes.
+- **Actions :**
+    1. **Création de la configuration Firebase :** Mise en place du fichier src/config/firebase.ts avec la configuration de l'application.
+    2. **Création du service Firebase :** Développement de src/services/firebaseService.ts avec des fonctions CRUD pour les entités principales (companies, offers, candidates, applications).
+    3. **Création du fournisseur de données :** Création de src/data/dataProvider.ts qui utilise Firebase comme source principale avec fallback aux données mock en cas d'échec.
+    4. **Mise à jour de package.json :** Ajout de la dépendance Firebase et amélioration du script de build pour inclure la vérification TypeScript.
+    5. **Migration progressive :** Mise à jour des composants StudentOffers et StudentLocation pour utiliser le dataProvider au lieu des données mock directement.
+    6. **Gestion des états :** Adaptation des composants pour gérer le chargement asynchrone des données depuis Firebase.
+    7. **Correction d'import :** Réparation des erreurs d'import dans dataProvider.ts pour utiliser les bons modules (applicationStore.ts au lieu de mockData.ts).
+    8. **Correction de variable d'état :** Réparation de la variable d'état applyingOfferId dans StudentOffers.tsx pour résoudre l'erreur 'applyingOfferId is not defined'.
+    9. **Mise à jour du processus de candidature :** Modification du bouton 'Postuler' pour enregistrer les candidatures dans Firestore via le dataProvider au lieu de l'applicationStore local.
+    10. **Correction d'import dupliqué :** Réparation de l'erreur d'import dupliqué de dataProvider dans StudentOffers.tsx.
+    11. **Mise à jour de la gestion des candidatures :** Modification de StudentApplications.tsx pour utiliser le dataProvider au lieu de l'applicationStore directement.
+    12. **Amélioration du processus de création :** Ajout de l'indicateur 'isNew: true' lors de la création d'une candidature dans Firestore.
+    13. **Mise à jour du mécanisme de suppression du badge 'nouveau' :** Implémentation du processus de suppression du flag 'isNew' après 3 secondes pour les nouvelles candidatures.
+    14. **Création d'un service d'authentification simplifié :** Mise en place d'un service simple d'authentification utilisant Firestore pour la gestion des utilisateurs.
+    15. **Mise à jour du contexte d'authentification :** Remplacement de l'ancien service d'authentification par le nouveau service simple.
+    16. **Intégration de l'authentification Firestore :** Les utilisateurs peuvent maintenant se connecter avec leur email et mot de passe via Firestore.
+
+---
+
 ## 09-11-2025: Amélioration du moteur de recherche en langage naturel et correction des erreurs
 
 - **Objectif :** Améliorer le moteur de recherche pour qu'il fonctionne correctement en langage naturel et corriger l'erreur dans le composant RecruiterStudentSearch.

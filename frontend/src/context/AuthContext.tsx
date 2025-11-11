@@ -1,4 +1,4 @@
-import { authService } from '@/services/authService';
+import { simpleAuthService } from '@/services/simpleAuthService';
 import { LoginRequest, SignupRequest, User } from '@/types/auth';
 import { ErrorHandler } from '@/utils/ErrorHandler';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
@@ -10,12 +10,13 @@ interface AuthContextType {
     isAuthenticated: boolean;
     user: User | null;
     login: (credentials: LoginRequest) => Promise<any>;
-    initiateSignup: (userData: SignupRequest) => Promise<any>;
-    verifySignup: (sessionKey: string, telephone: string, codeOtp: string) => Promise<any>;
-    resendOtp: (sessionKey: string, telephone: string) => Promise<any>;
     logout: () => Promise<void>;
     clearError: () => void;
     getCurrentUser: () => Promise<User>;
+    // The following methods are provided for compatibility but will not be implemented in simple auth
+    initiateSignup: (userData: SignupRequest) => Promise<any>;
+    verifySignup: (sessionKey: string, telephone: string, codeOtp: string) => Promise<any>;
+    resendOtp: (sessionKey: string, telephone: string) => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,15 +24,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [isAuthenticated, setIsAuthenticated] = useState(authService.isAuthenticated());
-    const [user, setUser] = useState<User | null>(authService.getStoredUser());
+    const [isAuthenticated, setIsAuthenticated] = useState(simpleAuthService.isAuthenticated());
+    const [user, setUser] = useState<User | null>(simpleAuthService.getCurrentUser());
     const navigate = useNavigate();
 
     // Listen for storage changes and custom auth events
     useEffect(() => {
         const handleAuthChange = () => {
-            const authenticated = authService.isAuthenticated();
-            const storedUser = authService.getStoredUser();
+            const authenticated = simpleAuthService.isAuthenticated();
+            const storedUser = simpleAuthService.getCurrentUser();
 
             setIsAuthenticated(authenticated);
             setUser(storedUser);
@@ -59,27 +60,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setLoading(true);
             setError(null);
 
-            const response = await authService.login(credentials);
+            const response = await simpleAuthService.login(credentials);
 
-            if (response.status) {
+            if (response.status && response.user) {
                 // Update state immediately
                 setIsAuthenticated(true);
-                if (response.user) {
-                    setUser(response.user);
-                }
+                setUser(response.user);
 
                 // Dispatch custom event for other listeners
                 window.dispatchEvent(new Event('auth-change'));
 
                 // Navigate after state update
-                if (response.user.role === 'etudiant') {
+                if (response.user.role === 'etudiant' || response.user.role === 'student') {
                     navigate('/student/offers', { replace: true });
-                } else if (response.user.role === 'recruteur') {
+                } else if (response.user.role === 'recruteur' || response.user.role === 'recruiter') {
                     navigate('/recruiter/offers', { replace: true });
                 }
                 return response;
             } else {
-                throw new Error(response.message);
+                throw new Error(response.message || 'Erreur de connexion');
             }
         } catch (error) {
             handleError(error);
@@ -93,14 +92,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
             setLoading(true);
             setError(null);
-
-            const response = await authService.initiateSignup(userData);
-
-            if (!response.status) {
-                throw new Error(response.message);
-            }
-
-            return response;
+            
+            // For simple auth, we don't support signup through this service
+            throw new Error('La création de compte n\'est pas supportée avec cette méthode d\'authentification');
         } catch (error) {
             handleError(error);
             throw error;
@@ -113,29 +107,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
             setLoading(true);
             setError(null);
-
-            const response = await authService.verifySignup(sessionKey, telephone, codeOtp);
-
-            if (response.status) {
-                // Update state immediately
-                setIsAuthenticated(true);
-                if (response.user) {
-                    setUser(response.user);
-                }
-
-                // Dispatch custom event for other listeners
-                window.dispatchEvent(new Event('auth-change'));
-
-                // Navigate after state update
-                if (response.user.role === 'etudiant') {
-                    navigate('/student/offers', { replace: true });
-                } else if (response.user.role === 'recruteur') {
-                    navigate('/recruiter/offers', { replace: true });
-                }
-                return response;
-            } else {
-                throw new Error(response.message);
-            }
+            
+            // For simple auth, we don't support signup through this service
+            throw new Error('La vérification de compte n\'est pas supportée avec cette méthode d\'authentification');
         } catch (error) {
             handleError(error);
             throw error;
@@ -148,14 +122,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
             setLoading(true);
             setError(null);
-
-            const response = await authService.resendOtp(sessionKey, telephone);
-
-            if (!response.status) {
-                throw new Error(response.message);
-            }
-
-            return response;
+            
+            // For simple auth, we don't support OTP through this service
+            throw new Error('La réémission OTP n\'est pas supportée avec cette méthode d\'authentification');
         } catch (error) {
             handleError(error);
             throw error;
@@ -167,7 +136,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const logout = useCallback(async () => {
         try {
             setLoading(true);
-            await authService.logout();
+            await simpleAuthService.logout();
 
             // Update state immediately
             setIsAuthenticated(false);
@@ -199,7 +168,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         clearError,
         isAuthenticated,
         user,
-        getCurrentUser: authService.getCurrentUser,
+        getCurrentUser: simpleAuthService.getCurrentUser,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

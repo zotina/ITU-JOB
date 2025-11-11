@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
  
 import { Card } from '@/components/ui/card';
 import { MapPin, Navigation, Edit } from 'lucide-react';
 import LeafletMap from '@/components/ui/leaflet-map';
-import { mockCompanies, mockOffers } from '@/data/mockData';
+import { dataProvider } from '@/data/dataProvider';
 import { useProfileData } from '@/hooks/useProfileData';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,34 @@ const StudentLocation = () => {
   const { profileData, setProfileData } = useProfileData();
   const { toast } = useToast();
   const [radius, setRadius] = useState(50); // Default radius in km
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [offers, setOffers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Fetch data from dataProvider
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [companiesData, offersData] = await Promise.all([
+          dataProvider.getCompanies(),
+          dataProvider.getOffers()
+        ]);
+        setCompanies(companiesData);
+        setOffers(offersData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // Fallback to mock data if there's an error
+        const { mockCompanies, mockOffers } = require('@/data/mockData');
+        setCompanies(mockCompanies);
+        setOffers(mockOffers);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleLocationChange = (location: string, coordinates?: [number, number]) => {
     setProfileData(prevData => ({
@@ -52,14 +80,14 @@ const StudentLocation = () => {
   };
 
   const filteredCompanies = profileData.personalInfo.coordinates
-    ? mockCompanies.filter(company => {
+    ? companies.filter(company => {
         if (!company.coordinates) return false;
         const distance = haversineDistance(profileData.personalInfo.coordinates!, company.coordinates as [number, number]);
         return distance <= radius;
       })
-    : mockCompanies;
+    : companies;
 
-  const offersInRadius = mockOffers.filter(offer => 
+  const offersInRadius = offers.filter(offer => 
     filteredCompanies.some(company => company.name === offer.company)
   );
 

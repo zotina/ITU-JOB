@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FileText, Search, Filter, Calendar, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
-import { getApplications, clearNewFlag } from '@/data/applicationStore';
+import { dataProvider } from '@/data/dataProvider';
 
 type ApplicationStatus = 'accepted' | 'rejected' | 'pending';
 
@@ -18,6 +18,7 @@ interface Application {
   status: ApplicationStatus;
   salary: string;
   type: string;
+  logo?: string;
   isNew?: boolean;
 }
 
@@ -130,17 +131,34 @@ const StudentApplications = () => {
   const itemsPerPage = 5;
 
   useEffect(() => {
-    const apps = getApplications();
-    setApplications(apps);
-    
-    // Clear new flags after a delay
-    const newApps = apps.filter(app => app.isNew);
-    if (newApps.length > 0) {
-      setTimeout(() => {
-        newApps.forEach(app => clearNewFlag(app.id));
-        setApplications(getApplications());
-      }, 3000);
-    }
+    const fetchApplications = async () => {
+      try {
+        const apps = await dataProvider.getApplications();
+        setApplications(apps);
+        
+        // Clear new flags after a delay for new applications
+        const newApps = apps.filter(app => app.isNew);
+        if (newApps.length > 0) {
+          setTimeout(async () => {
+            // For each new application, update the isNew flag to false
+            for (const app of newApps) {
+              await dataProvider.updateApplication(app.id, { isNew: false });
+            }
+            // Refetch the data to reflect the changes
+            const updatedApps = await dataProvider.getApplications();
+            setApplications(updatedApps);
+          }, 3000);
+        }
+      } catch (error) {
+        console.error('Error fetching applications:', error);
+        // Fallback to getApplications if dataProvider fails
+        const { getApplications } = require('@/data/applicationStore');
+        const apps = getApplications();
+        setApplications(apps);
+      }
+    };
+
+    fetchApplications();
   }, []);
 
   // Filtrage

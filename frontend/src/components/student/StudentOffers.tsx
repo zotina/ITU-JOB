@@ -1,12 +1,12 @@
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useState, useMemo, useEffect } from 'react';
+import { useProfileData } from '@/hooks/useProfileData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Building2, MapPin, Euro, Clock, Star, Filter, Loader2 } from 'lucide-react';
-import { mockOffers, mockCompanies } from '@/data/mockData';
-import { addApplication } from '@/data/applicationStore';
+import { dataProvider } from '@/data/dataProvider';
 import { SearchInput } from '@/components/ui/search-input';
 import { 
   Pagination,
@@ -22,6 +22,7 @@ import { Toaster } from "@/components/ui/toaster"
 const StudentOffers = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { profileData } = useProfileData();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const companiesFilter = searchParams.get('companies')?.split(',') || [];
@@ -45,17 +46,49 @@ const StudentOffers = () => {
   const [typeFilter, setTypeFilter] = useState('all');
   const [techFilter, setTechFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
-  const [loading, setLoading] = useState<string | null>(null);
+  const [applyingOfferId, setApplyingOfferId] = useState<string | null>(null);
   const itemsPerPage = 6;
 
-  const recommendedOffers = useMemo(() => {
-    return [...mockOffers]
-      .sort((a, b) => b.matchingScore - a.matchingScore)
-      .slice(0, 4);
+  // State for data
+  const [offers, setOffers] = useState<any[]>([]);
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
+
+  // Fetch data from dataProvider
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setDataLoading(true);
+        const [offersData, companiesData] = await Promise.all([
+          dataProvider.getOffers(),
+          dataProvider.getCompanies()
+        ]);
+        setOffers(offersData);
+        setCompanies(companiesData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // Fallback to mock data if there's an error
+        const { mockOffers, mockCompanies } = require('@/data/mockData');
+        setOffers(mockOffers);
+        setCompanies(mockCompanies);
+      } finally {
+        setDataLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
+  const recommendedOffers = useMemo(() => {
+    if (dataLoading) return [];
+    return [...offers]
+      .sort((a, b) => b.matchingScore - a.matchingScore)
+      .slice(0, 4);
+  }, [offers, dataLoading]);
+
   const allOffers = useMemo(() => {
-    let filtered = mockOffers.filter(offer => {
+    if (dataLoading) return [];
+    let filtered = offers.filter(offer => {
       const matchesCompanies = companiesFilter.length > 0 ? companiesFilter.includes(offer.company) : true;
       const matchesSearch = offer.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            offer.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -71,27 +104,30 @@ const StudentOffers = () => {
     filtered.sort((a, b) => b.matchingScore - a.matchingScore);
 
     return filtered;
-  }, [searchTerm, locationFilter, typeFilter, techFilter]);
+  }, [offers, searchTerm, locationFilter, typeFilter, techFilter, companiesFilter, dataLoading]);
 
   const totalPages = Math.ceil(allOffers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedOffers = allOffers.slice(startIndex, startIndex + itemsPerPage);
 
-  const uniqueTypes = [...new Set(mockOffers.map(offer => offer.type))];
+  const uniqueTypes = [...new Set(offers.map(offer => offer.type))];
 
   const handleApply = (offerId: string, offerTitle: string, company: string, location: string, salary: string, type: string) => {
-    setLoading(offerId);
-    setTimeout(() => {
-      addApplication({
-        company,
-        position: offerTitle,
-        location,
-        salary,
-        type,
-        offerId
-      });
-      
-      setLoading(null);
+    setApplyingOfferId(offerId);
+    
+    // Add application via dataProvider (which uses Firebase)
+    dataProvider.addApplication({
+      company,
+      position: offerTitle,
+      location,
+      salary,
+      type,
+      offerId,
+      studentName: profileData?.personalInfo?.name || "Current Student",
+      studentId: "current-student-id" // This should be replaced with actual student ID from auth
+    })
+    .then(() => {
+      setApplyingOfferId(null);
       toast({
         title: "Succès",
         description: "Candidature envoyée avec succès !",
@@ -102,7 +138,15 @@ const StudentOffers = () => {
       setTimeout(() => {
         navigate('/student/applications');
       }, 1000);
-    }, 1500);
+    })
+    .catch(error => {
+      setApplyingOfferId(null);
+      toast({
+        title: "Erreur",
+        description: "Échec de l'envoi de la candidature.",
+        variant: "destructive",
+      });
+    });
   };
 
   const renderOfferCard = (offer: any, isRecommended: boolean) => (
@@ -111,13 +155,13 @@ const StudentOffers = () => {
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center cursor-pointer" onClick={() => {
-              const company = mockCompanies.find(c => c.name === offer.company);
+              const company = companies.find(c => c.name === offer.company);
               if (company) {
                 navigate(`/student/company/${company.id}`);
               }
             }}>
               {(() => {
-                const company = mockCompanies.find(c => c.name === offer.company);
+                const company = companies.find(c => c.name === offer.company);
                 return company && company.logo ? (
                   <img 
                     src={company.logo} 
@@ -143,7 +187,7 @@ const StudentOffers = () => {
             <div>
               <CardTitle className="text-lg">{offer.title}</CardTitle>
               <p className="text-muted-foreground font-medium cursor-pointer hover:text-primary hover:underline" onClick={() => {
-                const company = mockCompanies.find(c => c.name === offer.company);
+                const company = companies.find(c => c.name === offer.company);
                 if (company) {
                   navigate(`/student/company/${company.id}`);
                 }
@@ -180,10 +224,10 @@ const StudentOffers = () => {
           <Button 
             className="flex-1" 
             onClick={() => handleApply(offer.id, offer.title, offer.company, offer.location, offer.salary, offer.type)} 
-            disabled={loading === offer.id}
+            disabled={applyingOfferId === offer.id}
           >
-            {loading === offer.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            {loading === offer.id ? 'Envoi...' : 'Postuler'}
+            {applyingOfferId === offer.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            {applyingOfferId === offer.id ? 'Envoi...' : 'Postuler'}
           </Button>
           <Link to={`/student/offers/${offer.id}`} className="flex-1">
             <Button variant="outline" className="w-full">
