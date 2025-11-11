@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
+import { useNavigate } from 'react-router-dom';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Card } from '@/components/ui/card';
@@ -106,9 +107,15 @@ const LeafletMap = ({
   companies,
   className = ""
 }: LeafletMapProps) => {
+  const navigate = useNavigate();
+  
   // Position par défaut (Paris)
   const defaultCenter: [number, number] = [48.8566, 2.3522];
   const center = studentCoordinates ? [studentCoordinates[1], studentCoordinates[0]] as [number, number] : defaultCenter;
+
+  const handleCompanyClick = (companyName: string) => {
+    navigate(`/student/offers?q=${encodeURIComponent(companyName)}`);
+  };
 
   return (
     <Card className={`overflow-hidden ${className}`}>
@@ -187,9 +194,12 @@ const LeafletMap = ({
                 >
                   <Popup>
                     <div className="p-3">
-                      <div className="flex items-center gap-2 mb-2">
+                      <div 
+                        className="flex items-center gap-2 mb-2 cursor-pointer hover:underline"
+                        onClick={() => handleCompanyClick(company.name)}
+                      >
                         <div className="w-4 h-4 bg-green-500 rounded-sm"></div>
-                        <strong>{company.name}</strong>
+                        <strong className="text-primary">{company.name}</strong>
                       </div>
                       <p className="text-sm text-gray-600 mb-1">{company.location}</p>
                       <p className="text-sm text-blue-600">{company.offers} offre{company.offers > 1 ? 's' : ''} disponible{company.offers > 1 ? 's' : ''}</p>

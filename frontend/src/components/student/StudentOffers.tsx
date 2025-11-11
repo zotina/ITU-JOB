@@ -1,5 +1,5 @@
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,8 +25,22 @@ const StudentOffers = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const companiesFilter = searchParams.get('companies')?.split(',') || [];
+  const searchFromUrl = searchParams.get('q') || '';
 
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(searchFromUrl);
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    if (searchTerm) {
+      params.set('q', searchTerm);
+    } else {
+      params.delete('q');
+    }
+    // Only update if the parameter has changed
+    if (searchParams.get('q') !== (searchTerm || null)) {
+      setSearchParams(params);
+    }
+  }, [searchTerm, setSearchParams, searchParams]);
   const [locationFilter, setLocationFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [techFilter, setTechFilter] = useState('all');

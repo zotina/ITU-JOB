@@ -1,5 +1,17 @@
 # Historique des Modifications
 
+## 11-11-2025: Rendre les éléments de la carte cliquables pour pré-remplir la recherche
+
+- **Objectif :** Rendre les noms des entreprises sur la carte cliquables et rediriger vers la liste des offres en pré-remplissant la recherche avec le nom de l'entreprise.
+- **Actions :**
+    1. **Mise à jour de StudentLocation.tsx :** Réversion des modifications précédentes car elles étaient incorrectes.
+    2. **Mise à jour de leaflet-map.tsx :** Ajout de l'import useNavigate et implémentation de la fonction handleCompanyClick.
+    3. **Mise à jour de leaflet-map.tsx :** Modification du Popup des entreprises pour rendre le nom cliquable et appeler la fonction de navigation.
+    4. **Mise à jour de StudentOffers.tsx :** Modification du composant pour lire le paramètre 'q' de l'URL lors du chargement et l'utiliser comme valeur initiale pour le terme de recherche.
+    5. **Ajout d'effet de synchronisation :** Ajout d'un effet pour synchroniser le terme de recherche avec les paramètres de l'URL lorsqu'il change.
+
+---
+
 ## 09-11-2025: Amélioration du moteur de recherche en langage naturel et correction des erreurs
 
 - **Objectif :** Améliorer le moteur de recherche pour qu'il fonctionne correctement en langage naturel et corriger l'erreur dans le composant RecruiterStudentSearch.
