@@ -8,6 +8,8 @@ import { mockCompanies, updateCompany } from '@/data/mockData';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { dataProvider } from '@/data/dataProvider';
 
 interface RecruiterProfileProps {
   isReadOnly?: boolean; // Prop pour déterminer si le profil est en mode lecture seule
@@ -17,6 +19,7 @@ const RecruiterProfile = ({ isReadOnly = false }: RecruiterProfileProps) => {
   const { id: companyId } = useParams<{ id: string }>();
   const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
   
   // Si un companyId est fourni dans l'URL, utiliser les données de l'entreprise correspondante
   // Sinon, utiliser les données par défaut pour le recruteur connecté
@@ -110,7 +113,7 @@ const RecruiterProfile = ({ isReadOnly = false }: RecruiterProfileProps) => {
   };
   
   // Fonction pour sauvegarder les modifications
-  const saveChanges = () => {
+  const saveChanges = async () => {
     // Si ce n'est pas en mode lecture seule, on peut sauvegarder
     if (!isReadOnly) {
       // Si ce n'est pas en mode visualisation d'une entreprise spécifique, mais le profil du recruteur connecté
@@ -129,12 +132,42 @@ const RecruiterProfile = ({ isReadOnly = false }: RecruiterProfileProps) => {
             }
           });
         }
+        
+        // Sauvegarder sur Firestore si l'utilisateur est authentifié
+        if (user) {
+          try {
+            // Sauvegarder le profil du recruteur sur Firestore
+            await dataProvider.saveUserProfile(user.id, {
+              company: editedCompanyData,
+              recruiter: editedRecruiterData,
+              updatedAt: new Date().toISOString()
+            });
+            
+            toast({
+              title: "Profil mis à jour",
+              description: "Les modifications ont été enregistrées avec succès sur le serveur.",
+            });
+          } catch (error) {
+            console.error('Error saving recruiter profile to Firestore:', error);
+            toast({
+              title: "Erreur",
+              description: "Une erreur est survenue lors de la sauvegarde du profil.",
+              variant: "destructive",
+            });
+            return; // Ne pas désactiver l'édition en cas d'erreur
+          }
+        } else {
+          toast({
+            title: "Profil mis à jour",
+            description: "Les modifications ont été enregistrées avec succès.",
+          });
+        }
+      } else {
+        toast({
+          title: "Profil mis à jour",
+          description: "Les modifications ont été enregistrées avec succès.",
+        });
       }
-      
-      toast({
-        title: "Profil mis à jour",
-        description: "Les modifications ont été enregistrées avec succès.",
-      });
     }
     
     setIsEditing(false);

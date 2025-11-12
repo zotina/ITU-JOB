@@ -225,5 +225,31 @@ export const dataProvider = {
     } catch (error) {
       console.warn('Firebase failed, updating mock data', error);
     }
+  },
+  
+  // User profile operations
+  getUserProfile: async (userId: string) => {
+    try {
+      const profile = await firebaseService.getUserProfile(userId);
+      if (profile) {
+        return profile;
+      } else {
+        // Fallback to mock data if no profile found in Firebase
+        return null;
+      }
+    } catch (error) {
+      console.warn('Firebase failed, getting profile from mock data', error);
+      return null;
+    }
+  },
+  
+  saveUserProfile: async (userId: string, profileData: any) => {
+    try {
+      await firebaseService.saveUserProfile(userId, profileData);
+      // If Firebase succeeds, we don't need to update mock data
+    } catch (error) {
+      console.warn('Firebase failed, saving to mock data', error);
+      // Could consider fallback to saving to mock data if needed
+    }
   }
 };

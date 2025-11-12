@@ -22,6 +22,7 @@ const StudentPersonalTab = ({ showActions = true, isRecruiterView = false }: Stu
   const { 
     profileData, 
     isEditing, 
+    isLoading,
     updateEditingData, 
     startEditing, 
     startEditingWithData,
@@ -63,10 +64,10 @@ const StudentPersonalTab = ({ showActions = true, isRecruiterView = false }: Stu
     });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // Sauvegarder les modifications
     if (saveChanges) {
-      saveChanges();
+      await saveChanges();
     }
     
     toast({
@@ -168,9 +169,18 @@ const StudentPersonalTab = ({ showActions = true, isRecruiterView = false }: Stu
             </>
           ) : (
             <>
-              <Button onClick={handleSave} className="gap-2" type="button">
-                <Save className="w-4 h-4" />
-                Sauvegarder
+              <Button onClick={handleSave} className="gap-2" type="button" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Sauvegarde...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    Sauvegarder
+                  </>
+                )}
               </Button>
               <Button onClick={handleCancel} variant="outline" className="gap-2" type="button">
                 <X className="w-4 h-4" />

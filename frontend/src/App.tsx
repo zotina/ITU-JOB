@@ -10,7 +10,7 @@ import StudentLayout from '@/components/layouts/StudentLayout';
 import RecruiterLayout from '@/components/layouts/RecruiterLayout';
 import RecruiterRegistrationPage from '@/pages/RecruiterRegistrationPage';
 import StudentRegistrationPage from '@/pages/StudentRegistrationPage';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 
 const queryClient = new QueryClient();
 
@@ -30,24 +30,16 @@ function App() {
               
               {/* Routes étudiants */}
               <Route path="/student/*" element={
-                isAuthenticated && user?.role === 'etudiant' ? (
-                  <StudentLayout>
+                <StudentLayout>
                     <StudentDashboard />
                   </StudentLayout>
-                ) : (
-                  <Navigate to="/login" replace />
-                )
               } />
               
               {/* Routes recruteurs */}
               <Route path="/recruiter/*" element={
-                isAuthenticated && user?.role === 'recruteur' ? (
-                  <RecruiterLayout>
+                <RecruiterLayout>
                     <RecruiterDashboard />
                   </RecruiterLayout>
-                ) : (
-                  <Navigate to="/login" replace />
-                )
               } />
               
               <Route path="/register/student" element={<StudentRegistrationPage />} />

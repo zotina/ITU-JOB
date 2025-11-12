@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getStudentProfile, updateStudentProfile, mockAppointments } from "@/data/mockData";
 import { Appointment } from "@/types/appointment";
+import { dataProvider } from "@/data/dataProvider";
 
 export interface ProfileData {
   personalInfo: {
@@ -58,10 +59,14 @@ const initialProfileData: ProfileData = {
   appointments: mockAppointments
 };
 
+import { useAuth } from './useAuth';
+
 export const useProfileData = () => {
+  const { user } = useAuth();
   const [profileData, setProfileData] = useState<ProfileData>(initialProfileData);
   const [isEditing, setIsEditing] = useState(false);
   const [editingData, setEditingData] = useState<ProfileData>(initialProfileData);
+  const [isLoading, setIsLoading] = useState(false);
 
   const startEditing = () => {
     setEditingData({ ...profileData });
@@ -73,11 +78,24 @@ export const useProfileData = () => {
     setIsEditing(false);
   };
 
-  const saveChanges = () => {
-    setProfileData({ ...editingData });
-    // Mettre à jour les données dans mockData
-    updateStudentProfile({ ...editingData });
-    setIsEditing(false);
+  const saveChanges = async () => {
+    setIsLoading(true);
+    try {
+      setProfileData({ ...editingData });
+      // Mettre à jour les données dans mockData
+      updateStudentProfile({ ...editingData });
+      
+      // Sauvegarder sur Firestore si l'utilisateur est authentifié
+      if (user) {
+        await dataProvider.saveUserProfile(user.id, editingData);
+      }
+      
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error saving profile:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const startEditingWithData = (newData: ProfileData) => {
@@ -133,10 +151,34 @@ export const useProfileData = () => {
     }));
   };
 
+  // Charger le profil depuis Firestore si l'utilisateur est authentifié
+  useEffect(() => {
+    if (user) {
+      // Charger le profil depuis Firestore
+      const loadProfile = async () => {
+        try {
+          setIsLoading(true);
+          const profileFromFirestore = await dataProvider.getUserProfile(user.id);
+          if (profileFromFirestore) {
+            setProfileData(profileFromFirestore);
+            setEditingData(profileFromFirestore);
+          }
+        } catch (error) {
+          console.error('Error loading profile:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      loadProfile();
+    }
+  }, [user]);
+
   return {
     profileData: isEditing ? editingData : profileData,
     setProfileData, // Exposer la fonction de mise à jour directe
     isEditing,
+    isLoading,
     startEditing,
     cancelEditing,
     saveChanges,

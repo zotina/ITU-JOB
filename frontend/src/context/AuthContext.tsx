@@ -1,7 +1,7 @@
 import { simpleAuthService } from '@/services/simpleAuthService';
 import { LoginRequest, SignupRequest, User } from '@/types/auth';
 import { ErrorHandler } from '@/utils/ErrorHandler';
-import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
@@ -19,7 +19,10 @@ interface AuthContextType {
     resendOtp: (sessionKey: string, telephone: string) => Promise<any>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// The rest of the file remains the same, only the export of useAuth is removed
+// and the export of AuthContext is added.
+
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [loading, setLoading] = useState(false);
@@ -63,6 +66,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const response = await simpleAuthService.login(credentials);
 
             if (response.status && response.user) {
+                // Debug logging
+                console.log('Login successful, user data:', response.user);
+                console.log('User role:', response.user.role);
+                
                 // Update state immediately
                 setIsAuthenticated(true);
                 setUser(response.user);
@@ -71,13 +78,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 window.dispatchEvent(new Event('auth-change'));
 
                 // Navigate after state update
-                if (response.user.role === 'etudiant' || response.user.role === 'student') {
-                    navigate('/student/offers', { replace: true });
-                } else if (response.user.role === 'recruteur' || response.user.role === 'recruiter') {
-                    navigate('/recruiter/offers', { replace: true });
+                const isStudent = response.user.role === 'etudiant' || response.user.role === 'student';
+                const isRecruiter = response.user.role === 'recruteur' || response.user.role === 'recruiter';
+                
+                console.log('Role check - isStudent:', isStudent, 'isRecruiter:', isRecruiter);
+                
+                if (isStudent) {
+                    console.log('Redirecting to student dashboard');
+                    try {
+                        navigate('/student/offers', { replace: true });
+                        console.log('Navigation to student dashboard completed');
+                    } catch (navError) {
+                        console.error('Navigation error:', navError);
+                    }
+                } else if (isRecruiter) {
+                    console.log('Redirecting to recruiter dashboard');
+                    try {
+                        navigate('/recruiter/offers', { replace: true });
+                        console.log('Navigation to recruiter dashboard completed');
+                    } catch (navError) {
+                        console.error('Navigation error:', navError);
+                    }
+                } else {
+                    console.log('Unknown role, not redirecting');
                 }
                 return response;
             } else {
+                console.log('Login failed:', response.message);
                 throw new Error(response.message || 'Erreur de connexion');
             }
         } catch (error) {
@@ -157,7 +184,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setError(null);
     }, []);
 
-    const value = {
+    const value = useMemo(() => ({
         loading,
         error,
         login,
@@ -169,15 +196,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isAuthenticated,
         user,
         getCurrentUser: simpleAuthService.getCurrentUser,
-    };
+    }), [loading, error, login, initiateSignup, verifySignup, resendOtp, logout, clearError, isAuthenticated, user]);
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (context === undefined) {
-        throw new Error('useAuth must be used within an AuthProvider');
-    }
-    return context;
 };

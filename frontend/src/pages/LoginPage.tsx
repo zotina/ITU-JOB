@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Mail, Lock, GraduationCap, Building2 } from 'lucide-react';
 import logoItu from '@/assets/logo-itu.png';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
+import LoginSuccessRedirect from '@/components/auth/LoginSuccessRedirect';
 
 
 const LoginPage = () => {
@@ -24,6 +25,7 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-bg flex items-center justify-center p-4">
+      {/* <LoginSuccessRedirect /> */}
       <Card className="w-full max-w-md bg-white shadow-md border-0">
         <CardContent className="pt-12 pb-8 px-8">
           {/* Logo ITU */}

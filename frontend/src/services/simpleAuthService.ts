@@ -14,17 +14,40 @@ class SimpleAuthService {
   private isAuthenticatedState: boolean = false;
 
   constructor() {
+    // Initialize by trying to restore from session storage first
+    this.restoreSession();
+    
     // Listen for auth state changes
     onAuthStateChanged(getAuth(), async (firebaseUser) => {
       if (firebaseUser) {
         // Get user data from Firestore
         this.currentUser = await this.getUserProfile(firebaseUser.uid);
         this.isAuthenticatedState = !!this.currentUser;
+        
+        // Update session storage with fresh data
+        if (this.currentUser) {
+          sessionStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+        }
       } else {
         this.currentUser = null;
         this.isAuthenticatedState = false;
+        // Clear session if Firebase auth state changes to unauthenticated
+        sessionStorage.removeItem('currentUser');
       }
     });
+  }
+  
+  private restoreSession(): void {
+    try {
+      const storedUser = sessionStorage.getItem('currentUser');
+      if (storedUser) {
+        this.currentUser = JSON.parse(storedUser);
+        this.isAuthenticatedState = true;
+      }
+    } catch (error) {
+      console.error('Error restoring session:', error);
+      sessionStorage.removeItem('currentUser');
+    }
   }
 
   getCurrentUser(): UserType | null {
@@ -64,7 +87,7 @@ class SimpleAuthService {
 
         // Format the user data to match the expected interface
         const user: UserType = {
-          id: parseInt(userDoc.id.substring(0, 8), 16) || 1, // Convert ID to number
+          id: userDoc.id, // Use Firestore document ID as a string
           prenom: userData.name?.split(' ')[0] || 'Prénom',
           nom: userData.name?.split(' ').slice(1).join(' ') || 'Nom',
           email: userData.email,
@@ -74,13 +97,15 @@ class SimpleAuthService {
           updated_at: new Date().toISOString()
         };
 
+        console.log('User authenticated, user data:', user);
+        
         this.currentUser = user;
         this.isAuthenticatedState = true;
 
         // Store in session for persistence
         sessionStorage.setItem('currentUser', JSON.stringify(user));
 
-        return {
+        const response = {
           status: true,
           message: 'Connexion réussie',
           token_data: {
@@ -91,6 +116,9 @@ class SimpleAuthService {
           },
           user: user
         };
+        
+        console.log('Login response:', response);
+        return response;
       } catch (authError: any) {
         return {
           status: false,
@@ -124,8 +152,10 @@ class SimpleAuthService {
       const userDoc = await getDoc(doc(db, 'users', userId));
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        return {
-          id: parseInt(userDoc.id.substring(0, 8), 16) || 1, // Convert ID to number
+        console.log('Firestore user data:', userData);
+        
+        const user = {
+          id: userDoc.id, // Use Firestore document ID as a string
           prenom: userData.name?.split(' ')[0] || 'Prénom',
           nom: userData.name?.split(' ').slice(1).join(' ') || 'Nom',
           email: userData.email,
@@ -134,6 +164,9 @@ class SimpleAuthService {
           created_at: userData.createdAt || new Date().toISOString(),
           updated_at: new Date().toISOString()
         };
+        
+        console.log('Formatted user object:', user);
+        return user;
       }
       return null;
     } catch (error) {

@@ -18,11 +18,13 @@ import {
 } from '@/components/ui/pagination';
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
+import { useAuth } from '@/hooks/useAuth';
 
 const StudentOffers = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { profileData } = useProfileData();
+  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const companiesFilter = searchParams.get('companies')?.split(',') || [];
@@ -53,12 +55,14 @@ const StudentOffers = () => {
   const [offers, setOffers] = useState<any[]>([]);
   const [companies, setCompanies] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+  const [dataError, setDataError] = useState<string | null>(null);
 
   // Fetch data from dataProvider
   useEffect(() => {
     const fetchData = async () => {
       try {
         setDataLoading(true);
+        setDataError(null); // Clear previous errors
         const [offersData, companiesData] = await Promise.all([
           dataProvider.getOffers(),
           dataProvider.getCompanies()
@@ -66,11 +70,8 @@ const StudentOffers = () => {
         setOffers(offersData);
         setCompanies(companiesData);
       } catch (error) {
-        console.error('Error fetching data:', error);
-        // Fallback to mock data if there's an error
-        const { mockOffers, mockCompanies } = require('@/data/mockData');
-        setOffers(mockOffers);
-        setCompanies(mockCompanies);
+        console.error('Error fetching data in StudentOffers:', error);
+        setDataError('Erreur lors du chargement des offres. Veuillez réessayer plus tard.');
       } finally {
         setDataLoading(false);
       }
@@ -115,6 +116,10 @@ const StudentOffers = () => {
   const handleApply = (offerId: string, offerTitle: string, company: string, location: string, salary: string, type: string) => {
     setApplyingOfferId(offerId);
     
+    // Get student info from authenticated user or profile
+    const studentName = user?.prenom + ' ' + user?.nom || profileData?.personalInfo?.name || "Current Student";
+    const studentId = user?.id || "current-student-id"; // Fallback to current user ID from auth context
+    
     // Add application via dataProvider (which uses Firebase)
     dataProvider.addApplication({
       company,
@@ -123,8 +128,8 @@ const StudentOffers = () => {
       salary,
       type,
       offerId,
-      studentName: profileData?.personalInfo?.name || "Current Student",
-      studentId: "current-student-id" // This should be replaced with actual student ID from auth
+      studentName,
+      studentId
     })
     .then(() => {
       setApplyingOfferId(null);
@@ -238,6 +243,42 @@ const StudentOffers = () => {
       </div>
     </Card>
   );
+
+  if (dataLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (dataError) {
+    return (
+      <div className="p-6">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <h3 className="text-lg font-medium mb-2">Erreur de chargement</h3>
+            <p className="text-muted-foreground mb-4">{dataError}</p>
+            <Button onClick={() => window.location.reload()}>Réessayer</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show empty state if no offers are available after loading
+  if (!dataLoading && offers.length === 0) {
+    return (
+      <div className="p-6">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <h3 className="text-lg font-medium mb-2">Aucune offre disponible</h3>
+            <p className="text-muted-foreground mb-4">Il n'y a actuellement aucune offre d'emploi disponible.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-8">
