@@ -66,9 +66,10 @@ class ChatbotService {
 
   constructor() {
      this.groqApiKey = import.meta.env.VITE_GROQ_API_KEY || '';
-     this.model = import.meta.env.MODEL_GROQ || '';
-  }
-
+     this.model = import.meta.env.VITE_MODEL_GROQ || '';
+     console.log("model = " + this.model);
+  } 
+  
   /**
    * Traite un message de l'utilisateur et retourne une réponse
    */

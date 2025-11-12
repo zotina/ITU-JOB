@@ -80,32 +80,134 @@ const StudentOffers = () => {
     fetchData();
   }, []);
 
+  // Fonction pour calculer le matching score entre un profil utilisateur et une offre
+  const calculateMatchingScore = (profile: any, offer: any): number => {
+    let score = 0;
+    let totalWeight = 0;
+
+    // Extraction des compétences du profil
+    const profileSkills: string[] = [];
+    if (profile.technicalSkills) {
+      for (const skillGroup of profile.technicalSkills) {
+        for (const skill of skillGroup.skills) {
+          profileSkills.push(skill.name.toLowerCase());
+        }
+      }
+    }
+
+    // Extraction des langues du profil
+    const profileLanguages: string[] = [];
+    if (profile.languages) {
+      for (const lang of profile.languages) {
+        profileLanguages.push(lang.name.toLowerCase());
+      }
+    }
+
+    // Extraction des expériences du profil
+    const profileExperiences: string[] = [];
+    if (profile.experiences) {
+      for (const exp of profile.experiences) {
+        profileExperiences.push(exp.title.toLowerCase());
+        profileExperiences.push(exp.description.toLowerCase());
+      }
+    }
+
+    // Vérifier les compétences techniques (40% du score)
+    if (offer.technologies && Array.isArray(offer.technologies)) {
+      totalWeight += 40; // Poids de 40% pour les technologies
+      for (const tech of offer.technologies) {
+        if (profileSkills.some(skill => 
+          tech.toLowerCase().includes(skill) || skill.includes(tech.toLowerCase())
+        )) {
+          score += 40 / offer.technologies.length;
+        }
+      }
+    }
+
+    // Vérifier les exigences (30% du score)
+    if (offer.requirements && Array.isArray(offer.requirements)) {
+      totalWeight += 30; // Poids de 30% pour les exigences
+      for (const requirement of offer.requirements) {
+        const reqLower = requirement.toLowerCase();
+        // Vérifier si une compétence du profil correspond à l'exigence
+        if (profileSkills.some(skill => 
+          reqLower.includes(skill) || skill.includes(reqLower)
+        )) {
+          score += 10;
+        }
+        // Vérifier si une expérience du profil correspond à l'exigence
+        if (profileExperiences.some(exp => 
+          reqLower.includes(exp) || exp.includes(reqLower)
+        )) {
+          score += 10;
+        }
+        // Vérifier si une langue du profil correspond à l'exigence
+        if (profileLanguages.some(lang => 
+          reqLower.includes(lang) || lang.includes(reqLower)
+        )) {
+          score += 10;
+        }
+      }
+    }
+
+    // Vérifier la localisation (20%)
+    if (offer.location) {
+      totalWeight += 20;
+      if (profile.personalInfo && profile.personalInfo.location && 
+          profile.personalInfo.location.toLowerCase().includes(offer.location.toLowerCase())) {
+        score += 20;
+      }
+    }
+
+    // Vérifier la disponibilité (10%)
+    if (profile.personalInfo && profile.personalInfo.availability) {
+      totalWeight += 10;
+      if (offer.description && offer.description.toLowerCase().includes('immédiate') && 
+          profile.personalInfo.availability.toLowerCase().includes('immédiate')) {
+        score += 10;
+      }
+    }
+
+    // Calculer le score final sur 100
+    const finalScore = totalWeight > 0 ? Math.min(100, Math.round((score / totalWeight) * 100)) : 0;
+    return finalScore;
+  };
+
   const recommendedOffers = useMemo(() => {
     if (dataLoading) return [];
     return [...offers]
+      .map(offer => ({
+        ...offer,
+        matchingScore: calculateMatchingScore(profileData, offer)
+      }))
       .sort((a, b) => b.matchingScore - a.matchingScore)
       .slice(0, 4);
-  }, [offers, dataLoading]);
+  }, [offers, dataLoading, profileData]);
 
   const allOffers = useMemo(() => {
     if (dataLoading) return [];
-    let filtered = offers.filter(offer => {
-      const matchesCompanies = companiesFilter.length > 0 ? companiesFilter.includes(offer.company) : true;
-      const matchesSearch = offer.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           offer.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           offer.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesLocation = locationFilter === 'all' || locationFilter === '' || offer.location.toLowerCase().includes(locationFilter.toLowerCase());
-      const matchesType = typeFilter === 'all' || offer.type === typeFilter;
-      const matchesTech = techFilter === 'all' || techFilter === '' || offer.technologies.some(tech => tech.toLowerCase().includes(techFilter.toLowerCase()));
-      
-      return matchesCompanies && matchesSearch && matchesLocation && matchesType && matchesTech;
-    });
+    let filtered = offers
+      .map(offer => ({
+        ...offer,
+        matchingScore: calculateMatchingScore(profileData, offer)
+      }))
+      .filter(offer => {
+        const matchesCompanies = companiesFilter.length > 0 ? companiesFilter.includes(offer.company) : true;
+        const matchesSearch = offer.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                             offer.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                             offer.description.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesLocation = locationFilter === 'all' || locationFilter === '' || offer.location.toLowerCase().includes(locationFilter.toLowerCase());
+        const matchesType = typeFilter === 'all' || offer.type === typeFilter;
+        const matchesTech = techFilter === 'all' || techFilter === '' || offer.technologies.some(tech => tech.toLowerCase().includes(techFilter.toLowerCase()));
+        
+        return matchesCompanies && matchesSearch && matchesLocation && matchesType && matchesTech;
+      });
 
     // Tri par défaut par pertinence (matchingScore)
     filtered.sort((a, b) => b.matchingScore - a.matchingScore);
 
     return filtered;
-  }, [offers, searchTerm, locationFilter, typeFilter, techFilter, companiesFilter, dataLoading]);
+  }, [offers, searchTerm, locationFilter, typeFilter, techFilter, companiesFilter, dataLoading, profileData]);
 
   const totalPages = Math.ceil(allOffers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -154,95 +256,100 @@ const StudentOffers = () => {
     });
   };
 
-  const renderOfferCard = (offer: any, isRecommended: boolean) => (
-    <Card key={offer.id} className="hover:shadow-elegant transition-all duration-300 flex flex-col">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center cursor-pointer" onClick={() => {
-              const company = companies.find(c => c.name === offer.company);
-              if (company) {
-                navigate(`/student/company/${company.id}`);
-              }
-            }}>
-              {(() => {
-                const company = companies.find(c => c.name === offer.company);
-                return company && company.logo ? (
-                  <img 
-                    src={company.logo} 
-                    alt={`${offer.company} logo`}
-                    className="w-6 h-6 object-contain"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.onerror = null;
-                      target.style.display = 'none';
-                      const parent = target.parentElement;
-                      if (parent) {
-                        const fallbackIcon = document.createElement('div');
-                        fallbackIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-primary"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" className="text-primary"/><path d="M6 12H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" className="text-primary"/></svg>';
-                        parent.appendChild(fallbackIcon);
-                      }
-                    }}
-                  />
-                ) : (
-                  <Building2 className="w-6 h-6 text-primary" />
-                );
-              })()}
-            </div>
-            <div>
-              <CardTitle className="text-lg">{offer.title}</CardTitle>
-              <p className="text-muted-foreground font-medium cursor-pointer hover:text-primary hover:underline" onClick={() => {
+  const renderOfferCard = (offer: any, isRecommended: boolean) => {
+    // Calculer dynamiquement le matching score si ce n'est pas déjà fait
+    const finalMatchingScore = offer.matchingScore ?? calculateMatchingScore(profileData, offer);
+    
+    return (
+      <Card key={offer.id} className="hover:shadow-elegant transition-all duration-300 flex flex-col">
+        <CardHeader>
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center cursor-pointer" onClick={() => {
                 const company = companies.find(c => c.name === offer.company);
                 if (company) {
                   navigate(`/student/company/${company.id}`);
                 }
-              }}>{offer.company}</p>
+              }}>
+                {(() => {
+                  const company = companies.find(c => c.name === offer.company);
+                  return company && company.logo ? (
+                    <img 
+                      src={company.logo} 
+                      alt={`${offer.company} logo`}
+                      className="w-6 h-6 object-contain"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.onerror = null;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent) {
+                          const fallbackIcon = document.createElement('div');
+                          fallbackIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-primary"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" className="text-primary"/><path d="M6 12H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" className="text-primary"/></svg>';
+                          parent.appendChild(fallbackIcon);
+                        }
+                      }}
+                    />
+                  ) : (
+                    <Building2 className="w-6 h-6 text-primary" />
+                  );
+                })()}
+              </div>
+              <div>
+                <CardTitle className="text-lg">{offer.title}</CardTitle>
+                <p className="text-muted-foreground font-medium cursor-pointer hover:text-primary hover:underline" onClick={() => {
+                  const company = companies.find(c => c.name === offer.company);
+                  if (company) {
+                    navigate(`/student/company/${company.id}`);
+                  }
+                }}>{offer.company}</p>
+              </div>
             </div>
+              <Badge variant="secondary" className="bg-green-100 text-green-700 font-semibold">
+                {finalMatchingScore}% Match
+              </Badge>
           </div>
-            <Badge variant="secondary" className="bg-green-100 text-green-700 font-semibold">
-              {offer.matchingScore}% Match
-            </Badge>
-        </div>
-      </CardHeader>
-      
-      <CardContent className="space-y-4 flex-grow">
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {offer.location}</div>
-          <div className="flex items-center gap-1"> {offer.salary}</div>
-          <div className="flex items-center gap-1"><Clock className="w-4 h-4" /> {offer.type}</div>
-        </div>
+        </CardHeader>
         
-        <p className="text-sm line-clamp-2 flex-grow">{offer.description}</p>
-        
-        <div className="flex flex-wrap gap-2">
-          {offer.technologies.slice(0, 4).map((tech: string) => (
-            <Badge key={tech} variant="outline" className="text-xs">{tech}</Badge>
-          ))}
-          {offer.technologies.length > 4 && (
-            <Badge variant="outline" className="text-xs">+{offer.technologies.length - 4}</Badge>
-          )}
-        </div>
-      </CardContent>
+        <CardContent className="space-y-4 flex-grow">
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {offer.location}</div>
+            <div className="flex items-center gap-1"> {offer.salary}</div>
+            <div className="flex items-center gap-1"><Clock className="w-4 h-4" /> {offer.type}</div>
+          </div>
+          
+          <p className="text-sm line-clamp-2 flex-grow">{offer.description}</p>
+          
+          <div className="flex flex-wrap gap-2">
+            {offer.technologies.slice(0, 4).map((tech: string) => (
+              <Badge key={tech} variant="outline" className="text-xs">{tech}</Badge>
+            ))}
+            {offer.technologies.length > 4 && (
+              <Badge variant="outline" className="text-xs">+{offer.technologies.length - 4}</Badge>
+            )}
+          </div>
+        </CardContent>
 
-      <div className="p-6 pt-0">
-        <div className="flex gap-2 pt-2">
-          <Button 
-            className="flex-1" 
-            onClick={() => handleApply(offer.id, offer.title, offer.company, offer.location, offer.salary, offer.type)} 
-            disabled={applyingOfferId === offer.id}
-          >
-            {applyingOfferId === offer.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            {applyingOfferId === offer.id ? 'Envoi...' : 'Postuler'}
-          </Button>
-          <Link to={`/student/offers/${offer.id}`} className="flex-1">
-            <Button variant="outline" className="w-full">
-              Détails
+        <div className="p-6 pt-0">
+          <div className="flex gap-2 pt-2">
+            <Button 
+              className="flex-1" 
+              onClick={() => handleApply(offer.id, offer.title, offer.company, offer.location, offer.salary, offer.type)} 
+              disabled={applyingOfferId === offer.id}
+            >
+              {applyingOfferId === offer.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              {applyingOfferId === offer.id ? 'Envoi...' : 'Postuler'}
             </Button>
-          </Link>
+            <Link to={`/student/offers/${offer.id}`} className="flex-1">
+              <Button variant="outline" className="w-full">
+                Détails
+              </Button>
+            </Link>
+          </div>
         </div>
-      </div>
-    </Card>
-  );
+      </Card>
+    );
+  };
 
   if (dataLoading) {
     return (
