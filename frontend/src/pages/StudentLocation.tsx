@@ -10,10 +10,12 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import LeafletLocationPicker from '@/components/ui/leaflet-location-picker';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 const StudentLocation = () => {
   const navigate = useNavigate();
   const { profileData, setProfileData } = useProfileData();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [radius, setRadius] = useState(50); // Default radius in km
   const [companies, setCompanies] = useState<any[]>([]);
@@ -45,7 +47,8 @@ const StudentLocation = () => {
     fetchData();
   }, []);
 
-  const handleLocationChange = (location: string, coordinates?: [number, number]) => {
+  const handleLocationChange = async (location: string, coordinates?: [number, number]) => {
+    // Mettre à jour l'état local
     setProfileData(prevData => ({
       ...prevData,
       personalInfo: {
@@ -55,10 +58,37 @@ const StudentLocation = () => {
       }
     }));
     
-    toast({
-      title: "Localisation mise à jour",
-      description: "Votre position a été enregistrée avec succès.",
-    });
+    // Sauvegarder immédiatement dans Firestore si l'utilisateur est authentifié
+    if (user) {
+      try {
+        const updatedProfileData = {
+          ...profileData,
+          personalInfo: {
+            ...profileData.personalInfo,
+            location,
+            coordinates
+          }
+        };
+        await dataProvider.saveUserProfile(user.id, updatedProfileData);
+        toast({
+          title: "Localisation mise à jour",
+          description: "Votre position a été enregistrée avec succès.",
+        });
+      } catch (error) {
+        console.error('Error saving location to Firestore:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de sauvegarder la position dans Firestore.",
+          variant: "destructive"
+        });
+      }
+    } else {
+      // Si pas d'utilisateur authentifié, sauvegarder juste dans l'état local
+      toast({
+        title: "Localisation mise à jour",
+        description: "Votre position a été enregistrée avec succès.",
+      });
+    }
   };
 
   const haversineDistance = (
