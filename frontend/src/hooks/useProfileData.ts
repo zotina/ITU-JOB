@@ -88,6 +88,32 @@ export const useProfileData = () => {
       // Sauvegarder sur Firestore si l'utilisateur est authentifié
       if (user) {
         await dataProvider.saveUserProfile(user.id, editingData);
+        
+        // Si le nom dans personalInfo a été mis à jour, envoyer un événement pour mettre à jour le contexte d'authentification
+        if (editingData.personalInfo?.name) {
+          const newName = editingData.personalInfo.name;
+          // Extraire le prénom et le nom de famille à partir du nom complet
+          const nameParts = newName.split(' ');
+          const updatedFirstName = nameParts[0];
+          const updatedLastName = nameParts.slice(1).join(' ') || user.nom;
+          
+          // Si le nom a changé, envoyer un événement personnalisé pour mettre à jour le contexte
+          if (updatedFirstName !== user.prenom || updatedLastName !== user.nom) {
+            // Créer un nouvel objet utilisateur avec les nouvelles données
+            const updatedUser = {
+              ...user,
+              prenom: updatedFirstName,
+              nom: updatedLastName
+            };
+            
+            // Mettre à jour l'utilisateur dans le stockage de session
+            sessionStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            
+            // Envoyer un événement personnalisé pour notifier les autres parties de l'application
+            const event = new CustomEvent('userUpdated', { detail: updatedUser });
+            window.dispatchEvent(event);
+          }
+        }
       }
       
       setIsEditing(false);

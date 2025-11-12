@@ -21,6 +21,7 @@ import {
   Calendar
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
 
 const menuItems = [
   { title: 'Offres', url: '/student/offers', icon: Briefcase },
@@ -35,6 +36,7 @@ const StudentSidebar = () => {
   const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
+  const { user } = useAuth();
 
   const isActive = (path: string) => currentPath === path;
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
@@ -52,7 +54,9 @@ const StudentSidebar = () => {
             {state !== 'collapsed' && (
               <div>
                 <h2 className="font-semibold text-foreground">ITU Jobs</h2>
-                <p className="text-sm text-muted-foreground">Étudiant</p>
+                <p className="text-sm text-muted-foreground">
+                  {user ? `${user.prenom} ${user.nom}` : 'Étudiant'}
+                </p>
               </div>
             )}
           </div>
