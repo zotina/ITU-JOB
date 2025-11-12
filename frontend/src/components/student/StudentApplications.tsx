@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FileText, Search, Filter, Calendar, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import { dataProvider } from '@/data/dataProvider';
+import { useAuth } from '@/hooks/useAuth';
 
 type ApplicationStatus = 'accepted' | 'rejected' | 'pending';
 
@@ -124,6 +125,7 @@ const getStatusBadge = (status: ApplicationStatus) => {
 };
 
 const StudentApplications = () => {
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
@@ -133,7 +135,8 @@ const StudentApplications = () => {
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-        const apps = await dataProvider.getApplications();
+        // Fetch only applications for the current student
+        const apps = user ? await dataProvider.getApplications(user.id) : [];
         setApplications(apps);
         
         // Clear new flags after a delay for new applications
@@ -145,7 +148,7 @@ const StudentApplications = () => {
               await dataProvider.updateApplication(app.id, { isNew: false });
             }
             // Refetch the data to reflect the changes
-            const updatedApps = await dataProvider.getApplications();
+            const updatedApps = user ? await dataProvider.getApplications(user.id) : [];
             setApplications(updatedApps);
           }, 3000);
         }
@@ -154,12 +157,14 @@ const StudentApplications = () => {
         // Fallback to getApplications if dataProvider fails
         const { getApplications } = require('@/data/applicationStore');
         const apps = getApplications();
-        setApplications(apps);
+        // Filter applications to only include those belonging to the current user if authenticated
+        const userApps = user ? apps.filter(app => app.studentId === user.id) : apps;
+        setApplications(userApps);
       }
     };
 
     fetchApplications();
-  }, []);
+  }, [user]);
 
   // Filtrage
   const filteredApplications = applications.filter(app => {
