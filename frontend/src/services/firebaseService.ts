@@ -414,7 +414,8 @@ class FirebaseService {
           appliedDate: serverTimestamp(),
           status: 'pending',
           isNew: true, // Mark as new when first created
-          studentId: this.currentUser.uid, // Associate with the authenticated user
+          // Use the studentId from applicationData if provided, otherwise use the authenticated user's UID
+          studentId: applicationData.studentId || this.currentUser.uid,
         });
         return docRef.id;
       } else {
