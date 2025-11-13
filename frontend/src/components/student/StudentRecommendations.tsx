@@ -1,19 +1,122 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Sparkles, TrendingUp, Target, Lightbulb, Star, ArrowRight, Briefcase } from 'lucide-react';
+import { Sparkles, TrendingUp, Target, Lightbulb, Star, ArrowRight, Briefcase, Brain, Globe, Code, GraduationCap, GitBranch, Cloud } from 'lucide-react';
 import { addApplication } from '@/data/applicationStore';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useProfileData } from '@/hooks/useProfileData';
+import { AIRecommendationsService, ProfileImprovement, JobRecommendation, MarketTrend } from '@/services/aiRecommendationsService';
+import { useAuth } from '@/hooks/useAuth';
+
+// Map icon names to actual icon components
+const getIconComponent = (iconName: string) => {
+  switch(iconName.toLowerCase()) {
+    case 'trendingup':
+      return TrendingUp;
+    case 'globe':
+      return Globe;
+    case 'briefcase':
+      return Briefcase;
+    case 'code':
+      return Code;
+    case 'graduationcap':
+      return GraduationCap;
+    case 'gitbranch':
+      return GitBranch;
+    case 'cloud':
+      return Cloud;
+    case 'brain':
+      return Brain;
+    default:
+      return Star;
+  }
+};
 
 const StudentRecommendations = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { profileData } = useProfileData();
+  const { user } = useAuth();
   const [loading, setLoading] = useState<number | null>(null);
+  const [recommendations, setRecommendations] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleApply = (job: typeof jobRecommendations[0], index: number) => {
+  // Load or generate AI recommendations
+  useEffect(() => {
+    const loadRecommendations = async () => {
+      if (!user) {
+        setError('Utilisateur non authentifié');
+        setIsLoading(false);
+        return;
+      }
+      
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        // Try to load existing recommendations from Firestore
+        let aiRecs = await AIRecommendationsService.loadRecommendations(user.id);
+        
+        // If no recommendations exist, generate new ones
+        if (!aiRecs) {
+          aiRecs = await AIRecommendationsService.generateAndSaveRecommendations(
+            user.id, 
+            profileData
+          );
+          toast({
+            title: "Nouvelles recommandations générées",
+            description: "Vos recommandations AI ont été mises à jour.",
+          });
+        } else {
+          // Check if recommendations are outdated (older than 24 hours)
+          const lastUpdated = new Date(aiRecs.lastUpdated);
+          const now = new Date();
+          const hoursDiff = (now.getTime() - lastUpdated.getTime()) / (1000 * 60 * 60);
+          
+          if (hoursDiff > 24) {
+            // Regenerate recommendations if they're older than 24 hours
+            aiRecs = await AIRecommendationsService.generateAndSaveRecommendations(
+              user.id, 
+              profileData
+            );
+            toast({
+              title: "Recommandations actualisées",
+              description: "Vos recommandations AI ont été actualisées avec les dernières tendances.",
+            });
+          }
+        }
+        
+        setRecommendations(aiRecs);
+      } catch (err) {
+        console.error('Error loading AI recommendations:', err);
+        setError('Erreur lors du chargement des recommandations. Veuillez réessayer.');
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les recommandations. Veuillez réessayer.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadRecommendations();
+  }, [user, profileData, toast]);
+
+  const handleApply = (job: JobRecommendation, index: number) => {
+    if (!user) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez vous connecter pour postuler.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(index);
     setTimeout(() => {
       addApplication({
@@ -28,66 +131,91 @@ const StudentRecommendations = () => {
       setTimeout(() => navigate('/student/applications'), 1000);
     }, 1500);
   };
-  const profileImprovements = [
-    {
-      title: 'Renforcez vos compétences en cloud',
-      description: 'AWS, Azure et Google Cloud sont mentionnés dans 60% des offres DevOps et 40% des offres Full Stack',
-      impact: '+20% matching',
-      priority: 'high',
-      icon: TrendingUp,
-    },
-    {
-      title: 'Approfondissez les technologies mobiles',
-      description: 'React Native et Flutter sont très demandés dans les startups comme Orange Madagascar, Airtel Madagascar et Yas Madagascar',
-      impact: '+18% matching',
-      priority: 'high',
-      icon: Star,
-    },
-    {
-      title: 'Développez vos compétences Data',
-      description: 'Python, Pandas et TensorFlow sont de plus en plus recherchés avec l\'essor du machine learning',
-      impact: '+12% matching',
-      priority: 'medium',
-      icon: Target,
-    },
-    {
-      title: 'Mettez à jour votre profil GitHub',
-      description: 'Un portfolio GitHub actif avec des projets Java/Spring Boot est très valorisé par les recruteurs locaux',
-      impact: '+25% visibilité',
-      priority: 'medium',
-      icon: Lightbulb,
-    },
-  ];
 
-  const jobRecommendations = [
-    {
-      title: 'Senior Frontend Developer',
-      company: 'TechCorp',
-      location: 'Casablanca, Maroc',
-      match: 92,
-      salary: '150k - 180k MAD',
-      reason: 'Correspond parfaitement à vos compétences React et TypeScript',
-      tags: ['React', 'TypeScript', 'Remote'],
-    },
-    {
-      title: 'Full Stack Engineer',
-      company: 'StartupXYZ',
-      location: 'Rabat, Maroc',
-      match: 88,
-      salary: '140k - 170k MAD',
-      reason: 'Votre expérience en Node.js est très demandée',
-      tags: ['Node.js', 'React', 'MongoDB'],
-    },
-    {
-      title: 'DevOps Engineer',
-      company: 'CloudSolutions',
-      location: 'Remote',
-      match: 85,
-      salary: '160k - 190k MAD',
-      reason: 'Vos compétences en CI/CD sont valorisées',
-      tags: ['Docker', 'Kubernetes', 'AWS'],
-    },
-  ];
+  // Function to refresh recommendations
+  const refreshRecommendations = async () => {
+    if (!user) {
+      setError('Utilisateur non authentifié');
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // Generate and save new recommendations
+      const newRecs = await AIRecommendationsService.generateAndSaveRecommendations(
+        user.id, 
+        profileData
+      );
+      
+      setRecommendations(newRecs);
+      toast({
+        title: "Recommandations actualisées",
+        description: "Vos recommandations AI ont été mises à jour avec les dernières tendances du marché.",
+      });
+    } catch (err) {
+      console.error('Error refreshing AI recommendations:', err);
+      setError('Erreur lors de l\'actualisation des recommandations. Veuillez réessayer.');
+      toast({
+        title: "Erreur",
+        description: "Impossible d'actualiser les recommandations. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-primary" />
+              Recommandations IA pour votre profil
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-red-600">{error}</p>
+            <Button onClick={refreshRecommendations} className="mt-4">
+              Réessayer
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!recommendations) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-primary" />
+              Recommandations IA pour votre profil
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>Aucune recommandation disponible.</p>
+            <Button onClick={refreshRecommendations} className="mt-4">
+              Générer des recommandations
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -108,7 +236,52 @@ const StudentRecommendations = () => {
 
   return (
     <div className="space-y-6">
-      {/* Recommandations IA pour amélioration du profil */}
+      {/* Header with refresh button */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold tracking-tight">Recommandations IA</h2>
+        <Button 
+          variant="outline" 
+          onClick={refreshRecommendations}
+          className="flex items-center gap-2"
+        >
+          <Sparkles className="w-4 h-4" />
+          Actualiser
+        </Button>
+      </div>
+
+      {/* Recommendations Stats */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Brain className="w-5 h-5 text-primary" />
+            Votre Profil en Chiffres
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-4 bg-blue-50 rounded-lg">
+              <div className="text-3xl font-bold text-blue-700">
+                {recommendations.jobRecommendations.length}
+              </div>
+              <div className="text-sm text-blue-600">Offres Recommandées</div>
+            </div>
+            <div className="text-center p-4 bg-green-50 rounded-lg">
+              <div className="text-3xl font-bold text-green-700">
+                {recommendations.profileImprovements.length}
+              </div>
+              <div className="text-sm text-green-600">Suggestions d'Amélioration</div>
+            </div>
+            <div className="text-center p-4 bg-purple-50 rounded-lg">
+              <div className="text-3xl font-bold text-purple-700">
+                {recommendations.marketTrends.length}
+              </div>
+              <div className="text-sm text-purple-600">Tendances du Marché</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* AI Recommendations for Profile Improvement */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -121,28 +294,31 @@ const StudentRecommendations = () => {
             Basé sur l'analyse de milliers de profils réussis et des tendances du marché
           </p>
 
-          {profileImprovements.map((improvement, index) => (
-            <div key={index} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
-              <div className="flex items-start gap-4">
-                <div className={`p-2 rounded-lg ${getPriorityColor(improvement.priority)}`}>
-                  <improvement.icon className="w-5 h-5 text-white" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-start justify-between mb-2">
-                    <h4 className="font-semibold">{improvement.title}</h4>
-                    <Badge className="bg-green-500 text-white">{improvement.impact}</Badge>
+          {recommendations.profileImprovements.map((improvement: ProfileImprovement, index: number) => {
+            const IconComponent = getIconComponent(improvement.icon);
+            return (
+              <div key={improvement.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
+                <div className="flex items-start gap-4">
+                  <div className={`p-2 rounded-lg ${getPriorityColor(improvement.priority)}`}>
+                    <IconComponent className="w-5 h-5 text-white" />
                   </div>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    {improvement.description}
-                  </p>
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between mb-2">
+                      <h4 className="font-semibold">{improvement.title}</h4>
+                      <Badge className="bg-green-500 text-white">{improvement.impact}</Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {improvement.description}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </CardContent>
       </Card>
 
-      {/* Recommandations de postes */}
+      {/* Job Recommendations (Top 5 by matching score) */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -152,11 +328,11 @@ const StudentRecommendations = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Ces offres correspondent particulièrement bien à votre profil
+            Ces offres correspondent particulièrement bien à votre profil (Top 5 par matching)
           </p>
 
-          {jobRecommendations.map((job, index) => (
-            <div key={index} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
+          {recommendations.jobRecommendations.map((job: JobRecommendation, index: number) => (
+            <div key={job.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
               <div className="space-y-3">
                 <div className="flex items-start justify-between">
                   <div>
@@ -186,11 +362,52 @@ const StudentRecommendations = () => {
 
                 <div className="flex items-center justify-between pt-2">
                   <span className="text-sm font-medium text-primary">{job.salary}</span>
-                  <Button size="sm" className="gap-2" onClick={() => handleApply(job, index)} disabled={loading === index}>
+                  <Button 
+                    size="sm" 
+                    className="gap-2" 
+                    onClick={() => handleApply(job, index)} 
+                    disabled={loading === index}
+                  >
                     {loading === index ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                     {loading === index ? 'Envoi...' : 'Postuler'}
                   </Button>
                 </div>
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* Market Trends */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            Tendances du Marché
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Les tendances clés à connaître pour orienter votre carrière
+          </p>
+
+          {recommendations.marketTrends.map((trend: MarketTrend, index: number) => (
+            <div key={trend.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between mb-2">
+                <h4 className="font-semibold">{trend.title}</h4>
+                <Badge className={`bg-${trend.impact.toLowerCase() === 'high' ? 'red' : 'yellow'}-500 text-white`}>
+                  Croissance: {trend.growthRate}
+                </Badge>
+              </div>
+              <p className="text-sm text-muted-foreground mb-3">
+                {trend.description}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {trend.techStack.map((tech, techIndex) => (
+                  <Badge key={techIndex} variant="outline" className="text-xs">
+                    {tech}
+                  </Badge>
+                ))}
               </div>
             </div>
           ))}

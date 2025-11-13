@@ -2,6 +2,7 @@
 import { firebaseService, Company, JobOffer, Candidate, Application } from '@/services/firebaseService';
 import { mockCompanies, mockOffers, mockCandidates } from './mockData';
 import { getApplications as getMockApplications, addApplication as addMockApplication } from './applicationStore';
+import { AIRecommendationsData } from '@/services/aiRecommendationsService';
 
 // Data provider that uses Firebase as primary source but falls back to mock data
 export const dataProvider = {
@@ -249,6 +250,32 @@ export const dataProvider = {
       // If Firebase succeeds, we don't need to update mock data
     } catch (error) {
       console.warn('Firebase failed, saving to mock data', error);
+      // Could consider fallback to saving to mock data if needed
+    }
+  },
+  
+  // AI Recommendations operations
+  getAIRecommendations: async (userId: string): Promise<AIRecommendationsData | null> => {
+    try {
+      const recommendations = await firebaseService.getAIRecommendations(userId);
+      if (recommendations) {
+        return recommendations;
+      } else {
+        // Fallback to mock data if no recommendations found in Firebase
+        return null;
+      }
+    } catch (error) {
+      console.warn('Firebase failed, getting AI recommendations from mock data', error);
+      return null;
+    }
+  },
+  
+  saveAIRecommendations: async (recommendations: AIRecommendationsData): Promise<void> => {
+    try {
+      await firebaseService.saveAIRecommendations(recommendations);
+      // If Firebase succeeds, we don't need to update mock data
+    } catch (error) {
+      console.warn('Firebase failed, saving AI recommendations to mock data', error);
       // Could consider fallback to saving to mock data if needed
     }
   }

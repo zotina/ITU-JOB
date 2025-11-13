@@ -476,6 +476,45 @@ class FirebaseService {
       console.error('Error saving user profile:', error);
     }
   }
+
+  // AI Recommendations operations
+  async getAIRecommendations(userId: string): Promise<any | null> {
+    try {
+      const useFirebase = await this.ensureInitialized();
+      if (useFirebase && this.currentUser) {
+        const docRef = doc(db, 'ai_recommendations', userId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          return { id: docSnap.id, ...docSnap.data() };
+        } else {
+          // No recommendations found for this user
+          return null;
+        }
+      }
+      // For now, return null to use existing mock data approach
+      return null;
+    } catch (error) {
+      console.error('Error getting AI recommendations:', error);
+      return null;
+    }
+  }
+
+  async saveAIRecommendations(recommendations: any): Promise<void> {
+    try {
+      const useFirebase = await this.ensureInitialized();
+      if (useFirebase && this.currentUser) {
+        const docRef = doc(db, 'ai_recommendations', recommendations.userId);
+        await updateDoc(docRef, {
+          ...recommendations,
+          lastUpdated: serverTimestamp(),
+          // Convert Date objects to timestamps for Firestore compatibility
+          generatedAt: serverTimestamp()
+        });
+      }
+    } catch (error) {
+      console.error('Error saving AI recommendations:', error);
+    }
+  }
 }
 
 export const firebaseService = new FirebaseService();

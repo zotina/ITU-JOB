@@ -1,5 +1,85 @@
 # Historique des Modifications
 
+## 13-11-2025: Création du service de Recommandations IA pour le profil étudiant
+
+- **Objectif :** Créer un service de recommandations IA sophistiqué pour le profil étudiant avec des suggestions de postes basées sur le matching score, des améliorations de profil et des tendances du marché, avec persistance sur Firestore.
+- **Actions :**
+    1. **Création du service AI Recommendations :** Création de `aiRecommendationsService.ts` avec logique de matching score, suggestions d'amélioration de profil et tendances du marché.
+    2. **Extension du dataProvider :** Ajout des fonctions `getAIRecommendations` et `saveAIRecommendations` dans `dataProvider.ts` pour l'intégration avec Firestore.
+    3. **Extension du firebaseService :** Ajout des fonctions `getAIRecommendations` et `saveAIRecommendations` dans `firebaseService.ts` pour la gestion Firestore.
+    4. **Mise à jour de StudentRecommendations.tsx :** Remplacement complet du composant pour utiliser le nouveau service de recommandations IA avec actualisation automatique et affichage des suggestions, postes recommandés et tendances du marché.
+    5. **Logique de matching score :** Implémentation d'un algorithme de matching basé sur les compétences techniques, exigences, localisation et disponibilité pour les 5 offres les mieux adaptées.
+    6. **Suggestions d'amélioration de profil :** Génération de suggestions personnalisées basées sur l'analyse du profil existant pour améliorer le matching score.
+    7. **Tendances du marché :** Affichage des tendances clés du marché pour orienter la carrière de l'étudiant.
+    8. **Persistance Firestore :** Sauvegarde des recommandations générées dans Firestore avec gestion de l'actualisation (toutes les 24h).
+    9. **Interface utilisateur améliorée :** Design avec statistiques, bouton d'actualisation et organisation claire des différentes sections de recommandations.
+
+---
+
+## 12-11-2025: Intégration du service de chatbot avec l'API Groq
+
+- **Objectif :** Créer et intégrer un service de chatbot sophistiqué utilisant l'API Groq avec détection d'intention pour les utilisateurs étudiants et recruteurs.
+- **Actions :**
+    1. **Création du service backend :** Création de `chatbotService.ts` reproduisant la logique du service Laravel avec détection d'intention via l'API Groq.
+    2. **Création du hook personnalisé :** Création de `useChatbot.ts` pour gérer l'état de la conversation et l'interaction avec le service.
+    3. **Création des composants React :** Création de `Chatbot.tsx` et `QuickActions.tsx` pour l'interface utilisateur.
+    4. **Mise à jour du fichier .env.example :** Ajout de la variable d'environnement VITE_GROQ_API_KEY.
+    5. **Intégration dans StudentChatbot.tsx :** Remplacement de la logique existante par le nouveau service de chatbot avec actions rapides.
+    6. **Intégration dans RecruiterChatbot.tsx :** Remplacement de la logique existante par le nouveau service de chatbot avec actions rapides spécifiques aux recruteurs.
+
+---
+
+## 12-11-2025: Mise à jour de la localisation pour synchronisation avec Firestore
+
+- **Objectif :** S'assurer que la mise à jour de la position dans la section de localisation de l'étudiant met à jour Firestore immédiatement.
+- **Actions :**
+    1. **Importation du hook useAuth :** Ajout de l'import du hook `useAuth` dans `StudentLocation.tsx` pour vérifier si l'utilisateur est authentifié.
+    2. **Modification de la fonction handleLocationChange :** La fonction a été modifiée pour sauvegarder immédiatement les modifications dans Firestore si l'utilisateur est authentifié.
+    3. **Gestion d'erreur :** Ajout d'une gestion d'erreur pour informer l'utilisateur si la sauvegarde échoue.
+    4. **Conservation de la mise à jour locale :** La mise à jour de l'état local est conservée pour une expérience utilisateur fluide.
+
+---
+
+## 12-11-2025: Intégration du service de chatbot avec API Groq
+
+- **Objectif :** Créer un service de chatbot avancé qui utilise l'API Groq pour fournir des réponses intelligentes aux étudiants et recruteurs.
+- **Actions :**
+    1. **Création de ChatbotService :** Implémentation du service principal dans `chatbotService.ts` avec détection d'intentions et exécution d'actions spécifiques.
+    2. **Création du hook useChatbot :** Développement du hook personnalisé `useChatbot.ts` pour gérer l'état de la conversation.
+    3. **Mise à jour des composants UI :** Adaptation des composants `StudentChatbot.tsx` et `RecruiterChatbot.tsx` pour utiliser le nouveau service.
+    4. **Support des deux rôles :** Implémentation d'une logique pour distinguer les fonctionnalités selon le rôle (étudiant/recruteur).
+    5. **Intégration avec dataProvider :** Utilisation du service de données existant pour récupérer et mettre à jour les informations.
+
+---
+
+## 12-11-2025: Chargement des entreprises depuis Firebase dans la carte des opportunités
+
+- **Objectif :** Modifier la carte des opportunités dans la section de localisation de l'étudiant pour charger les données des entreprises depuis Firestore au lieu des données mock.
+- **Actions :**
+    1. **Vérification du composant StudentLocation :** Confirmation que le composant utilise déjà `dataProvider.getCompanies()` pour charger les données.
+    2. **Vérification du composant LeafletMap :** Vérification que le composant de carte reçoit correctement les données des entreprises.
+    3. **Correction des erreurs de variables :** Correction des erreurs potentielles dans le fichier `LeafletMap.tsx` pour garantir un affichage correct des entreprises.
+    4. **Validation de l'intégration :** Confirmation que les entreprises provenant de Firebase sont correctement affichées sur la carte avec leurs coordonnées.
+
+---
+
+## 11-11-2025: Correction du bug de redirection et de la page blanche
+
+- **Objectif :** Résoudre une série de bugs complexes incluant la non-redirection après connexion, une incompatibilité HMR (Hot Module Replacement), et l'affichage d'une page blanche sur la page des offres.
+- **Actions :**
+    1. **Analyse des problèmes :** Identification d'une cascade de problèmes, incluant une condition de course à la connexion, des re-rendus excessifs, une structure de code incompatible avec Vite, et une erreur de chargement de données.
+    2. **Refactorisation de l'authentification :**
+        - Déplacement du hook `useAuth` dans son propre fichier (`src/hooks/useAuth.ts`) pour résoudre une incompatibilité HMR avec Vite.
+        - Mise à jour de tous les imports de `useAuth` dans l'application.
+        - Encapsulation de la valeur du `AuthContext` dans un `useMemo` pour prévenir les re-rendus en boucle.
+    3. **Correction du chargement des données (`StudentOffers.tsx`) :**
+        - Suppression d'un `require()` conditionnel et problématique qui tentait de charger des données mock et pouvait causer un crash du rendu. La logique de fallback est déjà gérée par `dataProvider`.
+        - Ajout d'un état de chargement (`dataLoading`) qui affiche un spinner, empêchant l'affichage d'une page vide ou blanche pendant la récupération des données et fournissant un retour visuel clair à l'utilisateur.
+    4. **Stabilisation de la redirection :** Création d'un composant `LoginSuccessRedirect` qui gère la redirection de manière déclarative après que l'état d'authentification soit confirmé, résolvant ainsi la condition de course initiale.
+    5. **Correction du format de l'ID utilisateur :** Standardisation de l'ID utilisateur en `string` à travers les types (`types/auth.ts`) et les services (`simpleAuthService.ts`) pour correspondre au format de Firestore.
+
+---
+
 ## 11-11-2025: Rendre les éléments de la carte cliquables pour pré-remplir la recherche
 
 - **Objectif :** Rendre les noms des entreprises sur la carte cliquables et rediriger vers la liste des offres en pré-remplissant la recherche avec le nom de l'entreprise.
