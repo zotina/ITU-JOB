@@ -202,7 +202,6 @@ const LeafletMap = ({
                         <strong className="text-primary">{company.name}</strong>
                       </div>
                       <p className="text-sm text-gray-600 mb-1">{company.location}</p>
-                      <p className="text-sm text-blue-600">{company.offers} offre{company.offers > 1 ? 's' : ''} disponible{company.offers > 1 ? 's' : ''}</p>
                       {distance && <p className="text-xs text-gray-500 mt-1">Distance: {distance.toFixed(1)} km</p>}
                     </div>
                   </Popup>

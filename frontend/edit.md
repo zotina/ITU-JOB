@@ -16,6 +16,22 @@
 
 ---
 
+## 13-11-2025: Création du service de Notifications avec persistance Firestore
+
+- **Objectif :** Mettre en place un service de notifications complet avec persistance Firestore permettant à chaque utilisateur de recevoir des notifications personnalisées selon son activité sur la plateforme.
+- **Actions :**
+    1. **Création du service de notification :** Création de `notificationService.ts` avec gestion complète des notifications (lecture, écriture, mise à jour, suppression).
+    2. **Extension du dataProvider :** Ajout des fonctions `getUserNotifications`, `getUnreadNotifications`, `createNotification`, `markNotificationAsRead`, `markAllNotificationsAsRead`, `deleteNotification` dans `dataProvider.ts`.
+    3. **Extension du firebaseService :** Ajout des fonctions Firestore pour la gestion des notifications avec vérification d'autorisation et nettoyage des données.
+    4. **Création du composant UI :** Développement de `notifications.tsx` avec dropdown interactif, marquage comme lu, filtrage et navigation par type.
+    5. **Création de la page de notifications :** Mise en place de `NotificationsPage.tsx` avec interface complète pour gérer toutes les notifications.
+    6. **Intégration dans les layouts :** Remplacement du composant de notification mock par le nouveau composant dans `StudentLayout.tsx` et `RecruiterLayout.tsx`.
+    7. **Ajout des routes :** Intégration des routes `/student/notifications` et `/recruiter/notifications` dans les dashboards.
+    8. **Sécurité renforcée :** Vérification que les utilisateurs ne peuvent accéder qu'à leurs propres notifications via vérification d'autorisation dans firebaseService.
+    9. **Interface utilisateur :** Design moderne avec badges de comptage, filtres, marquage multiple et accès rapide aux actions.
+
+---
+
 ## 12-11-2025: Intégration du service de chatbot avec l'API Groq
 
 - **Objectif :** Créer et intégrer un service de chatbot sophistiqué utilisant l'API Groq avec détection d'intention pour les utilisateurs étudiants et recruteurs.

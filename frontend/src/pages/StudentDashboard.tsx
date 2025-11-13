@@ -7,6 +7,7 @@ import StudentProfile from '@/components/student/StudentProfile';
 import StudentAppointments from '@/components/student/StudentAppointments';
 import OfferDetailPage from '@/pages/OfferDetailPage';
 import RecruiterProfile from '@/components/recruiter/RecruiterProfile';
+import NotificationsPage from '@/components/student/NotificationsPage';
 
 const StudentDashboard = () => {
   return (
@@ -19,6 +20,7 @@ const StudentDashboard = () => {
       <Route path="/location" element={<StudentLocationPage />} />
       <Route path="/profile" element={<StudentProfile />} />
       <Route path="/appointments" element={<StudentAppointments />} />
+      <Route path="/notifications" element={<NotificationsPage />} />
       <Route path="/company/:id" element={<RecruiterProfile isReadOnly={true} />} />
     </Routes>
   );

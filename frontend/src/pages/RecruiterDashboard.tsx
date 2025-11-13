@@ -9,6 +9,7 @@ import RecruiterCreateOffer from '@/pages/RecruiterCreateOffer';
 import RecruiterStudentSearch from '@/components/recruiter/RecruiterStudentSearch';
 import FilteredApplications from '@/pages/FilteredApplications';
 import RecruiterStudentProfile from '@/pages/RecruiterStudentProfile';
+import NotificationsPage from '@/components/student/NotificationsPage';
 
 const RecruiterDashboard = () => {
   return (
@@ -24,6 +25,7 @@ const RecruiterDashboard = () => {
       <Route path="/chatbot" element={<RecruiterChatbot />} />
       <Route path="/profile" element={<RecruiterProfile />} />
       <Route path="/appointments" element={<RecruiterAppointments />} />
+      <Route path="/notifications" element={<NotificationsPage />} />
     </Routes>
   );
 };

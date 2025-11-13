@@ -278,5 +278,60 @@ export const dataProvider = {
       console.warn('Firebase failed, saving AI recommendations to mock data', error);
       // Could consider fallback to saving to mock data if needed
     }
+  },
+
+  // Notification operations
+  getUserNotifications: async (userId: string, limit: number = 50): Promise<any[]> => {
+    try {
+      return await firebaseService.getUserNotifications(userId, limit);
+    } catch (error) {
+      console.warn('Firebase failed, getting notifications from mock data', error);
+      // Fallback to mock data
+      return [];
+    }
+  },
+
+  getUnreadNotifications: async (userId: string): Promise<any[]> => {
+    try {
+      return await firebaseService.getUnreadNotifications(userId);
+    } catch (error) {
+      console.warn('Firebase failed, getting unread notifications from mock data', error);
+      // Fallback to mock data
+      return [];
+    }
+  },
+
+  createNotification: async (notificationData: any): Promise<string> => {
+    try {
+      return await firebaseService.createNotification(notificationData);
+    } catch (error) {
+      console.warn('Firebase failed, creating notification in mock data', error);
+      // Fallback to mock data - return a generated ID
+      return `notification-${Date.now()}`;
+    }
+  },
+
+  markNotificationAsRead: async (notificationId: string, userId: string): Promise<void> => {
+    try {
+      await firebaseService.markNotificationAsRead(notificationId, userId);
+    } catch (error) {
+      console.warn('Firebase failed, marking notification as read in mock data', error);
+    }
+  },
+
+  markAllNotificationsAsRead: async (userId: string): Promise<void> => {
+    try {
+      await firebaseService.markAllNotificationsAsRead(userId);
+    } catch (error) {
+      console.warn('Firebase failed, marking all notifications as read in mock data', error);
+    }
+  },
+
+  deleteNotification: async (notificationId: string, userId: string): Promise<void> => {
+    try {
+      await firebaseService.deleteNotification(notificationId, userId);
+    } catch (error) {
+      console.warn('Firebase failed, deleting notification in mock data', error);
+    }
   }
 };

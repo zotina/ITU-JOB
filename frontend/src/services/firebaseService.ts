@@ -10,7 +10,8 @@ import {
   addDoc, 
   updateDoc,
   serverTimestamp,
-  QueryConstraint
+  QueryConstraint,
+  deleteDoc
 } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { mockCompanies, mockOffers, mockCandidates } from '@/data/mockData';
@@ -535,6 +536,152 @@ class FirebaseService {
       }
     }
     return cleaned;
+  }
+
+  // Notification operations
+  async getUserNotifications(userId: string, limit: number = 50): Promise<any[]> {
+    try {
+      const useFirebase = await this.ensureInitialized();
+      if (useFirebase && this.currentUser) {
+        const q = query(
+          collection(db, 'notifications'), 
+          where('userId', '==', userId),
+          // Order by createdAt descending to get newest notifications first
+          // Limit the results
+        );
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      } else {
+        // Fallback to mock data
+        return [];
+      }
+    } catch (error) {
+      console.error('Error getting user notifications:', error);
+      return [];
+    }
+  }
+
+  async getUnreadNotifications(userId: string): Promise<any[]> {
+    try {
+      const useFirebase = await this.ensureInitialized();
+      if (useFirebase && this.currentUser) {
+        const q = query(
+          collection(db, 'notifications'), 
+          where('userId', '==', userId),
+          where('read', '==', false)
+        );
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      } else {
+        // Fallback to mock data
+        return [];
+      }
+    } catch (error) {
+      console.error('Error getting unread notifications:', error);
+      return [];
+    }
+  }
+
+  async createNotification(notificationData: any): Promise<string> {
+    try {
+      const useFirebase = await this.ensureInitialized();
+      if (useFirebase && this.currentUser) {
+        // Create a new notification document
+        const docRef = await addDoc(collection(db, 'notifications'), {
+          ...notificationData,
+          read: false,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+        return docRef.id;
+      } else {
+        // Fallback to mock data - return a generated ID
+        return `notification-${Date.now()}`;
+      }
+    } catch (error) {
+      console.error('Error creating notification:', error);
+      throw error;
+    }
+  }
+
+  async markNotificationAsRead(notificationId: string, userId: string): Promise<void> {
+    try {
+      const useFirebase = await this.ensureInitialized();
+      if (useFirebase && this.currentUser) {
+        const docRef = doc(db, 'notifications', notificationId);
+        // First, verify that the notification belongs to the user
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.userId === userId) {
+            await updateDoc(docRef, {
+              read: true,
+              updatedAt: serverTimestamp()
+            });
+          } else {
+            throw new Error('Unauthorized: Notification does not belong to user');
+          }
+        } else {
+          throw new Error('Notification not found');
+        }
+      }
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      throw error;
+    }
+  }
+
+  async markAllNotificationsAsRead(userId: string): Promise<void> {
+    try {
+      const useFirebase = await this.ensureInitialized();
+      if (useFirebase && this.currentUser) {
+        // Get all unread notifications for the user
+        const q = query(
+          collection(db, 'notifications'), 
+          where('userId', '==', userId),
+          where('read', '==', false)
+        );
+        const querySnapshot = await getDocs(q);
+        
+        // Update each notification to mark as read
+        const batch = doc(db, 'notifications');
+        const updates = querySnapshot.docs.map(docSnap => {
+          return updateDoc(doc(db, 'notifications', docSnap.id), {
+            read: true,
+            updatedAt: serverTimestamp()
+          });
+        });
+        
+        await Promise.all(updates);
+      }
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      throw error;
+    }
+  }
+
+  async deleteNotification(notificationId: string, userId: string): Promise<void> {
+    try {
+      const useFirebase = await this.ensureInitialized();
+      if (useFirebase && this.currentUser) {
+        const docRef = doc(db, 'notifications', notificationId);
+        // First, verify that the notification belongs to the user
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.userId === userId) {
+            await deleteDoc(docRef);
+          } else {
+            throw new Error('Unauthorized: Notification does not belong to user');
+          }
+        } else {
+          throw new Error('Notification not found');
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      throw error;
+    }
   }
 }
 

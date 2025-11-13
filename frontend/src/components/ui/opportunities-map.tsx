@@ -180,7 +180,6 @@ const OpportunitiesMap = ({
               <strong>${company.name}</strong>
             </div>
             <p class="text-sm text-gray-600 mb-1">${company.location}</p>
-            <p class="text-sm text-blue-600">${company.offers} offre${company.offers > 1 ? 's' : ''} disponible${company.offers > 1 ? 's' : ''}</p>
             ${distance ? `<p class="text-xs text-gray-500 mt-1">Distance: ${distance.toFixed(1)} km</p>` : ''}
           </div>
         `

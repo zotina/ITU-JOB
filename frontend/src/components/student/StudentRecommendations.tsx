@@ -1,15 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Sparkles, TrendingUp, Target, Lightbulb, Star, ArrowRight, Briefcase, Brain, Globe, Code, GraduationCap, GitBranch, Cloud } from 'lucide-react';
-import { addApplication } from '@/data/applicationStore';
-import { useNavigate } from 'react-router-dom';
+import { Sparkles, TrendingUp, Target, Lightbulb, Star, ArrowRight, Briefcase, Brain, Globe, Code, GraduationCap, GitBranch, Cloud, Loader2 } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useProfileData } from '@/hooks/useProfileData';
 import { AIRecommendationsService, ProfileImprovement, JobRecommendation, MarketTrend } from '@/services/aiRecommendationsService';
 import { useAuth } from '@/hooks/useAuth';
+import { dataProvider } from '@/data/dataProvider';
 
 // Map icon names to actual icon components
 const getIconComponent = (iconName: string) => {
@@ -40,7 +39,7 @@ const StudentRecommendations = () => {
   const { toast } = useToast();
   const { profileData } = useProfileData();
   const { user } = useAuth();
-  const [loading, setLoading] = useState<number | null>(null);
+  const [applyingOfferId, setApplyingOfferId] = useState<string | null>(null);
   const [recommendations, setRecommendations] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -113,7 +112,7 @@ const StudentRecommendations = () => {
     loadRecommendations();
   }, [user, profileData, toast]);
 
-  const handleApply = (job: JobRecommendation, index: number) => {
+  const handleApply = (offerId: string, offerTitle: string, company: string, location: string, salary: string, type: string) => {
     if (!user) {
       toast({
         title: "Erreur",
@@ -123,19 +122,44 @@ const StudentRecommendations = () => {
       return;
     }
 
-    setLoading(index);
-    setTimeout(() => {
-      addApplication({
-        company: job.company,
-        position: job.title,
-        location: job.location,
-        salary: job.salary,
-        type: 'CDI',
+    setApplyingOfferId(offerId);
+    
+    // Get student info from authenticated user or profile
+    const studentName = user?.prenom + ' ' + user?.nom || profileData?.personalInfo?.name || "Current Student";
+    const studentId = user?.id || "current-student-id"; // Fallback to current user ID from auth context
+    
+    // Add application via dataProvider (which uses Firebase)
+    dataProvider.addApplication({
+      company,
+      position: offerTitle,
+      location,
+      salary,
+      type,
+      offerId,
+      studentName,
+      studentId
+    })
+    .then(() => {
+      setApplyingOfferId(null);
+      toast({
+        title: "Succès",
+        description: "Candidature envoyée avec succès !",
+        variant: "default",
       });
-      setLoading(null);
-      toast({ title: "Succès", description: "Candidature envoyée !" });
-      setTimeout(() => navigate('/student/applications'), 1000);
-    }, 1500);
+      
+      // Redirect to applications page after a short delay
+      setTimeout(() => {
+        navigate('/student/applications');
+      }, 1000);
+    })
+    .catch(error => {
+      setApplyingOfferId(null);
+      toast({
+        title: "Erreur",
+        description: "Échec de l'envoi de la candidature.",
+        variant: "destructive",
+      });
+    });
   };
 
   // Function to refresh recommendations
@@ -366,17 +390,22 @@ const StudentRecommendations = () => {
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between pt-2">
-                  <span className="text-sm font-medium text-primary">{job.salary}</span>
-                  <Button 
-                    size="sm" 
-                    className="gap-2" 
-                    onClick={() => handleApply(job, index)} 
-                    disabled={loading === index}
-                  >
-                    {loading === index ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                    {loading === index ? 'Envoi...' : 'Postuler'}
-                  </Button>
+                <div className="p-6 pt-0">
+                  <div className="flex gap-2 pt-2">
+                    <Button 
+                      className="flex-1" 
+                      onClick={() => handleApply(job.id, job.title, job.company, job.location, job.salary, job.type)} 
+                      disabled={applyingOfferId === job.id}
+                    >
+                      {applyingOfferId === job.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                      {applyingOfferId === job.id ? 'Envoi...' : 'Postuler'}
+                    </Button>
+                    <Link to={`/student/offers/${job.id}`} className="flex-1">
+                      <Button variant="outline" className="w-full">
+                        Détails
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>

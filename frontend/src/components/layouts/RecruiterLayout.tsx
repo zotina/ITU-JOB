@@ -1,15 +1,13 @@
-import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import RecruiterSidebar from '@/components/sidebars/RecruiterSidebar';
-import NotificationsPopover from '@/components/ui/notifications-popover';
+import { NotificationsDropdown } from '@/components/ui/notifications';
 
 interface RecruiterLayoutProps {
   children: React.ReactNode;
 }
 
 const RecruiterLayout = ({ children }: RecruiterLayoutProps) => {
-  const [notifications] = useState(7);
   const location = useLocation();
   
   const getPageTitle = () => {
@@ -38,7 +36,7 @@ const RecruiterLayout = ({ children }: RecruiterLayoutProps) => {
             
             <div className="flex items-center gap-4">
               {/* Notifications */}
-              <NotificationsPopover count={notifications} />
+              <NotificationsDropdown />
             </div>
           </header>
           

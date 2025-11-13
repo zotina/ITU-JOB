@@ -1,15 +1,13 @@
-import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import StudentSidebar from '@/components/sidebars/StudentSidebar';
-import NotificationsPopover from '@/components/ui/notifications-popover';
+import { NotificationsDropdown } from '@/components/ui/notifications';
 
 interface StudentLayoutProps {
   children: React.ReactNode;
 }
 
 const StudentLayout = ({ children }: StudentLayoutProps) => {
-  const [notifications] = useState(3);
   const location = useLocation();
   
   const getPageTitle = () => {
@@ -37,7 +35,7 @@ const StudentLayout = ({ children }: StudentLayoutProps) => {
             
             <div className="flex items-center gap-4">
               {/* Notifications */}
-              <NotificationsPopover count={notifications} />
+              <NotificationsDropdown />
             </div>
           </header>
           
