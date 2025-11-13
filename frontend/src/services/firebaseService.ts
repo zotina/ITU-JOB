@@ -39,6 +39,7 @@ export interface JobOffer {
   technologies: string[];
   description: string;
   matchingScore: number;
+  status?: string; // Add status field
   postedDate?: string;
   deadline?: string;
   requirements?: string[];
@@ -196,11 +197,32 @@ class FirebaseService {
   }
 
   // Job offer operations
-  async getOffers(): Promise<JobOffer[]> {
+  async getOffers(userId?: string): Promise<JobOffer[]> {
     try {
       const useFirebase = await this.ensureInitialized();
       if (useFirebase && this.currentUser) {
-        const q = query(collection(db, 'offers'));
+        let q;
+        if (userId) {
+          // Get the user profile to check if they're a recruiter and which company they belong to
+          const userDoc = await getDoc(doc(db, 'users', userId));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            if (userData.role === 'recruiter' && userData.companyName) {
+              // If user is a recruiter, only show offers from their company
+              q = query(collection(db, 'offers'), where('company', '==', userData.companyName));
+            } else {
+              // For students or other roles, show all offers
+              q = query(collection(db, 'offers'));
+            }
+          } else {
+            // If no user profile exists, show all offers
+            q = query(collection(db, 'offers'));
+          }
+        } else {
+          // If no userId provided, show all offers
+          q = query(collection(db, 'offers'));
+        }
+        
         const querySnapshot = await getDocs(q);
         return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as JobOffer));
       } else {
@@ -384,15 +406,59 @@ class FirebaseService {
   }
 
   // Application operations
-  async getApplications(userId?: string): Promise<Application[]> {
+  async getApplications(userId?: string, offerId?: string): Promise<Application[]> {
     try {
       const useFirebase = await this.ensureInitialized();
       if (useFirebase && this.currentUser) {
         let q;
         if (userId) {
-          q = query(collection(db, 'applications'), where('studentId', '==', userId));
+          // Get the user profile to check if they're a recruiter
+          const userDoc = await getDoc(doc(db, 'users', userId));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            if (userData.role === 'recruiter' && userData.companyName) {
+              // If user is a recruiter, get applications for offers from their company
+              if (offerId) {
+                // If specific offerId is provided, only get applications for that offer
+                q = query(
+                  collection(db, 'applications'), 
+                  where('offerId', '==', offerId)
+                );
+              } else {
+                // Get all applications for offers from their company
+                // First get the offers from their company
+                const offersSnapshot = await getDocs(
+                  query(collection(db, 'offers'), where('company', '==', userData.companyName))
+                );
+                const offerIds = offersSnapshot.docs.map(doc => doc.id);
+                
+                if (offerIds.length > 0) {
+                  q = query(
+                    collection(db, 'applications'),
+                    where('offerId', 'in', offerIds)
+                  );
+                } else {
+                  // If no offers found for the company, return empty array
+                  q = query(
+                    collection(db, 'applications'),
+                    where('offerId', '==', 'nonexistent')
+                  );
+                }
+              }
+            } else {
+              // For students, only show their own applications
+              q = query(collection(db, 'applications'), where('studentId', '==', userId));
+            }
+          } else {
+            // Default to student's applications if no user profile
+            q = query(collection(db, 'applications'), where('studentId', '==', userId));
+          }
         } else {
-          q = query(collection(db, 'applications'));
+          // If no userId provided, return empty array as default behavior
+          q = query(
+            collection(db, 'applications'),
+            where('studentId', '==', 'nonexistent')
+          );
         }
         const querySnapshot = await getDocs(q);
         return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Application));

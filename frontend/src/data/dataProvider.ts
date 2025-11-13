@@ -50,9 +50,9 @@ export const dataProvider = {
   },
 
   // Job Offers
-  getOffers: async (): Promise<JobOffer[]> => {
+  getOffers: async (userId?: string): Promise<JobOffer[]> => {
     try {
-      return await firebaseService.getOffers();
+      return await firebaseService.getOffers(userId);
     } catch (error) {
       console.warn('Firebase failed, using mock data for offers', error);
       return mockOffers.map(offer => ({
@@ -144,9 +144,9 @@ export const dataProvider = {
   },
 
   // Applications - We'll use Firebase primarily but fallback to mock system
-  getApplications: async (userId?: string): Promise<Application[]> => {
+  getApplications: async (userId?: string, offerId?: string): Promise<Application[]> => {
     try {
-      const firebaseApps = await firebaseService.getApplications(userId);
+      const firebaseApps = await firebaseService.getApplications(userId, offerId);
       if (firebaseApps.length > 0) {
         return firebaseApps;
       } else {

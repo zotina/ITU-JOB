@@ -1,11 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Users, Eye, Edit, Trash2 } from 'lucide-react';
-import { mockOffers } from '@/data/mockData';
+import { Plus, Users, Eye, Edit, Trash2, Loader2 } from 'lucide-react';
 import { SearchInput } from '@/components/ui/search-input';
 import RecommendedProfiles from './RecommendedProfiles';
 import { 
@@ -16,19 +15,45 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
+import { useAuth } from '@/hooks/useAuth';
+import { dataProvider } from '@/data/dataProvider';
+import { JobOffer } from '@/services/firebaseService';
 
 const RecruiterOffers = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [locationFilter, setLocationFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [offers, setOffers] = useState<JobOffer[]>([]);
+  const [loading, setLoading] = useState(true);
   const itemsPerPage = 5;
+
+  // Fetch the recruiter's offers (filtered by company)
+  useEffect(() => {
+    const fetchOffers = async () => {
+      try {
+        setLoading(true);
+        const offersData = await dataProvider.getOffers(user?.id);
+        setOffers(offersData);
+      } catch (error) {
+        console.error('Error fetching offers:', error);
+        setOffers([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchOffers();
+    }
+  }, [user]);
 
   // Filtrage des offres
   const filteredOffers = useMemo(() => {
-    return mockOffers.filter(offer => {
+    return offers.filter(offer => {
       const matchesSearch = offer.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            offer.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            offer.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -38,7 +63,7 @@ const RecruiterOffers = () => {
       
       return matchesSearch && matchesStatus && matchesType && matchesLocation;
     });
-  }, [searchTerm, statusFilter, typeFilter, locationFilter]);
+  }, [offers, searchTerm, statusFilter, typeFilter, locationFilter]);
 
   // Pagination
   const totalPages = Math.ceil(filteredOffers.length / itemsPerPage);
@@ -46,8 +71,16 @@ const RecruiterOffers = () => {
   const paginatedOffers = filteredOffers.slice(startIndex, startIndex + itemsPerPage);
 
   // Obtenir les valeurs uniques pour les filtres
-  const uniqueLocations = [...new Set(mockOffers.map(offer => offer.location))];
-  const uniqueTypes = [...new Set(mockOffers.map(offer => offer.type))];
+  const uniqueLocations = [...new Set(offers.map(offer => offer.location))];
+  const uniqueTypes = [...new Set(offers.map(offer => offer.type))];
+
+  if (loading) {
+    return (
+      <div className="p-6 flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">

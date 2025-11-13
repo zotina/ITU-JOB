@@ -64,7 +64,7 @@ const StudentOffers = () => {
         setDataLoading(true);
         setDataError(null); // Clear previous errors
         const [offersData, companiesData] = await Promise.all([
-          dataProvider.getOffers(),
+          dataProvider.getOffers(user?.id), // Pass user ID for company-based access
           dataProvider.getCompanies()
         ]);
         setOffers(offersData);
@@ -78,7 +78,7 @@ const StudentOffers = () => {
     };
 
     fetchData();
-  }, []);
+  }, [user]);
 
   // Fonction pour calculer le matching score entre un profil utilisateur et une offre
   const calculateMatchingScore = (profile: any, offer: any): number => {

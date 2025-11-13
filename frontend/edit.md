@@ -16,6 +16,19 @@
 
 ---
 
+## 13-11-2025: Mise en place du système d'autorisation basé sur la compagnie pour les recruteurs
+
+- **Objectif :** Implémenter un système d'autorisation où chaque recruteur ne peut voir que les offres et les candidatures liées à sa propre compagnie.
+- **Actions :**
+    1. **Mise à jour du firebaseService :** Modification des fonctions `getOffers` et `getApplications` pour filtrer les données en fonction de la compagnie associée au recruteur.
+    2. **Mise à jour du dataProvider :** Extension des fonctions `getOffers` et `getApplications` pour supporter le filtrage par utilisateur et par offre.
+    3. **Mise à jour des composants recruteurs :** Modification de `RecruiterOffers.tsx` et `FilteredApplications.tsx` pour utiliser le dataProvider avec filtrage par compagnie.
+    4. **Ajout de l'attribut companyName :** Ajout du champ companyName dans le profil utilisateur pour associer chaque recruteur à sa compagnie.
+    5. **Sécurité renforcée :** Mise en place de vérifications d'autorisation côté client et serveur pour s'assurer que les recruteurs n'accèdent qu'à leurs propres données.
+    6. **Interface utilisateur améliorée :** Les recruteurs ne voient désormais que leurs offres et les candidatures correspondantes.
+
+---
+
 ## 13-11-2025: Création du service de Notifications avec persistance Firestore
 
 - **Objectif :** Mettre en place un service de notifications complet avec persistance Firestore permettant à chaque utilisateur de recevoir des notifications personnalisées selon son activité sur la plateforme.
