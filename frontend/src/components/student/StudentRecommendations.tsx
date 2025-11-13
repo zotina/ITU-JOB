@@ -73,9 +73,15 @@ const StudentRecommendations = () => {
           });
         } else {
           // Check if recommendations are outdated (older than 24 hours)
-          const lastUpdated = new Date(aiRecs.lastUpdated);
+          // Handle both string and Date formats for lastUpdated
+          const lastUpdatedValue = typeof aiRecs.lastUpdated === 'string' ? 
+            new Date(aiRecs.lastUpdated) : 
+            aiRecs.lastUpdated instanceof Date ? 
+              aiRecs.lastUpdated : 
+              new Date();
+              
           const now = new Date();
-          const hoursDiff = (now.getTime() - lastUpdated.getTime()) / (1000 * 60 * 60);
+          const hoursDiff = (now.getTime() - lastUpdatedValue.getTime()) / (1000 * 60 * 60);
           
           if (hoursDiff > 24) {
             // Regenerate recommendations if they're older than 24 hours

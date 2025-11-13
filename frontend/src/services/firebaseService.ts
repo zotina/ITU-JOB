@@ -504,16 +504,37 @@ class FirebaseService {
       const useFirebase = await this.ensureInitialized();
       if (useFirebase && this.currentUser) {
         const docRef = doc(db, 'ai_recommendations', recommendations.userId);
+        // Clean the recommendations object to remove any undefined values and convert dates to timestamps
+        const cleanedRecommendations = this.cleanObjectForFirestore(recommendations);
         await updateDoc(docRef, {
-          ...recommendations,
+          ...cleanedRecommendations,
           lastUpdated: serverTimestamp(),
-          // Convert Date objects to timestamps for Firestore compatibility
           generatedAt: serverTimestamp()
         });
       }
     } catch (error) {
       console.error('Error saving AI recommendations:', error);
     }
+  }
+
+  // Helper function to clean objects for Firestore compatibility
+  private cleanObjectForFirestore(obj: any): any {
+    const cleaned: any = {};
+    for (const [key, value] of Object.entries(obj)) {
+      if (value === undefined) {
+        continue; // Skip undefined values
+      } else if (value instanceof Date) {
+        // Convert dates to timestamps for Firestore
+        cleaned[key] = serverTimestamp();
+      } else if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+        // Recursively clean nested objects
+        cleaned[key] = this.cleanObjectForFirestore(value);
+      } else {
+        // Keep primitive values and arrays as is
+        cleaned[key] = value;
+      }
+    }
+    return cleaned;
   }
 }
 
