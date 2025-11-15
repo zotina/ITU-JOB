@@ -22,6 +22,8 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { getUserFullNameById } from '@/services/userService';
+import { useEffect, useState } from 'react';
 
 const menuItems = [
   { title: 'Offres', url: '/student/offers', icon: Briefcase },
@@ -37,6 +39,23 @@ const StudentSidebar = () => {
   const location = useLocation();
   const currentPath = location.pathname;
   const { user } = useAuth();
+  const [userFullName, setUserFullName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUserFullName = async () => {
+      if (user?.id) {
+        const fullName = await getUserFullNameById(user.id);
+        if (fullName) {
+          setUserFullName(fullName);
+        } else {
+          // Fallback to what's available in the user object
+          setUserFullName(`${user.prenom || ''} ${user.nom || ''}`.trim() || user.email);
+        }
+      }
+    };
+
+    fetchUserFullName();
+  }, [user]);
 
   const isActive = (path: string) => currentPath === path;
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
@@ -55,7 +74,7 @@ const StudentSidebar = () => {
               <div>
                 <h2 className="font-semibold text-foreground">ITU Jobs</h2>
                 <p className="text-sm text-muted-foreground">
-                  {user ? `${user.prenom} ${user.nom}` : 'Étudiant'}
+                  {userFullName || (user ? `${user.prenom || ''} ${user.nom || ''}`.trim() || user.email : 'Étudiant')}
                 </p>
               </div>
             )}

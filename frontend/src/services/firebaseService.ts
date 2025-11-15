@@ -70,6 +70,7 @@ export interface Application {
   status: 'pending' | 'accepted' | 'rejected' | 'interview' | 'offered';
   appliedDate: string;
   offerId: string;
+  companyId?: string;
 }
 
 // Service class to handle Firebase operations
@@ -420,10 +421,20 @@ class FirebaseService {
               // If user is a recruiter, get applications for offers from their company
               if (offerId) {
                 // If specific offerId is provided, only get applications for that offer
-                q = query(
-                  collection(db, 'applications'), 
-                  where('offerId', '==', offerId)
-                );
+                // Also ensure it belongs to their company
+                const offerDoc = await getDoc(doc(db, 'offers', offerId));
+                if (offerDoc.exists() && offerDoc.data().company === userData.companyName) {
+                  q = query(
+                    collection(db, 'applications'), 
+                    where('offerId', '==', offerId)
+                  );
+                } else {
+                  // If offer doesn't belong to their company, return empty results
+                  q = query(
+                    collection(db, 'applications'),
+                    where('offerId', '==', 'nonexistent')
+                  );
+                }
               } else {
                 // Get all applications for offers from their company
                 // First get the offers from their company
@@ -476,6 +487,24 @@ class FirebaseService {
     try {
       const useFirebase = await this.ensureInitialized();
       if (useFirebase && this.currentUser) {
+        // Get the offer details to retrieve the company ID
+        let companyId: string | undefined;
+        let companyName: string | undefined;
+        
+        if (applicationData.offerId) {
+          const offerDoc = await getDoc(doc(db, 'offers', applicationData.offerId));
+          if (offerDoc.exists()) {
+            const offerData = offerDoc.data();
+            companyName = offerData.company;
+            
+            // Find the company ID based on the company name
+            const companiesSnapshot = await getDocs(query(collection(db, 'companies'), where('name', '==', companyName)));
+            if (!companiesSnapshot.empty) {
+              companyId = companiesSnapshot.docs[0].id;
+            }
+          }
+        }
+        
         const docRef = await addDoc(collection(db, 'applications'), {
           ...applicationData,
           appliedDate: serverTimestamp(),
@@ -483,6 +512,9 @@ class FirebaseService {
           isNew: true, // Mark as new when first created
           // Use the studentId from applicationData if provided, otherwise use the authenticated user's UID
           studentId: applicationData.studentId || this.currentUser.uid,
+          // Add company details if available
+          companyId,
+          company: companyName || applicationData.company || '', // Use provided company name if offer lookup fails
         });
         return docRef.id;
       } else {

@@ -14,6 +14,7 @@ export interface Application {
   studentName?: string;
   offerId?: string;
   isNew?: boolean;
+  companyId?: string;
 }
 
 let applicationStore: Application[] = [

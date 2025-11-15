@@ -163,7 +163,8 @@ export const dataProvider = {
           type: app.type,
           status: app.status || 'pending',
           appliedDate: app.appliedDate || new Date().toISOString(),
-          offerId: app.offerId
+          offerId: app.offerId,
+          companyId: app.companyId
         }));
       }
     } catch (error) {
@@ -180,7 +181,8 @@ export const dataProvider = {
         type: app.type,
         status: app.status || 'pending',
         appliedDate: app.appliedDate || new Date().toISOString(),
-        offerId: app.offerId
+        offerId: app.offerId,
+        companyId: app.companyId
       }));
     }
   },
@@ -199,7 +201,8 @@ export const dataProvider = {
           type: applicationData.type,
           offerId: applicationData.offerId,
           studentId: applicationData.studentId,
-          studentName: applicationData.studentName
+          studentName: applicationData.studentName,
+          companyId: applicationData.companyId
         });
       }
     } catch (error) {
@@ -213,7 +216,8 @@ export const dataProvider = {
         type: applicationData.type,
         offerId: applicationData.offerId,
         studentId: applicationData.studentId,
-        studentName: applicationData.studentName
+        studentName: applicationData.studentName,
+        companyId: applicationData.companyId
       });
     }
   },

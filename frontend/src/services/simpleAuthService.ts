@@ -88,13 +88,15 @@ class SimpleAuthService {
         // Format the user data to match the expected interface
         const user: UserType = {
           id: userDoc.id, // Use Firestore document ID as a string
-          prenom: userData.name?.split(' ')[0] || 'Prénom',
-          nom: userData.name?.split(' ').slice(1).join(' ') || 'Nom',
+          prenom: userData.prenom || userData.firstName || '',
+          nom: userData.nom || userData.lastName || '',
           email: userData.email,
           telephone: userData.phone || '', // You can add phone to user data if needed
-          role: userData.role || 'student',
-          created_at: userData.createdAt || new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          adresse: userData.adresse || userData.address || '',
+          email_verified_at: userData.email_verified_at || userData.emailVerifiedAt,
+          created_at: userData.createdAt || userData.created_at || new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          role: userData.role || 'student'
         };
 
         console.log('User authenticated, user data:', user);
@@ -156,13 +158,15 @@ class SimpleAuthService {
         
         const user = {
           id: userDoc.id, // Use Firestore document ID as a string
-          prenom: userData.name?.split(' ')[0] || 'Prénom',
-          nom: userData.name?.split(' ').slice(1).join(' ') || 'Nom',
+          prenom: userData.prenom || userData.firstName || '',
+          nom: userData.nom || userData.lastName || '',
           email: userData.email,
           telephone: userData.phone || '',
-          role: userData.role || 'student',
-          created_at: userData.createdAt || new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          adresse: userData.adresse || userData.address || '',
+          email_verified_at: userData.email_verified_at || userData.emailVerifiedAt,
+          created_at: userData.createdAt || userData.created_at || new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          role: userData.role || 'student'
         };
         
         console.log('Formatted user object:', user);

@@ -1,5 +1,43 @@
 # Historique des Modifications
 
+## 15-11-2025: Stockage de l'ID de l'entreprise dans les documents de candidature et filtrage par entreprise
+
+- **Objectif :** Ajouter l'ID de l'entreprise dans le document de candidature lorsqu'un étudiant postule, et filtrer les listes de candidatures pour les recruteurs par leur entreprise.
+- **Actions :**
+    1. **Mise à jour de l'interface Application :** Ajout du champ `companyId` à l'interface Application dans `firebaseService.ts`.
+    2. **Mise à jour de la fonction addApplication :** Modification de la fonction pour récupérer l'ID de l'entreprise à partir de l'offre d'emploi et le stocker dans la candidature.
+    3. **Mise à jour de la fonction getApplications :** Amélioration de la logique de filtrage pour s'assurer que les recruteurs ne voient que les candidatures pour les offres de leur entreprise.
+    4. **Validation de la page FilteredApplications :** Vérification que la page `/recruiter/candidates` (FilteredApplications.tsx) utilise correctement le paramètre `offerId` pour filtrer les candidatures.
+    5. **Mise à jour du dataProvider :** Adaptation du dataProvider pour inclure `companyId` dans le mapping des données.
+    6. **Mise à jour de l'applicationStore :** Mise à jour de l'interface Application dans le store local pour inclure le champ `companyId`.
+
+---
+
+## 15-11-2025: Récupération du nom complet de l'utilisateur depuis Firestore et affichage dans les sidebars
+
+- **Objectif :** Créer une fonction pour récupérer le nom complet de l'utilisateur (prenom + nom) depuis Firestore à partir de son ID et l'afficher dans les sidebars recruteur et étudiant.
+- **Actions :**
+    1. **Création du service utilisateur :** Création de `userService.ts` avec les fonctions `getUserProfileById` et `getUserFullNameById` pour récupérer les informations utilisateur depuis Firestore.
+    2. **Correction de simpleAuthService :** Mise à jour du service d'authentification simple pour gérer correctement les champs `prenom` et `nom` séparément au lieu de les combiner dans un seul champ `nom`.
+    3. **Mise à jour de RecruiterSidebar.tsx :** Ajout d'un effet pour récupérer le nom complet de l'utilisateur connecté depuis Firestore et l'afficher dans le sidebar.
+    4. **Mise à jour de StudentSidebar.tsx :** Ajout d'un effet pour récupérer le nom complet de l'utilisateur connecté depuis Firestore et l'afficher dans le sidebar.
+    5. **Gestion des cas de repli :** Mise en place d'une logique de repli pour afficher les informations disponibles si la récupération depuis Firestore échoue.
+    6. **Amélioration de la robustesse :** Ajout de vérifications pour s'assurer que les champs prénom et nom ne sont pas vides avant de les concaténer.
+
+---
+
+## 15-11-2025: Correction de l'affichage du nom d'utilisateur dans les sidebars et filtrage des candidatures
+
+- **Objectif :** Assurer que les sidebars affichent correctement le nom de l'utilisateur connecté et que la page des candidatures ne montre que celles appartenant à l'utilisateur connecté.
+- **Actions :**
+    1. **Vérification des sidebars :** Confirmation que `RecruiterSidebar.tsx` et `StudentSidebar.tsx` utilisent déjà correctement le hook `useAuth` pour afficher le nom de l'utilisateur connecté.
+    2. **Mise à jour de StudentApplications.tsx :** Amélioration de la logique de filtrage pour s'assurer que seules les candidatures appartenant à l'utilisateur connecté sont affichées (filtrage par `studentId`).
+    3. **Amélioration de l'affichage :** Ajout d'un état de chargement et mise à jour des messages pour afficher "Aucune candidature" quand il n'y a pas de candidatures pour l'utilisateur connecté.
+    4. **Mise à jour de l'interface Application :** Ajout des champs `studentId`, `studentName` et `offerId` à l'interface Application pour garantir la cohérence des types.
+    5. **Optimisation du filtrage :** Clarification de la logique de filtrage pour qu'elle soit plus explicite et plus fiable.
+
+---
+
 ## 13-11-2025: Création du service de Recommandations IA pour le profil étudiant
 
 - **Objectif :** Créer un service de recommandations IA sophistiqué pour le profil étudiant avec des suggestions de postes basées sur le matching score, des améliorations de profil et des tendances du marché, avec persistance sur Firestore.

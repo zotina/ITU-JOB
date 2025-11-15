@@ -12,6 +12,8 @@ type ApplicationStatus = 'accepted' | 'rejected' | 'pending';
 
 interface Application {
   id: string;
+  studentId: string;
+  studentName?: string;
   company: string;
   position: string;
   location: string;
@@ -20,99 +22,9 @@ interface Application {
   salary: string;
   type: string;
   logo?: string;
+  offerId?: string;
   isNew?: boolean;
 }
-
-const mockApplications: Application[] = [
-  {
-    id: '1',
-    company: 'Google',
-    position: 'Software Engineer',
-    location: 'Mountain View, CA',
-    appliedDate: '2024-01-15',
-    status: 'pending',
-    salary: '120k - 150k MAD',
-    type: 'Full-time',
-    logo: '/src/assets/company-logos/google.png'
-  },
-  {
-    id: '2',
-    company: 'Microsoft',
-    position: 'Frontend Developer',
-    location: 'Redmond, WA',
-    appliedDate: '2024-01-10',
-    status: 'accepted',
-    salary: '110k - 140k MAD',
-    type: 'Full-time',
-    logo: '/src/assets/company-logos/microsoft.png'
-  },
-  {
-    id: '3',
-    company: 'Amazon',
-    position: 'DevOps Engineer',
-    location: 'Seattle, WA',
-    appliedDate: '2024-01-05',
-    status: 'rejected',
-    salary: '100k - 130k MAD',
-    type: 'Full-time',
-    logo: '/src/assets/company-logos/amazon.png'
-  },
-  {
-    id: '4',
-    company: 'Meta',
-    position: 'Backend Developer',
-    location: 'Menlo Park, CA',
-    appliedDate: '2024-01-20',
-    status: 'pending',
-    salary: '130k - 160k MAD',
-    type: 'Full-time',
-    logo: '/src/assets/company-logos/meta.png'
-  },
-  {
-    id: '5',
-    company: 'Apple',
-    position: 'iOS Developer',
-    location: 'Cupertino, CA',
-    appliedDate: '2023-12-28',
-    status: 'accepted',
-    salary: '115k - 145k MAD',
-    type: 'Full-time',
-    logo: '/src/assets/company-logos/apple.png'
-  },
-  {
-    id: '6',
-    company: 'Netflix',
-    position: 'Full Stack Developer',
-    location: 'Los Gatos, CA',
-    appliedDate: '2023-12-20',
-    status: 'rejected',
-    salary: '125k - 155k MAD',
-    type: 'Contract',
-    logo: '/src/assets/company-logos/netflix.png'
-  },
-  {
-    id: '7',
-    company: 'Tesla',
-    position: 'Software Engineer',
-    location: 'Palo Alto, CA',
-    appliedDate: '2024-01-25',
-    status: 'pending',
-    salary: '105k - 135k MAD',
-    type: 'Full-time',
-    logo: '/src/assets/company-logos/tesla.png'
-  },
-  {
-    id: '8',
-    company: 'Spotify',
-    position: 'Data Engineer',
-    location: 'Stockholm, Sweden',
-    appliedDate: '2024-01-18',
-    status: 'pending',
-    salary: '95k - 125k MAD',
-    type: 'Full-time',
-    logo: '/src/assets/company-logos/spotify.png'
-  },
-];
 
 const getStatusBadge = (status: ApplicationStatus) => {
   const variants = {
@@ -130,11 +42,13 @@ const StudentApplications = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [applications, setApplications] = useState<Application[]>([]);
+  const [loading, setLoading] = useState(true);
   const itemsPerPage = 5;
 
   useEffect(() => {
     const fetchApplications = async () => {
       try {
+        setLoading(true);
         // Fetch only applications for the current student
         const apps = user ? await dataProvider.getApplications(user.id) : [];
         setApplications(apps);
@@ -154,20 +68,21 @@ const StudentApplications = () => {
         }
       } catch (error) {
         console.error('Error fetching applications:', error);
-        // Fallback to getApplications if dataProvider fails
-        const { getApplications } = require('@/data/applicationStore');
-        const apps = getApplications();
-        // Filter applications to only include those belonging to the current user if authenticated
-        const userApps = user ? apps.filter(app => app.studentId === user.id) : apps;
-        setApplications(userApps);
+        // Even if there's an error, we still set the applications to an empty array
+        setApplications([]);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchApplications();
   }, [user]);
 
+  // Only show applications for the current student
+  const userApplications = user ? applications.filter(app => app.studentId === user.id) : applications;
+
   // Filtrage
-  const filteredApplications = applications.filter(app => {
+  const filteredApplications = userApplications.filter(app => {
     const matchesSearch = app.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          app.position.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
@@ -187,10 +102,10 @@ const StudentApplications = () => {
 
   // Statistiques
   const stats = {
-    total: applications.length,
-    accepted: applications.filter(a => a.status === 'accepted').length,
-    rejected: applications.filter(a => a.status === 'rejected').length,
-    pending: applications.filter(a => a.status === 'pending').length,
+    total: userApplications.length,
+    accepted: userApplications.filter(a => a.status === 'accepted').length,
+    rejected: userApplications.filter(a => a.status === 'rejected').length,
+    pending: userApplications.filter(a => a.status === 'pending').length,
   };
 
   return (
@@ -273,10 +188,22 @@ const StudentApplications = () => {
 
       {/* Liste des candidatures */}
       <div className="space-y-4">
-        {paginatedApplications.length === 0 ? (
+        {loading ? (
           <Card>
             <CardContent className="py-12 text-center text-muted-foreground">
-              Aucune candidature trouvée
+              Chargement des candidatures...
+            </CardContent>
+          </Card>
+        ) : userApplications.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center text-muted-foreground">
+              Aucune candidature
+            </CardContent>
+          </Card>
+        ) : paginatedApplications.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center text-muted-foreground">
+              Aucune candidature trouvée pour les critères de recherche
             </CardContent>
           </Card>
         ) : (
