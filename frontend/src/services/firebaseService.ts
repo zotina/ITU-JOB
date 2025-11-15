@@ -15,6 +15,7 @@ import {
 } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { mockCompanies, mockOffers, mockCandidates } from '@/data/mockData';
+import { Console } from 'console';
 
 // Types for our data models
 export interface Company {
@@ -140,33 +141,13 @@ class FirebaseService {
         }
         return companies;
       } else {
-        // Fallback to mock data
-        return mockCompanies.map(company => ({
-          id: company.id,
-          name: company.name,
-          location: company.location,
-          coordinates: company.coordinates,
-          offers: company.offers,
-          logo: company.logo,
-          description: company.description || '',
-          industry: company.industry || '',
-          size: company.size || ''
-        }));
+        // Don't fall back to mock data, return empty array instead
+        return [];
       }
     } catch (error) {
       console.error('Error getting companies:', error);
-      // Fallback to mock data
-      return mockCompanies.map(company => ({
-        id: company.id,
-        name: company.name,
-        location: company.location,
-        coordinates: company.coordinates,
-        offers: company.offers,
-        logo: company.logo,
-        description: company.description || '',
-        industry: company.industry || '',
-        size: company.size || ''
-      }));
+      // Don't fall back to mock data, return empty array instead
+      return [];
     }
   }
 
@@ -194,39 +175,11 @@ class FirebaseService {
           }
         }
       }
-      // Fallback to mock data
-      const company = mockCompanies.find(c => c.id === id);
-      if (company) {
-        return {
-          id: company.id,
-          name: company.name,
-          location: company.location,
-          coordinates: company.coordinates,
-          offers: company.offers,
-          logo: company.logo,
-          description: company.description || '',
-          industry: company.industry || '',
-          size: company.size || ''
-        };
-      }
+      // Don't fall back to mock data
       return null;
     } catch (error) {
       console.error('Error getting company by ID:', error);
-      // Fallback to mock data
-      const company = mockCompanies.find(c => c.id === id);
-      if (company) {
-        return {
-          id: company.id,
-          name: company.name,
-          location: company.location,
-          coordinates: company.coordinates,
-          offers: company.offers,
-          logo: company.logo,
-          description: company.description || '',
-          industry: company.industry || '',
-          size: company.size || ''
-        };
-      }
+      // Don't fall back to mock data
       return null;
     }
   }
@@ -242,9 +195,9 @@ class FirebaseService {
           const userDoc = await getDoc(doc(db, 'users', userId));
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            if (userData.role === 'recruiter' && userData.companyName) {
+            if (userData.role === 'recruiter' && userData.company.name) {
               // If user is a recruiter, only show offers from their company
-              q = query(collection(db, 'offers'), where('companyName', '==', userData.companyName));
+              q = query(collection(db, 'offers'), where('companyName', '==', userData.company.name));
             } else {
               // For students or other roles, show all offers
               q = query(collection(db, 'offers'));
@@ -269,39 +222,13 @@ class FirebaseService {
           } as JobOffer;
         });
       } else {
-        // Fallback to mock data
-        return mockOffers.map(offer => ({
-          id: offer.id,
-          title: offer.title,
-          company: offer.company,
-          location: offer.location,
-          salary: offer.salary,
-          type: offer.type,
-          technologies: offer.technologies,
-          description: offer.description,
-          matchingScore: offer.matchingScore,
-          postedDate: offer.postedDate || new Date().toISOString().split('T')[0],
-          deadline: offer.deadline || '',
-          requirements: offer.requirements || []
-        }));
+        // Don't fall back to mock data, return empty array instead
+        return [];
       }
     } catch (error) {
       console.error('Error getting offers:', error);
-      // Fallback to mock data
-      return mockOffers.map(offer => ({
-        id: offer.id,
-        title: offer.title,
-        company: offer.company,
-        location: offer.location,
-        salary: offer.salary,
-        type: offer.type,
-        technologies: offer.technologies,
-        description: offer.description,
-        matchingScore: offer.matchingScore,
-        postedDate: offer.postedDate || new Date().toISOString().split('T')[0],
-        deadline: offer.deadline || '',
-        requirements: offer.requirements || []
-      }));
+      // Don't fall back to mock data, return empty array instead
+      return [];
     }
   }
 
@@ -321,45 +248,11 @@ class FirebaseService {
           } as JobOffer;
         }
       }
-      // Fallback to mock data
-      const offer = mockOffers.find(o => o.id === id);
-      if (offer) {
-        return {
-          id: offer.id,
-          title: offer.title,
-          company: offer.company,
-          location: offer.location,
-          salary: offer.salary,
-          type: offer.type,
-          technologies: offer.technologies,
-          description: offer.description,
-          matchingScore: offer.matchingScore,
-          postedDate: offer.postedDate || new Date().toISOString().split('T')[0],
-          deadline: offer.deadline || '',
-          requirements: offer.requirements || []
-        };
-      }
+      // Don't fall back to mock data
       return null;
     } catch (error) {
       console.error('Error getting offer by ID:', error);
-      // Fallback to mock data
-      const offer = mockOffers.find(o => o.id === id);
-      if (offer) {
-        return {
-          id: offer.id,
-          title: offer.title,
-          company: offer.company,
-          location: offer.location,
-          salary: offer.salary,
-          type: offer.type,
-          technologies: offer.technologies,
-          description: offer.description,
-          matchingScore: offer.matchingScore,
-          postedDate: offer.postedDate || new Date().toISOString().split('T')[0],
-          deadline: offer.deadline || '',
-          requirements: offer.requirements || []
-        };
-      }
+      // Don't fall back to mock data
       return null;
     }
   }
@@ -394,35 +287,13 @@ class FirebaseService {
         }
         return candidates;
       } else {
-        // Fallback to mock data
-        return mockCandidates.map(candidate => ({
-          id: candidate.id,
-          name: candidate.name,
-          email: candidate.email,
-          phone: candidate.phone,
-          location: candidate.location,
-          skills: candidate.skills,
-          experiences: candidate.experiences || [],
-          education: candidate.education || [],
-          applications: candidate.applications || [],
-          profilePicture: candidate.profilePicture
-        }));
+        // Don't fall back to mock data, return empty array instead
+        return [];
       }
     } catch (error) {
       console.error('Error getting candidates:', error);
-      // Fallback to mock data
-      return mockCandidates.map(candidate => ({
-        id: candidate.id,
-        name: candidate.name,
-        email: candidate.email,
-        phone: candidate.phone,
-        location: candidate.location,
-        skills: candidate.skills,
-        experiences: candidate.experiences || [],
-        education: candidate.education || [],
-        applications: candidate.applications || [],
-        profilePicture: candidate.profilePicture
-      }));
+      // Don't fall back to mock data, return empty array instead
+      return [];
     }
   }
 
@@ -453,41 +324,11 @@ class FirebaseService {
           }
         }
       }
-      // Fallback to mock data
-      const candidate = mockCandidates.find(c => c.id === id);
-      if (candidate) {
-        return {
-          id: candidate.id,
-          name: candidate.name,
-          email: candidate.email,
-          phone: candidate.phone,
-          location: candidate.location,
-          skills: candidate.skills,
-          experiences: candidate.experiences || [],
-          education: candidate.education || [],
-          applications: candidate.applications || [],
-          profilePicture: candidate.profilePicture
-        };
-      }
+      // Don't fall back to mock data
       return null;
     } catch (error) {
       console.error('Error getting candidate by ID:', error);
-      // Fallback to mock data
-      const candidate = mockCandidates.find(c => c.id === id);
-      if (candidate) {
-        return {
-          id: candidate.id,
-          name: candidate.name,
-          email: candidate.email,
-          phone: candidate.phone,
-          location: candidate.location,
-          skills: candidate.skills,
-          experiences: candidate.experiences || [],
-          education: candidate.education || [],
-          applications: candidate.applications || [],
-          profilePicture: candidate.profilePicture
-        };
-      }
+      // Don't fall back to mock data
       return null;
     }
   }

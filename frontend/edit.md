@@ -1,5 +1,30 @@
 # Historique des Modifications
 
+## 15-11-2025: Suppression du fallback aux données mock dans firebaseService
+
+- **Objectif :** Empêcher l'affichage de données statiques mockdata dans les cas où il n'y a pas de données dans Firestore.
+- **Actions :**
+    1. **Modification de getOffers :** La fonction retourne maintenant un tableau vide au lieu de données mock quand il n'y a pas d'offres dans Firestore.
+    2. **Modification de getCompanies :** La fonction retourne maintenant un tableau vide au lieu de données mock quand il n'y a pas de companies dans Firestore.
+    3. **Modification de getCandidates :** La fonction retourne maintenant un tableau vide au lieu de données mock quand il n'y a pas de candidats dans Firestore.
+    4. **Modification de getOfferById :** La fonction retourne maintenant null au lieu de données mock quand l'offre n'existe pas dans Firestore.
+    5. **Modification de getCompanyById :** La fonction retourne maintenant null au lieu de données mock quand l'entreprise n'existe pas dans Firestore.
+    6. **Modification de getCandidateById :** La fonction retourne maintenant null au lieu de données mock quand le candidat n'existe pas dans Firestore.
+    7. **Résultat :** Affichage de 'Aucune offre'/'Aucun candidat'/'Aucune entreprise' dans l'interface quand il n'y a pas de données dans Firestore.
+
+---
+
+## 15-11-2025: Filtrage des offres et candidatures par entreprise connectée
+
+- **Objectif :** S'assurer que les recruteurs ne voient que les offres de leur propre entreprise et que les candidatures affichées sont spécifiques à l'offre sélectionnée.
+- **Actions :**
+    1. **Mise à jour de RecruiterOffers :** Le composant 'Mes Offres' utilise `dataProvider.getOffers(user?.id)` pour n'afficher que les offres appartenant à l'entreprise du recruteur connecté.
+    2. **Amélioration du bouton 'Voir candidatures' :** Le bouton transmet correctement l'ID de l'offre via le paramètre `offerId` dans l'URL.
+    3. **Mise à jour de FilteredApplications :** La page utilise à la fois l'ID de l'utilisateur et l'ID de l'offre pour filtrer les candidatures spécifiques à une offre donnée.
+    4. **Fonctionnement du filtrage :** Lorsqu'un recruteur clique sur 'Voir candidatures', seule la liste des candidatures pour cette offre spécifique s'affiche, garantissant la confidentialité des données.
+
+---
+
 ## 15-11-2025: Adaptation au nouveau schéma de base de données Firestore et correction des fonctionnalités
 
 - **Objectif :** Adapter l'application au nouveau schéma de base de données où toutes les informations (utilisateurs, entreprises, offres, candidats) sont stockées dans la collection `users`, et corriger les fonctionnalités cassées.
