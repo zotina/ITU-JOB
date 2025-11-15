@@ -111,14 +111,34 @@ class FirebaseService {
     return !!this.currentUser;
   }
 
-  // Company operations
+  // Company operations - now companies are stored within user profiles
   async getCompanies(): Promise<Company[]> {
     try {
       const useFirebase = await this.ensureInitialized();
       if (useFirebase && this.currentUser) {
-        const q = query(collection(db, 'companies'));
+        // Get users with role 'recruiter' which contain company information
+        const q = query(collection(db, 'users'), where('role', '==', 'recruiter'));
         const querySnapshot = await getDocs(q);
-        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Company));
+        
+        const companies: Company[] = [];
+        for (const doc of querySnapshot.docs) {
+          const userData = doc.data();
+          // Extract company information from user profile if present
+          if (userData.company) {
+            companies.push({
+              id: doc.id,
+              name: userData.company.name || userData.companyName || 'Company Name',
+              location: userData.company.address?.city || userData.company.address?.street || 'Location',
+              coordinates: userData.company.coordinates || [47.5, -18.9], // Default Madagascar coordinates
+              offers: userData.stats?.totalOffers || 0,
+              logo: userData.company.logo || '/src/assets/company-logos/default.png',
+              description: userData.company.description || '',
+              industry: userData.company.industry || '',
+              size: userData.company.size || ''
+            });
+          }
+        }
+        return companies;
       } else {
         // Fallback to mock data
         return mockCompanies.map(company => ({
@@ -154,10 +174,24 @@ class FirebaseService {
     try {
       const useFirebase = await this.ensureInitialized();
       if (useFirebase && this.currentUser) {
-        const docRef = doc(db, 'companies', id);
+        const docRef = doc(db, 'users', id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          return { id: docSnap.id, ...docSnap.data() } as Company;
+          const userData = docSnap.data();
+          // Extract company information from user profile if present
+          if (userData.role === 'recruiter' && userData.company) {
+            return {
+              id: docSnap.id,
+              name: userData.company.name || userData.companyName || 'Company Name',
+              location: userData.company.address?.city || userData.company.address?.street || 'Location',
+              coordinates: userData.company.coordinates || [47.5, -18.9], // Default Madagascar coordinates
+              offers: userData.stats?.totalOffers || 0,
+              logo: userData.company.logo || '/src/assets/company-logos/default.png',
+              description: userData.company.description || '',
+              industry: userData.company.industry || '',
+              size: userData.company.size || ''
+            };
+          }
         }
       }
       // Fallback to mock data
@@ -210,7 +244,7 @@ class FirebaseService {
             const userData = userDoc.data();
             if (userData.role === 'recruiter' && userData.companyName) {
               // If user is a recruiter, only show offers from their company
-              q = query(collection(db, 'offers'), where('company', '==', userData.companyName));
+              q = query(collection(db, 'offers'), where('companyName', '==', userData.companyName));
             } else {
               // For students or other roles, show all offers
               q = query(collection(db, 'offers'));
@@ -225,7 +259,15 @@ class FirebaseService {
         }
         
         const querySnapshot = await getDocs(q);
-        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as JobOffer));
+        return querySnapshot.docs.map(doc => {
+          const offerData = doc.data();
+          return {
+            id: doc.id,
+            ...offerData,
+            // Ensure the company name is available in the expected format
+            company: offerData.companyName || offerData.company || 'Unknown Company'
+          } as JobOffer;
+        });
       } else {
         // Fallback to mock data
         return mockOffers.map(offer => ({
@@ -270,7 +312,13 @@ class FirebaseService {
         const docRef = doc(db, 'offers', id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          return { id: docSnap.id, ...docSnap.data() } as JobOffer;
+          const offerData = docSnap.data();
+          return {
+            id: docSnap.id,
+            ...offerData,
+            // Ensure the company name is available in the expected format
+            company: offerData.companyName || offerData.company || 'Unknown Company'
+          } as JobOffer;
         }
       }
       // Fallback to mock data
@@ -316,14 +364,35 @@ class FirebaseService {
     }
   }
 
-  // Candidate operations
+  // Candidate operations - now candidates are stored within user profiles
   async getCandidates(): Promise<Candidate[]> {
     try {
       const useFirebase = await this.ensureInitialized();
       if (useFirebase && this.currentUser) {
-        const q = query(collection(db, 'candidates'));
+        // Get users with role 'student' which contain candidate information
+        const q = query(collection(db, 'users'), where('role', '==', 'student'));
         const querySnapshot = await getDocs(q);
-        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Candidate));
+        
+        const candidates: Candidate[] = [];
+        for (const doc of querySnapshot.docs) {
+          const userData = doc.data();
+          // Extract candidate information from user profile
+          candidates.push({
+            id: doc.id,
+            name: `${userData.prenom || ''} ${userData.nom || ''}`.trim(),
+            email: userData.email,
+            phone: userData.personalInfo?.phone || userData.phone || '',
+            location: userData.personalInfo?.location || 'Location inconnue',
+            skills: userData.technicalSkills?.flatMap((category: any) => 
+              category.skills?.map((skill: any) => skill.name) || []
+            ) || [],
+            experiences: userData.experiences || [],
+            education: userData.formations || [],
+            applications: userData.stats?.totalApplications || [],
+            profilePicture: userData.personalInfo?.profileImage || userData.profileImage
+          });
+        }
+        return candidates;
       } else {
         // Fallback to mock data
         return mockCandidates.map(candidate => ({
@@ -361,10 +430,27 @@ class FirebaseService {
     try {
       const useFirebase = await this.ensureInitialized();
       if (useFirebase && this.currentUser) {
-        const docRef = doc(db, 'candidates', id);
+        const docRef = doc(db, 'users', id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          return { id: docSnap.id, ...docSnap.data() } as Candidate;
+          const userData = docSnap.data();
+          // Extract candidate information from user profile if it's a student
+          if (userData.role === 'student') {
+            return {
+              id: docSnap.id,
+              name: `${userData.prenom || ''} ${userData.nom || ''}`.trim(),
+              email: userData.email,
+              phone: userData.personalInfo?.phone || userData.phone || '',
+              location: userData.personalInfo?.location || 'Location inconnue',
+              skills: userData.technicalSkills?.flatMap((category: any) => 
+                category.skills?.map((skill: any) => skill.name) || []
+              ) || [],
+              experiences: userData.experiences || [],
+              education: userData.formations || [],
+              applications: userData.stats?.totalApplications || [],
+              profilePicture: userData.personalInfo?.profileImage || userData.profileImage
+            };
+          }
         }
       }
       // Fallback to mock data
@@ -487,7 +573,7 @@ class FirebaseService {
     try {
       const useFirebase = await this.ensureInitialized();
       if (useFirebase && this.currentUser) {
-        // Get the offer details to retrieve the company ID
+        // Get the offer details to retrieve the company information
         let companyId: string | undefined;
         let companyName: string | undefined;
         
@@ -495,12 +581,22 @@ class FirebaseService {
           const offerDoc = await getDoc(doc(db, 'offers', applicationData.offerId));
           if (offerDoc.exists()) {
             const offerData = offerDoc.data();
-            companyName = offerData.company;
+            // In the new structure, company name is stored as companyName in the offer
+            companyName = offerData.companyName || offerData.company;
             
-            // Find the company ID based on the company name
-            const companiesSnapshot = await getDocs(query(collection(db, 'companies'), where('name', '==', companyName)));
-            if (!companiesSnapshot.empty) {
-              companyId = companiesSnapshot.docs[0].id;
+            // In the new structure, the recruiter user ID serves as company ID
+            // The offer might have a recruiterId field that links to the company/user
+            if (offerData.recruiterId) {
+              companyId = offerData.recruiterId;
+            } else {
+              // Try to find the company by name in users collection
+              const recruitersSnapshot = await getDocs(
+                query(collection(db, 'users'), where('companyName', '==', companyName))
+              );
+              if (!recruitersSnapshot.empty) {
+                // Use the first matching recruiter's ID as company ID
+                companyId = recruitersSnapshot.docs[0].id;
+              }
             }
           }
         }

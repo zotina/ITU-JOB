@@ -1,7 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import { mockOffers, mockCompanies } from '@/data/mockData';
-import { addApplication } from '@/data/applicationStore';
+import { useState, useEffect } from 'react';
+import { dataProvider } from '@/data/dataProvider';
 import { useProfileData } from '@/hooks/useProfileData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,30 +8,83 @@ import { Button } from '@/components/ui/button';
 import LeafletMap from '@/components/ui/leaflet-map';
 import { Building2, MapPin, Euro, Clock, ArrowLeft, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 const OfferDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { profileData } = useProfileData();
+  const { user } = useAuth(); // Get the current user
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [offer, setOffer] = useState<any>(null);
+  const [company, setCompany] = useState<any>(null);
+  const [loadingOffer, setLoadingOffer] = useState(true);
 
-  // Find the offer and company based on the ID from the URL
-  const offer = mockOffers.find(o => o.id === id);
-  const company = mockCompanies.find(c => c.name === offer?.company);
+  useEffect(() => {
+    const fetchOfferAndCompany = async () => {
+      try {
+        if (id) {
+          setLoadingOffer(true);
+          // Get the offer by ID
+          const offerData = await dataProvider.getOfferById(id);
+          if (offerData) {
+            setOffer(offerData);
+            
+            // Get the company information - in new structure, company might be part of the offer or we need to find it by name
+            // Try to get company by name first, then by id if available
+            let companyData = null;
+            if (offerData.company) {
+              // Try to get company by name first
+              const companies = await dataProvider.getCompanies();
+              companyData = companies.find((c: any) => c.name === offerData.company);
+              
+              // If not found by name, try finding the recruiter user associated with the offer
+              if (!companyData) {
+                // In the new structure, company info may be in the user profile
+                // For now, we'll create a minimal company object from offer data
+                companyData = {
+                  name: offerData.company,
+                  logo: '/src/assets/company-logos/default.png', // Use a default logo
+                  description: 'Company information',
+                  coordinates: offerData.coordinates || profileData.personalInfo.coordinates
+                };
+              }
+            }
+            
+            setCompany(companyData);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching offer or company:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les détails de l'offre.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoadingOffer(false);
+      }
+    };
 
-  const handleApply = () => {
-    if (!offer) return;
+    fetchOfferAndCompany();
+  }, [id, toast]);
+
+  const handleApply = async () => {
+    if (!offer || !user) return;
     
-    setLoading(true);
-    setTimeout(() => {
-      addApplication({
+    try {
+      setLoading(true);
+      // Use the dataProvider to add the application
+      await dataProvider.addApplication({
         company: offer.company,
         position: offer.title,
         location: offer.location,
         salary: offer.salary,
         type: offer.type,
-        offerId: offer.id
+        offerId: offer.id,
+        studentId: user.id, // Using the authenticated user ID
+        studentName: `${user.prenom || ''} ${user.nom || ''}`.trim()
       });
       
       setLoading(false);
@@ -44,10 +96,26 @@ const OfferDetailPage = () => {
       setTimeout(() => {
         navigate('/student/applications');
       }, 1000);
-    }, 1500);
+    } catch (error) {
+      console.error('Error applying for offer:', error);
+      setLoading(false);
+      toast({
+        title: "Erreur",
+        description: "Échec de l'envoi de la candidature.",
+        variant: "destructive",
+      });
+    }
   };
 
-  if (!offer || !company) {
+  if (loadingOffer) {
+    return (
+      <div className="p-6 flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!offer) {
     return (
       <div className="p-6">
         <h1 className="text-2xl font-bold">Offre non trouvée</h1>
@@ -107,18 +175,18 @@ const OfferDetailPage = () => {
               <div className="flex items-center gap-6 text-base text-muted-foreground">
                 <div className="flex items-center gap-2"><MapPin className="w-5 h-5" /> {offer.location}</div>
                 <div className="flex items-center gap-2"> {offer.salary}</div>
-                <div className="flex items-center gap-2"><Clock className="w-5 h-5" /> Posté le {offer.posted}</div>
+                <div className="flex items-center gap-2"><Clock className="w-5 h-5" /> Posté le {new Date(offer.postedDate || offer.posted || new Date().toISOString()).toLocaleDateString('fr-FR')}</div>
               </div>
               
               <div>
                 <h3 className="text-lg font-semibold mb-2">Description du poste</h3>
-                <p className="text-base whitespace-pre-wrap">{offer.description}</p>
+                <p className="text-base whitespace-pre-line">{offer.description}</p>
               </div>
 
               <div>
                 <h3 className="text-lg font-semibold mb-2">Technologies</h3>
                 <div className="flex flex-wrap gap-2">
-                  {offer.technologies.map((tech) => (
+                  {offer.technologies?.map((tech: string) => (
                     <Badge key={tech} variant="default">{tech}</Badge>
                   ))}
                 </div>
@@ -127,7 +195,7 @@ const OfferDetailPage = () => {
               <div>
                 <h3 className="text-lg font-semibold mb-2">Exigences</h3>
                 <ul className="list-disc list-inside space-y-1">
-                  {offer.requirements.map((req, index) => (
+                  {offer.requirements?.map((req: string, index: number) => (
                     <li key={index}>{req}</li>
                   ))}
                 </ul>
@@ -142,11 +210,17 @@ const OfferDetailPage = () => {
         </div>
 
         <div className="lg:col-span-1">
-          <LeafletMap
-            studentLocation={profileData.personalInfo.location}
-            studentCoordinates={profileData.personalInfo.coordinates}
-            companies={[company]} // Pass only the relevant company
-          />
+          {company ? (
+            <LeafletMap
+              studentLocation={profileData.personalInfo?.location}
+              studentCoordinates={profileData.personalInfo?.coordinates}
+              companies={[company]} // Pass only the relevant company
+            />
+          ) : (
+            <div className="text-center p-4 text-muted-foreground">
+              Carte non disponible
+            </div>
+          )}
         </div>
       </div>
     </div>

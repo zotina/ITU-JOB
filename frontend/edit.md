@@ -1,5 +1,19 @@
 # Historique des Modifications
 
+## 15-11-2025: Adaptation au nouveau schéma de base de données Firestore et correction des fonctionnalités
+
+- **Objectif :** Adapter l'application au nouveau schéma de base de données où toutes les informations (utilisateurs, entreprises, offres, candidats) sont stockées dans la collection `users`, et corriger les fonctionnalités cassées.
+- **Actions :**
+    1. **Mise à jour de firebaseService :** Réorganisation complète des opérations Firestore pour fonctionner avec la nouvelle structure où les entreprises sont stockées dans les profils utilisateurs (rôle 'recruiter').
+    2. **Mise à jour des opérations de candidats :** Modification des fonctions `getCandidates` et `getCandidateById` pour récupérer les profils étudiants depuis la collection `users`.
+    3. **Correction des requêtes Firestore :** Mise à jour de la fonction `addApplication` pour éviter l'erreur "where() called with invalid data" en retirant la requête vers la collection 'companies' supprimée.
+    4. **Mise à jour de l'affichage des offres :** Correction des fonctions `getOffers` et `getOfferById` pour récupérer correctement le nom de l'entreprise depuis la nouvelle structure dénormalisée.
+    5. **Fix de l'OfferDetailPage :** Remplacement de l'utilisation des données mock par les appels à `dataProvider` pour récupérer les détails de l'offre et corriger l'erreur "Offre non trouvée".
+    6. **Fix de StudentApplications :** Correction de l'erreur "Cannot read properties of undefined (reading 'toLowerCase')" en sécurisant l'accès aux propriétés potentiellement undefined.
+    7. **Mise à jour des fonctions d'application :** Adaptation des fonctions pour utiliser les données correctes de l'utilisateur authentifié via `useAuth`.
+
+---
+
 ## 15-11-2025: Stockage de l'ID de l'entreprise dans les documents de candidature et filtrage par entreprise
 
 - **Objectif :** Ajouter l'ID de l'entreprise dans le document de candidature lorsqu'un étudiant postule, et filtrer les listes de candidatures pour les recruteurs par leur entreprise.
