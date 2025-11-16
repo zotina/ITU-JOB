@@ -44,8 +44,13 @@ export interface JobOffer {
   location: string;
   salary: string;
   type: string;
+  technologies?: string[];
   description: string;
   postedDate?: string;
+  deadline?: string;
+  requirements?: string[];
+  niceToHave?: string[];
+  benefits?: string[];
   logo?: string;
   status?: string;
 }

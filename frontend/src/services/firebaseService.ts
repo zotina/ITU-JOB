@@ -44,6 +44,8 @@ export interface JobOffer {
   postedDate?: string;
   deadline?: string;
   requirements?: string[];
+  niceToHave?: string[]; // Add nice to have requirements
+  benefits?: string[]; // Add benefits
   nbCandidatures?: number; // Add number of applications field
   isNouveau?: boolean; // Add nouveau flag
   nouveauUntil?: string; // Add date until which it's nouveau

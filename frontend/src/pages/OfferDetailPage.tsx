@@ -201,6 +201,28 @@ const OfferDetailPage = () => {
                 </ul>
               </div>
 
+              {offer.niceToHave && offer.niceToHave.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Souhaits (Nice to have)</h3>
+                  <ul className="list-disc list-inside space-y-1">
+                    {offer.niceToHave?.map((req: string, index: number) => (
+                      <li key={index}>{req}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {offer.benefits && offer.benefits.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Avantages</h3>
+                  <ul className="list-disc list-inside space-y-1">
+                    {offer.benefits?.map((benefit: string, index: number) => (
+                      <li key={index}>{benefit}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               <Button size="lg" className="w-full" onClick={handleApply} disabled={loading}>
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 {loading ? 'Envoi...' : 'Postuler maintenant'}
