@@ -210,7 +210,7 @@ const RecruiterOffers = () => {
                 </div>
                  */}
                 <div className="flex gap-2">
-                  <RecommendedProfiles offerTitle={offer.title} />
+                  <RecommendedProfiles offerTitle={offer.title} offerId={offer.id} />
                   <Button size="sm" onClick={() => navigate(`/recruiter/candidates?offerId=${offer.id}`)}>
                     Voir candidatures
                     {offer.nbCandidatures !== undefined && (

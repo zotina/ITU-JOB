@@ -27,6 +27,12 @@ const RecruiterCreateOffer = () => {
   const [description, setDescription] = useState('');
   const [technologies, setTechnologies] = useState<string[]>([]);
   const [newTech, setNewTech] = useState('');
+  const [requirements, setRequirements] = useState<string[]>([]); // For main requirements
+  const [newRequirement, setNewRequirement] = useState('');
+  const [niceToHave, setNiceToHave] = useState<string[]>([]); // For nice to have requirements
+  const [newNiceToHave, setNewNiceToHave] = useState('');
+  const [benefits, setBenefits] = useState<string[]>([]); // For benefits
+  const [newBenefit, setNewBenefit] = useState('');
   const [experience, setExperience] = useState('');
   const [deadline, setDeadline] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,6 +46,39 @@ const RecruiterCreateOffer = () => {
 
   const handleRemoveTechnology = (tech: string) => {
     setTechnologies(technologies.filter(t => t !== tech));
+  };
+
+  const handleAddRequirement = () => {
+    if (newRequirement.trim() && !requirements.includes(newRequirement.trim())) {
+      setRequirements([...requirements, newRequirement.trim()]);
+      setNewRequirement('');
+    }
+  };
+
+  const handleRemoveRequirement = (req: string) => {
+    setRequirements(requirements.filter(r => r !== req));
+  };
+
+  const handleAddNiceToHave = () => {
+    if (newNiceToHave.trim() && !niceToHave.includes(newNiceToHave.trim())) {
+      setNiceToHave([...niceToHave, newNiceToHave.trim()]);
+      setNewNiceToHave('');
+    }
+  };
+
+  const handleRemoveNiceToHave = (item: string) => {
+    setNiceToHave(niceToHave.filter(i => i !== item));
+  };
+
+  const handleAddBenefit = () => {
+    if (newBenefit.trim() && !benefits.includes(newBenefit.trim())) {
+      setBenefits([...benefits, newBenefit.trim()]);
+      setNewBenefit('');
+    }
+  };
+
+  const handleRemoveBenefit = (benefit: string) => {
+    setBenefits(benefits.filter(b => b !== benefit));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -82,7 +121,9 @@ const RecruiterCreateOffer = () => {
         status: 'active',
         postedDate: new Date().toISOString().split('T')[0],
         deadline,
-        requirements: experience ? [experience] : [] // Store experience as a requirement
+        requirements: [...requirements, ...(experience ? [experience] : [])], // Combine requirements and experience
+        niceToHave,
+        benefits
       };
       
       // Add to Firestore using the dataProvider
@@ -248,6 +289,117 @@ const RecruiterCreateOffer = () => {
                       <button
                         type="button"
                         onClick={() => handleRemoveTechnology(tech)}
+                        className="ml-1 hover:bg-muted rounded-full"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Exigences principales */}
+            <div className="space-y-2">
+              <Label>Exigences principales</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Ajouter une exigence"
+                  value={newRequirement}
+                  onChange={(e) => setNewRequirement(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddRequirement();
+                    }
+                  }}
+                />
+                <Button type="button" onClick={handleAddRequirement}>
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              {requirements.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {requirements.map((req) => (
+                    <Badge key={req} variant="secondary" className="gap-1">
+                      {req}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveRequirement(req)}
+                        className="ml-1 hover:bg-muted rounded-full"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Souhaits (Nice to have) */}
+            <div className="space-y-2">
+              <Label>Souhaits (Nice to have)</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Ajouter un souhait"
+                  value={newNiceToHave}
+                  onChange={(e) => setNewNiceToHave(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddNiceToHave();
+                    }
+                  }}
+                />
+                <Button type="button" onClick={handleAddNiceToHave}>
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              {niceToHave.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {niceToHave.map((item) => (
+                    <Badge key={item} variant="outline" className="gap-1">
+                      {item}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveNiceToHave(item)}
+                        className="ml-1 hover:bg-muted rounded-full"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Avantages */}
+            <div className="space-y-2">
+              <Label>Avantages</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Ajouter un avantage"
+                  value={newBenefit}
+                  onChange={(e) => setNewBenefit(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddBenefit();
+                    }
+                  }}
+                />
+                <Button type="button" onClick={handleAddBenefit}>
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              {benefits.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {benefits.map((benefit) => (
+                    <Badge key={benefit} variant="secondary" className="gap-1">
+                      {benefit}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveBenefit(benefit)}
                         className="ml-1 hover:bg-muted rounded-full"
                       >
                         <X className="w-3 h-3" />

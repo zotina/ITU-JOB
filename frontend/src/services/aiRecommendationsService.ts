@@ -520,4 +520,167 @@ export class AIRecommendationsService {
     await this.saveRecommendations(recommendations);
     return recommendations;
   }
+  
+  /**
+   * Generate student recommendations for a specific job offer based on matching score
+   */
+  static async generateStudentRecommendationsForOffer(offer: JobOffer, limit: number = 4): Promise<any[]> {
+    try {
+      // Get all students from data provider
+      const students = await dataProvider.getCandidates();
+      
+      // Calculate matching scores for all students
+      const studentsWithScores = students.map(student => ({
+        ...student,
+        matchScore: this.calculateStudentOfferMatchingScore(student, offer)
+      }));
+      
+      // Sort by matching score in descending order and take top N
+      const topStudents = studentsWithScores
+        .sort((a, b) => b.matchScore - a.matchScore)
+        .slice(0, limit);
+      
+      // Convert to appropriate format for display
+      return topStudents.map((student, index) => ({
+        id: student.id,
+        name: student.name,
+        level: this.guessLevelFromSkills(student.skills),
+        skills: student.skills || [],
+        location: student.location,
+        matchScore: student.matchScore,
+        avatar: student.profilePicture
+      }));
+    } catch (error) {
+      console.error('Error generating student recommendations for offer:', error);
+      return [];
+    }
+  }
+  
+  /**
+   * Calculate matching score between student profile and offer requirements
+   */
+  private static calculateStudentOfferMatchingScore(student: any, offer: JobOffer): number {
+    let score = 0;
+    let totalWeight = 0;
+    
+    // Extract student skills
+    const studentSkills = (student.skills || []).map((s: string) => s.toLowerCase());
+    
+    // Extract student experiences
+    const studentExperiences = (student.experiences || []).map((exp: any) => 
+      (exp.title || exp.description || '').toLowerCase()
+    );
+    
+    // Check technical skills (40% of score)
+    if (offer.technologies && Array.isArray(offer.technologies)) {
+      totalWeight += 40; // Weight of 40% for technologies
+      for (const tech of offer.technologies) {
+        const techLower = tech.toLowerCase();
+        if (studentSkills.some(skill => 
+          skill.includes(techLower) || techLower.includes(skill) ||
+          // Handle common tech variations 
+          (techLower.includes('javascript') && skill.includes('js')) ||
+          (skill.includes('js') && techLower.includes('javascript')) ||
+          (techLower.includes('python') && skill.includes('py')) ||
+          (skill.includes('py') && techLower.includes('python'))
+        )) {
+          score += 40 / offer.technologies.length;
+        }
+      }
+    }
+    
+    // Check requirements (30% of score)
+    if (offer.requirements && Array.isArray(offer.requirements)) {
+      totalWeight += 30; // Weight of 30% for requirements
+      for (const requirement of offer.requirements) {
+        const reqLower = requirement.toLowerCase();
+        // Check if a student skill matches the requirement
+        if (studentSkills.some(skill => 
+          reqLower.includes(skill) || skill.includes(reqLower) ||
+          // More advanced matching
+          this.calculateStringSimilarity(reqLower, skill) > 0.4
+        )) {
+          score += 10;
+        }
+        // Check if a student experience matches the requirement
+        if (studentExperiences.some(exp => 
+          reqLower.includes(exp) || exp.includes(reqLower) ||
+          this.calculateStringSimilarity(reqLower, exp) > 0.4
+        )) {
+          score += 10;
+        }
+      }
+    }
+    
+    // Check location (20%)
+    if (offer.location && student.location) {
+      totalWeight += 20;
+      if (student.location.toLowerCase().includes(offer.location.toLowerCase()) ||
+          this.calculateStringSimilarity(offer.location.toLowerCase(), student.location.toLowerCase()) > 0.6) {
+        score += 20;
+      }
+    }
+    
+    // Calculate final score out of 100
+    const finalScore = totalWeight > 0 ? Math.min(100, Math.round((score / totalWeight) * 100)) : 0;
+    return finalScore;
+  }
+  
+  /**
+   * Calculate similarity between two strings using a simple algorithm
+   */
+  private static calculateStringSimilarity(str1: string, str2: string): number {
+    const s1 = str1.replace(/[^\w\s]/gi, '').toLowerCase().trim();
+    const s2 = str2.replace(/[^\w\s]/gi, '').toLowerCase().trim();
+    
+    if (s1 === s2) return 1;
+    if (s1.length === 0 || s2.length === 0) return 0;
+    if (s1.length === 1 && s2.length === 1) return s1 === s2 ? 1 : 0;
+    
+    // Check for substring matches
+    if (s1.includes(s2) || s2.includes(s1)) return 0.8;
+    
+    // Check for word overlap
+    const words1 = s1.split(/\s+/);
+    const words2 = s2.split(/\s+/);
+    const commonWords = words1.filter(word => words2.includes(word));
+    
+    if (commonWords.length > 0) {
+      return commonWords.length / Math.max(words1.length, words2.length);
+    }
+    
+    return 0;
+  }
+  
+  /**
+   * Guess level from skills
+   */
+  private static guessLevelFromSkills(skills: string[]) {
+    if (!skills || skills.length === 0) return 'Niveau à déterminer';
+    
+    // Define keywords that suggest different levels
+    const juniorKeywords = ['junior', 'entry', 'débutant', 'étudiant', 'stage'];
+    const seniorKeywords = ['senior', 'expert', 'avancé', 'lead', 'principal'];
+    
+    // Check for senior indicators
+    for (const skill of skills) {
+      for (const senior of seniorKeywords) {
+        if (skill.toLowerCase().includes(senior)) {
+          return 'Senior Level';
+        }
+      }
+    }
+    
+    // Check for junior indicators
+    for (const skill of skills) {
+      for (const junior of juniorKeywords) {
+        if (skill.toLowerCase().includes(junior)) {
+          return 'Junior Level';
+        }
+      }
+    }
+    
+    // Default to intermediate for any skills
+    return 'Intermédiaire';
+  }
 }
