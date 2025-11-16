@@ -44,6 +44,7 @@ export interface JobOffer {
   postedDate?: string;
   deadline?: string;
   requirements?: string[];
+  nbCandidatures?: number; // Add number of applications field
 }
 
 export interface Candidate {
@@ -212,7 +213,7 @@ class FirebaseService {
         }
         
         const querySnapshot = await getDocs(q);
-        return querySnapshot.docs.map(doc => {
+        const offers = querySnapshot.docs.map(doc => {
           const offerData = doc.data();
           return {
             id: doc.id,
@@ -221,6 +222,18 @@ class FirebaseService {
             company: offerData.companyName || offerData.company || 'Unknown Company'
           } as JobOffer;
         });
+
+        // Count applications for each offer
+        for (const offer of offers) {
+          const applicationsQuery = query(
+            collection(db, 'applications'),
+            where('offerId', '==', offer.id)
+          );
+          const applicationsSnapshot = await getDocs(applicationsQuery);
+          offer.nbCandidatures = applicationsSnapshot.size;
+        }
+
+        return offers;
       } else {
         // Don't fall back to mock data, return empty array instead
         return [];
@@ -344,13 +357,13 @@ class FirebaseService {
           const userDoc = await getDoc(doc(db, 'users', userId));
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            if (userData.role === 'recruiter' && userData.companyName) {
+            if (userData.role === 'recruiter' && userData.company.name) {
               // If user is a recruiter, get applications for offers from their company
               if (offerId) {
                 // If specific offerId is provided, only get applications for that offer
                 // Also ensure it belongs to their company
                 const offerDoc = await getDoc(doc(db, 'offers', offerId));
-                if (offerDoc.exists() && offerDoc.data().company === userData.companyName) {
+                if (offerDoc.exists() && offerDoc.data().companyName === userData.company.name) {
                   q = query(
                     collection(db, 'applications'), 
                     where('offerId', '==', offerId)
@@ -366,7 +379,7 @@ class FirebaseService {
                 // Get all applications for offers from their company
                 // First get the offers from their company
                 const offersSnapshot = await getDocs(
-                  query(collection(db, 'offers'), where('company', '==', userData.companyName))
+                  query(collection(db, 'offers'), where('companyName', '==', userData.company.name))
                 );
                 const offerIds = offersSnapshot.docs.map(doc => doc.id);
                 
@@ -453,6 +466,20 @@ class FirebaseService {
           companyId,
           company: companyName || applicationData.company || '', // Use provided company name if offer lookup fails
         });
+        
+        // Increment the application count for the offer
+        if (applicationData.offerId) {
+          const offerRef = doc(db, 'offers', applicationData.offerId);
+          const offerDoc = await getDoc(offerRef);
+          if (offerDoc.exists()) {
+            const currentOffer = offerDoc.data();
+            const currentCount = currentOffer.nbCandidatures || 0;
+            await updateDoc(offerRef, {
+              nbCandidatures: currentCount + 1
+            });
+          }
+        }
+        
         return docRef.id;
       } else {
         // For now, just return null since we don't want to modify mock data directly

@@ -1,7 +1,5 @@
 // src/data/dataProvider.ts
 import { firebaseService, Company, JobOffer, Candidate, Application } from '@/services/firebaseService';
-import { mockCompanies, mockOffers, mockCandidates } from './mockData';
-import { getApplications as getMockApplications, addApplication as addMockApplication } from './applicationStore';
 import { AIRecommendationsData } from '@/services/aiRecommendationsService';
 
 // Data provider that uses Firebase as primary source but falls back to mock data
@@ -11,18 +9,8 @@ export const dataProvider = {
     try {
       return await firebaseService.getCompanies();
     } catch (error) {
-      console.warn('Firebase failed, using mock data for companies', error);
-      return mockCompanies.map(company => ({
-        id: company.id,
-        name: company.name,
-        location: company.location,
-        coordinates: company.coordinates,
-        offers: company.offers,
-        logo: company.logo,
-        description: company.description || '',
-        industry: company.industry || '',
-        size: company.size || ''
-      }));
+      console.warn('Firebase failed, returning empty array for companies', error);
+      return [];
     }
   },
 
@@ -30,21 +18,7 @@ export const dataProvider = {
     try {
       return await firebaseService.getCompanyById(id);
     } catch (error) {
-      console.warn('Firebase failed, using mock data for company', error);
-      const company = mockCompanies.find(c => c.id === id);
-      if (company) {
-        return {
-          id: company.id,
-          name: company.name,
-          location: company.location,
-          coordinates: company.coordinates,
-          offers: company.offers,
-          logo: company.logo,
-          description: company.description || '',
-          industry: company.industry || '',
-          size: company.size || ''
-        };
-      }
+      console.warn('Firebase failed, returning null for company', error);
       return null;
     }
   },
@@ -54,21 +28,8 @@ export const dataProvider = {
     try {
       return await firebaseService.getOffers(userId);
     } catch (error) {
-      console.warn('Firebase failed, using mock data for offers', error);
-      return mockOffers.map(offer => ({
-        id: offer.id,
-        title: offer.title,
-        company: offer.company,
-        location: offer.location,
-        salary: offer.salary,
-        type: offer.type,
-        technologies: offer.technologies,
-        description: offer.description,
-        matchingScore: offer.matchingScore,
-        postedDate: offer.postedDate || new Date().toISOString().split('T')[0],
-        deadline: offer.deadline || '',
-        requirements: offer.requirements || []
-      }));
+      console.warn('Firebase failed, returning empty array for offers', error);
+      return [];
     }
   },
 
@@ -76,24 +37,7 @@ export const dataProvider = {
     try {
       return await firebaseService.getOfferById(id);
     } catch (error) {
-      console.warn('Firebase failed, using mock data for offer', error);
-      const offer = mockOffers.find(o => o.id === id);
-      if (offer) {
-        return {
-          id: offer.id,
-          title: offer.title,
-          company: offer.company,
-          location: offer.location,
-          salary: offer.salary,
-          type: offer.type,
-          technologies: offer.technologies,
-          description: offer.description,
-          matchingScore: offer.matchingScore,
-          postedDate: offer.postedDate || new Date().toISOString().split('T')[0],
-          deadline: offer.deadline || '',
-          requirements: offer.requirements || []
-        };
-      }
+      console.warn('Firebase failed, returning null for offer', error);
       return null;
     }
   },
@@ -103,19 +47,8 @@ export const dataProvider = {
     try {
       return await firebaseService.getCandidates();
     } catch (error) {
-      console.warn('Firebase failed, using mock data for candidates', error);
-      return mockCandidates.map(candidate => ({
-        id: candidate.id,
-        name: candidate.name,
-        email: candidate.email,
-        phone: candidate.phone,
-        location: candidate.location,
-        skills: candidate.skills,
-        experiences: candidate.experiences || [],
-        education: candidate.education || [],
-        applications: candidate.applications || [],
-        profilePicture: candidate.profilePicture
-      }));
+      console.warn('Firebase failed, returning empty array for candidates', error);
+      return [];
     }
   },
 
@@ -123,127 +56,45 @@ export const dataProvider = {
     try {
       return await firebaseService.getCandidateById(id);
     } catch (error) {
-      console.warn('Firebase failed, using mock data for candidate', error);
-      const candidate = mockCandidates.find(c => c.id === id);
-      if (candidate) {
-        return {
-          id: candidate.id,
-          name: candidate.name,
-          email: candidate.email,
-          phone: candidate.phone,
-          location: candidate.location,
-          skills: candidate.skills,
-          experiences: candidate.experiences || [],
-          education: candidate.education || [],
-          applications: candidate.applications || [],
-          profilePicture: candidate.profilePicture
-        };
-      }
+      console.warn('Firebase failed, returning null for candidate', error);
       return null;
     }
   },
 
-  // Applications - We'll use Firebase primarily but fallback to mock system
+  // Applications - Return empty array if no data in Firebase
   getApplications: async (userId?: string, offerId?: string): Promise<Application[]> => {
     try {
-      const firebaseApps = await firebaseService.getApplications(userId, offerId);
-      if (firebaseApps.length > 0) {
-        return firebaseApps;
-      } else {
-        // If Firebase has no data, return mock data
-        const mockApps = getMockApplications();
-        return mockApps.map(app => ({
-          id: app.id,
-          studentId: app.studentId || 'mock-student',
-          studentName: app.studentName || 'Mock Student',
-          company: app.company,
-          position: app.position,
-          location: app.location,
-          salary: app.salary,
-          type: app.type,
-          status: app.status || 'pending',
-          appliedDate: app.appliedDate || new Date().toISOString(),
-          offerId: app.offerId,
-          companyId: app.companyId
-        }));
-      }
+      return await firebaseService.getApplications(userId, offerId);
     } catch (error) {
-      console.warn('Firebase failed, using mock data for applications', error);
-      const mockApps = getMockApplications();
-      return mockApps.map(app => ({
-        id: app.id,
-        studentId: app.studentId || 'mock-student',
-        studentName: app.studentName || 'Mock Student',
-        company: app.company,
-        position: app.position,
-        location: app.location,
-        salary: app.salary,
-        type: app.type,
-        status: app.status || 'pending',
-        appliedDate: app.appliedDate || new Date().toISOString(),
-        offerId: app.offerId,
-        companyId: app.companyId
-      }));
+      console.warn('Firebase failed, returning empty array for applications', error);
+      return [];
     }
   },
 
   addApplication: async (applicationData: Omit<Application, 'id' | 'appliedDate'>): Promise<void> => {
     try {
-      // Try to add to Firebase first
-      const id = await firebaseService.addApplication(applicationData);
-      if (!id) {
-        // If Firebase fails or returns null, use mock data function
-        addMockApplication({
-          company: applicationData.company,
-          position: applicationData.position,
-          location: applicationData.location,
-          salary: applicationData.salary,
-          type: applicationData.type,
-          offerId: applicationData.offerId,
-          studentId: applicationData.studentId,
-          studentName: applicationData.studentName,
-          companyId: applicationData.companyId
-        });
-      }
+      await firebaseService.addApplication(applicationData);
     } catch (error) {
-      console.warn('Firebase failed, adding to mock data', error);
-      // Fallback to mock data
-      addMockApplication({
-        company: applicationData.company,
-        position: applicationData.position,
-        location: applicationData.location,
-        salary: applicationData.salary,
-        type: applicationData.type,
-        offerId: applicationData.offerId,
-        studentId: applicationData.studentId,
-        studentName: applicationData.studentName,
-        companyId: applicationData.companyId
-      });
+      console.warn('Firebase failed, application not added', error);
+      throw error; // Re-throw to let calling code handle the error
     }
   },
   
   updateApplication: async (id: string, data: Partial<Application>): Promise<void> => {
     try {
       await firebaseService.updateApplication(id, data);
-      // If Firebase fails, we might want to update mock data as well, but generally
-      // updates to existing applications are less critical than creating new ones
     } catch (error) {
-      console.warn('Firebase failed, updating mock data', error);
+      console.warn('Firebase failed, application not updated', error);
+      throw error; // Re-throw to let calling code handle the error
     }
   },
   
   // User profile operations
   getUserProfile: async (userId: string) => {
     try {
-      const profile = await firebaseService.getUserProfile(userId);
-      if (profile) {
-        return profile;
-      } else {
-        // Fallback to mock data if no profile found in Firebase
-        return null;
-      }
+      return await firebaseService.getUserProfile(userId);
     } catch (error) {
-      console.warn('Firebase failed, getting profile from mock data', error);
+      console.warn('Firebase failed, returning null for user profile', error);
       return null;
     }
   },
@@ -251,25 +102,18 @@ export const dataProvider = {
   saveUserProfile: async (userId: string, profileData: any) => {
     try {
       await firebaseService.saveUserProfile(userId, profileData);
-      // If Firebase succeeds, we don't need to update mock data
     } catch (error) {
-      console.warn('Firebase failed, saving to mock data', error);
-      // Could consider fallback to saving to mock data if needed
+      console.warn('Firebase failed, profile not saved', error);
+      throw error; // Re-throw to let calling code handle the error
     }
   },
   
   // AI Recommendations operations
   getAIRecommendations: async (userId: string): Promise<AIRecommendationsData | null> => {
     try {
-      const recommendations = await firebaseService.getAIRecommendations(userId);
-      if (recommendations) {
-        return recommendations;
-      } else {
-        // Fallback to mock data if no recommendations found in Firebase
-        return null;
-      }
+      return await firebaseService.getAIRecommendations(userId);
     } catch (error) {
-      console.warn('Firebase failed, getting AI recommendations from mock data', error);
+      console.warn('Firebase failed, returning null for AI recommendations', error);
       return null;
     }
   },
@@ -277,10 +121,9 @@ export const dataProvider = {
   saveAIRecommendations: async (recommendations: AIRecommendationsData): Promise<void> => {
     try {
       await firebaseService.saveAIRecommendations(recommendations);
-      // If Firebase succeeds, we don't need to update mock data
     } catch (error) {
-      console.warn('Firebase failed, saving AI recommendations to mock data', error);
-      // Could consider fallback to saving to mock data if needed
+      console.warn('Firebase failed, AI recommendations not saved', error);
+      throw error; // Re-throw to let calling code handle the error
     }
   },
 

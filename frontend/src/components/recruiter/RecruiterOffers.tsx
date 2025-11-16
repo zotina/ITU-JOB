@@ -206,6 +206,11 @@ const RecruiterOffers = () => {
                   <RecommendedProfiles offerTitle={offer.title} />
                   <Button size="sm" onClick={() => navigate(`/recruiter/candidates?offerId=${offer.id}`)}>
                     Voir candidatures
+                    {offer.nbCandidatures !== undefined && (
+                      <Badge variant="secondary" className="ml-2">
+                        {offer.nbCandidatures}
+                      </Badge>
+                    )}
                   </Button>
                 </div>
               </div>

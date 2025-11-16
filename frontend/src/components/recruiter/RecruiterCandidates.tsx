@@ -4,8 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MapPin, Star, CheckCircle, X, MessageCircle, Send, Filter, User } from 'lucide-react';
-import { mockCandidates } from '@/data/mockData';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { SearchInput } from '@/components/ui/search-input';
 import { 
@@ -16,56 +15,73 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { dataProvider } from '@/data/dataProvider';
+import { Application } from '@/services/firebaseService';
 
 const RecruiterCandidates = () => {
   const navigate = useNavigate();
-  const [candidates, setCandidates] = useState(mockCandidates);
+  const [searchParams] = useSearchParams();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const offerId = searchParams.get('offerId');
+  
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [locationFilter, setLocationFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('match');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
-  const { toast } = useToast();
 
-  // Filtrage et tri des candidats
-  const filteredCandidates = useMemo(() => {
-    let filtered = candidates.filter(candidate => {
-      const matchesSearch = candidate.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           candidate.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           candidate.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase()));
-      const matchesStatus = statusFilter === 'all' || candidate.status === statusFilter;
-      const matchesLocation = locationFilter === 'all' || candidate.location.includes(locationFilter);
-      
-      return matchesSearch && matchesStatus && matchesLocation;
-    });
-
-    // Tri
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'match':
-          return b.matchingScore - a.matchingScore;
-        case 'name':
-          return a.name.localeCompare(b.name);
-        case 'experience':
-          return b.experience.localeCompare(a.experience);
-        default:
-          return 0;
+  // Fetch applications for the specific offer or all applications for the user's company
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        setLoading(true);
+        if (user && offerId) {
+          // Get only applications for this specific offer
+          const apps = await dataProvider.getApplications(user.id, offerId);
+          setApplications(apps);
+        } else if (user) {
+          console.log('Fetching all applications for company = ' + user.id);
+          // If no offer ID, get all applications for the user's company
+          const apps = await dataProvider.getApplications(user.id);
+          setApplications(apps);
+        } else {
+          setApplications([]);
+        }
+      } catch (error) {
+        console.error('Error fetching applications:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les candidatures.",
+          variant: "destructive",
+        });
+        setApplications([]);
+      } finally {
+        setLoading(false);
       }
-    });
+    };
 
-    return filtered;
-  }, [candidates, searchTerm, statusFilter, locationFilter, sortBy]);
+    fetchApplications();
+  }, [user, offerId, toast]);
+
+  // Filter applications based on search term and status
+  const filteredApplications = useMemo(() => {
+    return applications.filter(app => {
+      const matchesSearch = app.studentName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           app.position.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
+      
+      return matchesSearch && matchesStatus;
+    });
+  }, [applications, searchTerm, statusFilter]);
 
   // Pagination
-  const totalPages = Math.ceil(filteredCandidates.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredApplications.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedCandidates = filteredCandidates.slice(startIndex, startIndex + itemsPerPage);
-
-  // Obtenir les valeurs uniques pour les filtres
-  const uniqueLocations = [...new Set(candidates.map(candidate => candidate.location))];
-  const uniqueStatuses = [...new Set(candidates.map(candidate => candidate.status))];
+  const paginatedApplications = filteredApplications.slice(startIndex, startIndex + itemsPerPage);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -83,39 +99,72 @@ const RecruiterCandidates = () => {
     }
   };
 
-  const handleAcceptCandidate = (candidateId: string) => {
-    setCandidates(prev => 
-      prev.map(candidate => 
-        candidate.id === candidateId 
-          ? { ...candidate, status: 'accepted' }
-          : candidate
-      )
-    );
-    
-    // Envoyer la notification prédéfinie
-    const candidate = candidates.find(c => c.id === candidateId);
-    toast({
-      title: "Candidature acceptée",
-      description: `Notification envoyée à ${candidate?.name}`,
-    });
+  const handleAcceptApplication = async (applicationId: string, studentName: string) => {
+    try {
+      await dataProvider.updateApplication(applicationId, { status: 'accepted' });
+      setApplications(prev => 
+        prev.map(app => 
+          app.id === applicationId 
+            ? { ...app, status: 'accepted' }
+            : app
+        )
+      );
+      
+      toast({
+        title: "Candidature acceptée",
+        description: `La candidature de ${studentName} a été acceptée.`,
+      });
+    } catch (error) {
+      console.error('Error accepting application:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'accepter la candidature.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleRejectCandidate = (candidateId: string) => {
-    setCandidates(prev => 
-      prev.map(candidate => 
-        candidate.id === candidateId 
-          ? { ...candidate, status: 'rejected' }
-          : candidate
-      )
-    );
+  const handleRejectApplication = async (applicationId: string, studentName: string) => {
+    try {
+      await dataProvider.updateApplication(applicationId, { status: 'rejected' });
+      setApplications(prev => 
+        prev.map(app => 
+          app.id === applicationId 
+            ? { ...app, status: 'rejected' }
+            : app
+        )
+      );
+      
+      toast({
+        title: "Candidature rejetée",
+        description: `La candidature de ${studentName} a été rejetée.`,
+      });
+    } catch (error) {
+      console.error('Error rejecting application:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de rejeter la candidature.",
+        variant: "destructive",
+      });
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="p-6 flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Candidatures</h1>
+        <h1 className="text-2xl font-bold">
+          {offerId ? "Candidatures pour l'offre sélectionnée" : "Toutes les candidatures"}
+        </h1>
         <Badge variant="secondary">
-          {filteredCandidates.length} candidat{filteredCandidates.length !== 1 ? 's' : ''}
+          {filteredApplications.length} candidature{filteredApplications.length !== 1 ? 's' : ''}
         </Badge>
       </div>
 
@@ -123,12 +172,12 @@ const RecruiterCandidates = () => {
       <Card>
         <CardContent className="p-4 space-y-4">
           <SearchInput
-            placeholder="Rechercher par nom, titre ou compétence..."
+            placeholder="Rechercher par nom ou poste..."
             value={searchTerm}
             onChange={setSearchTerm}
           />
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="Statut" />
@@ -141,34 +190,9 @@ const RecruiterCandidates = () => {
               </SelectContent>
             </Select>
 
-            <Select value={locationFilter} onValueChange={setLocationFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Localisation" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toutes les villes</SelectItem>
-                {uniqueLocations.map(location => (
-                  <SelectItem key={location} value={location}>{location}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger>
-                <SelectValue placeholder="Trier par" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="match">Meilleur match</SelectItem>
-                <SelectItem value="name">Nom</SelectItem>
-                <SelectItem value="experience">Expérience</SelectItem>
-              </SelectContent>
-            </Select>
-
             <Button variant="outline" onClick={() => {
               setSearchTerm('');
               setStatusFilter('all');
-              setLocationFilter('all');
-              setSortBy('match');
               setCurrentPage(1);
             }}>
               <Filter className="w-4 h-4 mr-2" />
@@ -179,24 +203,23 @@ const RecruiterCandidates = () => {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {paginatedCandidates.map((candidate) => (
-          <Card key={candidate.id} className="hover:shadow-elegant transition-all duration-300">
+        {paginatedApplications.map((application) => (
+          <Card key={application.id} className="hover:shadow-elegant transition-all duration-300">
             <CardHeader className="pb-4">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <Avatar className="w-12 h-12">
                     <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                      {candidate.name.split(' ').map(n => n[0]).join('')}
+                      {application.studentName?.split(' ').map(n => n[0]).join('') || 'NA'}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <CardTitle className="text-lg">{candidate.name}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{candidate.title}</p>
+                    <CardTitle className="text-lg">{application.studentName || 'Nom inconnu'}</CardTitle>
+                    <p className="text-sm text-muted-foreground">{application.position}</p>
                   </div>
                 </div>
-                <Badge variant="secondary" className="bg-green-100 text-green-700 font-semibold">
-                  <Star className="w-3 h-3 mr-1" />
-                  {candidate.matchingScore}%
+                <Badge variant="secondary" className={getStatusColor(application.status)}>
+                  {getStatusText(application.status)}
                 </Badge>
               </div>
             </CardHeader>
@@ -204,68 +227,58 @@ const RecruiterCandidates = () => {
             <CardContent className="space-y-4">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <MapPin className="w-4 h-4" />
-                {candidate.location}
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Compétences principales :</p>
-                <div className="flex flex-wrap gap-1">
-                  {candidate.skills.slice(0, 3).map((skill) => (
-                    <Badge key={skill} variant="outline" className="text-xs">
-                      {skill}
-                    </Badge>
-                  ))}
-                  {candidate.skills.length > 3 && (
-                    <Badge variant="outline" className="text-xs">
-                      +{candidate.skills.length - 3}
-                    </Badge>
-                  )}
-                </div>
+                {application.location}
               </div>
 
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
-                  <span className="text-muted-foreground">Expérience:</span>
-                  <p className="font-medium">{candidate.experience}</p>
+                  <span className="text-muted-foreground">Type:</span>
+                  <p className="font-medium">{application.type}</p>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Disponibilité:</span>
-                  <p className="font-medium">{candidate.availability}</p>
+                  <span className="text-muted-foreground">Salaire:</span>
+                  <p className="font-medium">{application.salary || 'Non spécifié'}</p>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <p className="text-sm font-medium">Candidatures :</p>
-                {candidate.appliedJobs.map((job, index) => (
-                  <div key={index} className="text-xs p-2 bg-muted rounded flex items-center justify-between">
-                    <span>{job}</span>
-                    <Badge className={getStatusColor(candidate.status)}>
-                      {getStatusText(candidate.status)}
-                    </Badge>
-                  </div>
-                ))}
+                <p className="text-sm font-medium">Postulé pour:</p>
+                <div className="text-xs p-2 bg-muted rounded">
+                  {application.offerId}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Date de candidature:</p>
+                <div className="text-xs p-2 bg-muted rounded">
+                  {new Date(application.appliedDate).toLocaleDateString('fr-FR')}
+                </div>
               </div>
 
               <div className="flex gap-2 pt-2">
                 <Button 
                   size="sm" 
                   className="flex-1"
-                  onClick={() => handleAcceptCandidate(candidate.id)}
-                  disabled={candidate.status !== 'pending'}
+                  onClick={() => handleAcceptApplication(application.id, application.studentName || 'Candidat')}
+                  disabled={application.status !== 'pending'}
                 >
                   <CheckCircle className="w-4 h-4 mr-1" />
                   Accepter
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1"
-                  onClick={() => handleRejectCandidate(candidate.id)}
-                  disabled={candidate.status !== 'pending'}>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1"
+                  onClick={() => handleRejectApplication(application.id, application.studentName || 'Candidat')}
+                  disabled={application.status !== 'pending'}
+                >
                   <X className="w-4 h-4 mr-1" />
                   Refuser
                 </Button>
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => navigate(`/recruiter/student-profile/${candidate.id}`)}
+                  onClick={() => navigate(`/recruiter/student-profile/${application.studentId}`)}
                 >
                   <User className="w-4 h-4 mr-1" />
                   Voir profil
