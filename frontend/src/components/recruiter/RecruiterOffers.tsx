@@ -165,7 +165,14 @@ const RecruiterOffers = () => {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div>
-                  <CardTitle className="text-xl">{offer.title}</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-xl">{offer.title}</CardTitle>
+                    {offer.isNouveau && (
+                      <Badge variant="default" className="bg-green-100 text-green-800">
+                        Nouveau
+                      </Badge>
+                    )}
+                  </div>
                   <p className="text-muted-foreground mt-1">{offer.location} • {offer.type}</p>
                 </div>
                 <div className="flex gap-2">

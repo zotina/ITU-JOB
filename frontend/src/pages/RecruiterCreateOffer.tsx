@@ -10,12 +10,26 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Plus, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/hooks/useAuth';
+import { dataProvider } from '@/data/dataProvider';
+import { JobOffer } from '@/services/firebaseService';
 
 const RecruiterCreateOffer = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [anonymousPost, setAnonymousPost] = useState(false);
+  const [title, setTitle] = useState('');
+  const [company, setCompany] = useState('');
+  const [type, setType] = useState('');
+  const [location, setLocation] = useState('');
+  const [salaryMin, setSalaryMin] = useState('');
+  const [salaryMax, setSalaryMax] = useState('');
+  const [description, setDescription] = useState('');
   const [technologies, setTechnologies] = useState<string[]>([]);
   const [newTech, setNewTech] = useState('');
+  const [experience, setExperience] = useState('');
+  const [deadline, setDeadline] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAddTechnology = () => {
     if (newTech.trim() && !technologies.includes(newTech.trim())) {
@@ -28,10 +42,59 @@ const RecruiterCreateOffer = () => {
     setTechnologies(technologies.filter(t => t !== tech));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success('Offre créée avec succès !');
-    navigate('/recruiter/offers');
+    
+    if (!user) {
+      toast.error('Vous devez être connecté pour créer une offre');
+      return;
+    }
+    
+    if (!title || !type || !location || !description) {
+      toast.error('Veuillez remplir les champs obligatoires');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Get recruiter's company information
+      const recruiterProfile = await dataProvider.getUserProfile(user.id);
+      const companyName = recruiterProfile?.company?.name || recruiterProfile?.companyName || company;
+      const recruiterId = user.id;
+      
+      // Format salary
+      const salary = salaryMin && salaryMax 
+        ? `${salaryMin} - ${salaryMax} MGA`
+        : salaryMin 
+          ? `${salaryMin} MGA`
+          : 'Non spécifié';
+      
+      // Create the offer object
+      const newOffer: Omit<JobOffer, 'id' | 'matchingScore' | 'nbCandidatures'> = {
+        title,
+        company: companyName,
+        location,
+        salary,
+        type,
+        technologies,
+        description,
+        status: 'active',
+        postedDate: new Date().toISOString().split('T')[0],
+        deadline,
+        requirements: experience ? [experience] : [] // Store experience as a requirement
+      };
+      
+      // Add to Firestore using the dataProvider
+      await dataProvider.createOffer(newOffer, user.id);
+      toast.success('Offre créée avec succès !');
+      navigate('/recruiter/offers');
+    } catch (error) {
+      console.error('Error creating offer:', error);
+      toast.error('Erreur lors de la création de l\'offre');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -72,6 +135,8 @@ const RecruiterCreateOffer = () => {
               <Input
                 id="title"
                 placeholder="Ex: Développeur Full Stack"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 required
               />
             </div>
@@ -83,7 +148,9 @@ const RecruiterCreateOffer = () => {
                 <Input
                   id="company"
                   placeholder="Nom de l'entreprise"
-                  required
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  required={!anonymousPost}
                 />
               </div>
             )}
@@ -91,7 +158,7 @@ const RecruiterCreateOffer = () => {
             {/* Type de contrat */}
             <div className="space-y-2">
               <Label htmlFor="type">Type de contrat *</Label>
-              <Select required>
+              <Select value={type} onValueChange={setType} required>
                 <SelectTrigger id="type">
                   <SelectValue placeholder="Sélectionner le type" />
                 </SelectTrigger>
@@ -111,6 +178,8 @@ const RecruiterCreateOffer = () => {
               <Input
                 id="location"
                 placeholder="Ex: Antananarivo, Madagascar"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
                 required
               />
             </div>
@@ -122,6 +191,8 @@ const RecruiterCreateOffer = () => {
                 <Input
                   id="salaryMin"
                   type="number"
+                  value={salaryMin}
+                  onChange={(e) => setSalaryMin(e.target.value)}
                   // placeholder="Ex: 35000"
                 />
               </div>
@@ -130,6 +201,8 @@ const RecruiterCreateOffer = () => {
                 <Input
                   id="salaryMax"
                   type="number"
+                  value={salaryMax}
+                  onChange={(e) => setSalaryMax(e.target.value)}
                   // placeholder="Ex: 45000"
                 />
               </div>
@@ -141,6 +214,8 @@ const RecruiterCreateOffer = () => {
               <Textarea
                 id="description"
                 placeholder="Décrivez le poste, les missions, et les responsabilités..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 rows={6}
                 required
               />
@@ -186,7 +261,7 @@ const RecruiterCreateOffer = () => {
             {/* Niveau d'expérience */}
             <div className="space-y-2">
               <Label htmlFor="experience">Niveau d'expérience requis</Label>
-              <Select>
+              <Select value={experience} onValueChange={setExperience}>
                 <SelectTrigger id="experience">
                   <SelectValue placeholder="Sélectionner le niveau" />
                 </SelectTrigger>
@@ -204,13 +279,21 @@ const RecruiterCreateOffer = () => {
               <Input
                 id="deadline"
                 type="date"
+                value={deadline}
+                onChange={(e) => setDeadline(e.target.value)}
               />
             </div>
 
             {/* Boutons d'action */}
             <div className="flex gap-4 pt-4">
-              <Button type="submit" className="flex-1">
-                Publier l'offre
+              <Button type="submit" className="flex-1" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <span className="mr-2">Création en cours...</span>
+                  </>
+                ) : (
+                  'Publier l\'offre'
+                )}
               </Button>
               <Button
                 type="button"

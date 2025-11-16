@@ -42,6 +42,15 @@ export const dataProvider = {
     }
   },
 
+  createOffer: async (offerData: Omit<JobOffer, 'id' | 'matchingScore' | 'nbCandidatures'>, userId: string): Promise<string> => {
+    try {
+      return await firebaseService.createOffer(offerData, userId);
+    } catch (error) {
+      console.warn('Firebase failed, offer not created', error);
+      throw error; // Re-throw to let calling code handle the error
+    }
+  },
+
   // Candidates
   getCandidates: async (): Promise<Candidate[]> => {
     try {

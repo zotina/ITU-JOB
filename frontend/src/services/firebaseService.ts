@@ -45,6 +45,8 @@ export interface JobOffer {
   deadline?: string;
   requirements?: string[];
   nbCandidatures?: number; // Add number of applications field
+  isNouveau?: boolean; // Add nouveau flag
+  nouveauUntil?: string; // Add date until which it's nouveau
 }
 
 export interface Candidate {
@@ -223,14 +225,30 @@ class FirebaseService {
           } as JobOffer;
         });
 
-        // Count applications for each offer
+        // Update the isNouveau status based on time and count applications for each offer
+        const now = new Date();
         for (const offer of offers) {
+          // Count applications
           const applicationsQuery = query(
             collection(db, 'applications'),
             where('offerId', '==', offer.id)
           );
           const applicationsSnapshot = await getDocs(applicationsQuery);
           offer.nbCandidatures = applicationsSnapshot.size;
+
+          // Check if isNouveau status should be removed
+          if (offer.isNouveau && offer.nouveauUntil) {
+            const nouveauUntilDate = new Date(offer.nouveauUntil);
+            if (now > nouveauUntilDate) {
+              // Update the offer in Firestore to remove the nouveau status
+              const offerRef = doc(db, 'offers', offer.id);
+              await updateDoc(offerRef, {
+                isNouveau: false
+              });
+              // Update the local offer object
+              offer.isNouveau = false;
+            }
+          }
         }
 
         return offers;
@@ -242,6 +260,55 @@ class FirebaseService {
       console.error('Error getting offers:', error);
       // Don't fall back to mock data, return empty array instead
       return [];
+    }
+  }
+
+  // Create a new job offer
+  async createOffer(offerData: Omit<JobOffer, 'id' | 'matchingScore' | 'nbCandidatures'>, userId: string): Promise<string> {
+    try {
+      const useFirebase = await this.ensureInitialized();
+      if (useFirebase && this.currentUser) {
+        // Get user profile to get company information
+        const userDoc = await getDoc(doc(db, 'users', userId));
+        let companyName = '';
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          companyName = userData.company?.name || userData.companyName || 'Unknown Company';
+        }
+        
+        // Prepare the offer data to store in Firestore
+        const offerToStore = {
+          ...offerData,
+          companyName: companyName, // Store the company name separately for easy querying
+          recruiterId: userId, // Store the recruiter ID for authorization
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          nbCandidatures: 0, // Initialize with 0 applications
+          isNouveau: true, // Add the nouveau flag
+          nouveauUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // Show as nouveau for 7 days
+        };
+
+        // Add the offer to Firestore
+        const docRef = await addDoc(collection(db, 'offers'), offerToStore);
+        
+        // Update user's statistics
+        const userRef = doc(db, 'users', userId);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const currentStats = userSnap.data().stats || {};
+          const currentTotalOffers = currentStats.totalOffers || 0;
+          await updateDoc(userRef, {
+            'stats.totalOffers': currentTotalOffers + 1
+          });
+        }
+        
+        return docRef.id;
+      } else {
+        throw new Error('Firebase not initialized or no user authenticated');
+      }
+    } catch (error) {
+      console.error('Error creating offer:', error);
+      throw error;
     }
   }
 
