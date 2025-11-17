@@ -5,7 +5,8 @@ import { dataProvider } from "@/data/dataProvider";
 
 export interface ProfileData {
   personalInfo: {
-    name: string;
+    nom: string;
+    prenom : string;
     title?: string;
     description?: string;
     email: string;
@@ -61,8 +62,12 @@ const initialProfileData: ProfileData = {
 
 import { useAuth } from './useAuth';
 
-export const useProfileData = () => {
-  const { user } = useAuth();
+interface UseProfileDataOptions {
+  specificUserId?: string; // Option to load a specific user's profile instead of the current user's
+}
+
+export const useProfileData = (options?: UseProfileDataOptions) => {
+  const { user: currentUser } = useAuth();
   const [profileData, setProfileData] = useState<ProfileData>(initialProfileData);
   const [isEditing, setIsEditing] = useState(false);
   const [editingData, setEditingData] = useState<ProfileData>(initialProfileData);
@@ -85,9 +90,10 @@ export const useProfileData = () => {
       // Mettre à jour les données dans mockData
       updateStudentProfile({ ...editingData });
       
-      // Sauvegarder sur Firestore si l'utilisateur est authentifié
-      if (user) {
-        await dataProvider.saveUserProfile(user.id, editingData);
+      // Sauvegarder sur Firestore si l'utilisateur est authentifié et que ce n'est pas une consultation
+      // (si specificUserId est fourni, on ne sauvegarde pas car c'est une visualisation de profil d'autrui)
+      if (currentUser && !options?.specificUserId) {
+        await dataProvider.saveUserProfile(currentUser.id, editingData);
         
         // Si le nom dans personalInfo a été mis à jour, envoyer un événement pour mettre à jour le contexte d'authentification
         if (editingData.personalInfo?.name) {
@@ -95,13 +101,13 @@ export const useProfileData = () => {
           // Extraire le prénom et le nom de famille à partir du nom complet
           const nameParts = newName.split(' ');
           const updatedFirstName = nameParts[0];
-          const updatedLastName = nameParts.slice(1).join(' ') || user.nom;
+          const updatedLastName = nameParts.slice(1).join(' ') || currentUser.nom;
           
           // Si le nom a changé, envoyer un événement personnalisé pour mettre à jour le contexte
-          if (updatedFirstName !== user.prenom || updatedLastName !== user.nom) {
+          if (updatedFirstName !== currentUser.prenom || updatedLastName !== currentUser.nom) {
             // Créer un nouvel objet utilisateur avec les nouvelles données
             const updatedUser = {
-              ...user,
+              ...currentUser,
               prenom: updatedFirstName,
               nom: updatedLastName
             };
@@ -177,28 +183,35 @@ export const useProfileData = () => {
     }));
   };
 
-  // Charger le profil depuis Firestore si l'utilisateur est authentifié
+  // Charger le profil depuis Firestore
   useEffect(() => {
-    if (user) {
-      // Charger le profil depuis Firestore
-      const loadProfile = async () => {
-        try {
-          setIsLoading(true);
-          const profileFromFirestore = await dataProvider.getUserProfile(user.id);
+    const loadProfile = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Determine which user's profile to load
+        const userIdToLoad = options?.specificUserId || currentUser?.id;
+        
+        if (userIdToLoad) {
+          const profileFromFirestore = await dataProvider.getUserProfile(userIdToLoad);
           if (profileFromFirestore) {
             setProfileData(profileFromFirestore);
             setEditingData(profileFromFirestore);
           }
-        } catch (error) {
-          console.error('Error loading profile:', error);
-        } finally {
-          setIsLoading(false);
+        } else {
+          // If no user is authenticated and no specific user ID is provided, use the initial data
+          setProfileData(initialProfileData);
+          setEditingData(initialProfileData);
         }
-      };
-      
-      loadProfile();
-    }
-  }, [user]);
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadProfile();
+  }, [currentUser?.id, options?.specificUserId]);
 
   return {
     profileData: isEditing ? editingData : profileData,

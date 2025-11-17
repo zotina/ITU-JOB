@@ -19,7 +19,7 @@ interface EditableProfileHeaderProps {
 }
 
 const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing, hideHeader = false }: EditableProfileHeaderProps) => {
-  const { personalInfo } = profileData;
+  const personalInfo = profileData?.personalInfo || {};
 
   const updatePersonalInfo = (field: string, value: string | boolean | [number, number]) => {
     onUpdate({
@@ -45,7 +45,7 @@ const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing,
       <Card className="p-8 bg-gradient-to-br from-card to-muted/20 border-0 shadow-elegant">
         <div className="flex flex-col md:flex-row gap-8 items-start">
           <ImageUpload
-            currentImage={personalInfo.profileImage}
+            currentImage={personalInfo.profileImage || ''}
             onImageChange={(imageUrl) => updatePersonalInfo("profileImage", imageUrl)}
           />
           
@@ -53,11 +53,11 @@ const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing,
             <div className="space-y-4">
               <div>
                 <Label htmlFor="name" className="flex items-center">Nom complet
-                  {!personalInfo.name && <span className="ml-2 w-2 h-2 rounded-full bg-red-500"></span>}
+                  {!personalInfo.nom && <span className="ml-2 w-2 h-2 rounded-full bg-red-500"></span>}
                 </Label>
                 <Input
                   id="name"
-                  value={personalInfo.name}
+                  value={personalInfo.nom || ''}
                   onChange={(e) => updatePersonalInfo("name", e.target.value)}
                   className="text-2xl font-bold"
                 />
@@ -69,7 +69,7 @@ const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing,
                 </Label>
                 <Input
                   id="title"
-                  value={personalInfo.title}
+                  value={personalInfo.title || ''}
                   onChange={(e) => updatePersonalInfo("title", e.target.value)}
                   className="text-lg"
                 />
@@ -81,7 +81,7 @@ const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing,
                 </Label>
                 <Textarea
                   id="description"
-                  value={personalInfo.description}
+                  value={personalInfo.description || ''}
                   onChange={(e) => updatePersonalInfo("description", e.target.value)}
                   className="min-h-[100px]"
                 />
@@ -95,7 +95,7 @@ const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing,
                 </Label>
                 <Input
                   id="email"
-                  value={personalInfo.email}
+                  value={personalInfo.email || ''}
                   onChange={(e) => updatePersonalInfo("email", e.target.value)}
                   type="email"
                 />
@@ -107,7 +107,7 @@ const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing,
                 </Label>
                 <Input
                   id="phone"
-                  value={personalInfo.phone}
+                  value={personalInfo.phone || ''}
                   onChange={(e) => updatePersonalInfo("phone", e.target.value)}
                 />
               </div>
@@ -118,7 +118,7 @@ const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing,
                 </Label>
                 <Input
                   id="linkedin"
-                  value={personalInfo.linkedin}
+                  value={personalInfo.linkedin || ''}
                   onChange={(e) => updatePersonalInfo("linkedin", e.target.value)}
                 />
               </div>
@@ -153,7 +153,7 @@ const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing,
                 </Label>
                 <Input
                   id="availability"
-                  value={personalInfo.availability}
+                  value={personalInfo.availability || ''}
                   onChange={(e) => updatePersonalInfo("availability", e.target.value)}
                 />
               </div>
@@ -161,7 +161,7 @@ const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing,
               <div className="flex items-center space-x-2">
                 <Switch
                   id="remote-work"
-                  checked={personalInfo.remoteWork}
+                  checked={!!personalInfo.remoteWork}
                   onCheckedChange={(checked) => updatePersonalInfo("remoteWork", checked)}
                 />
                 <Label htmlFor="remote-work">Télétravail possible</Label>
@@ -183,7 +183,7 @@ const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing,
       <div className="flex flex-col md:flex-row gap-8 items-start">
         <div className="relative">
           <img
-            src={personalInfo.profileImage}
+            src={personalInfo.profileImage || '/src/assets/default-avatar.png'}
             alt="Photo de profil"
             className="w-32 h-32 rounded-2xl object-cover shadow-card"
           />
@@ -194,27 +194,27 @@ const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing,
           <div>
             {!hideHeader && (
               <>
-                <h1 className="text-3xl font-bold text-foreground mb-2">{personalInfo.name}</h1>
-                <p className="text-xl text-muted-foreground mb-3">{personalInfo.title}</p>
+                <h1 className="text-3xl font-bold text-foreground mb-2">{profileData.nom + " " + profileData.prenom  || 'Nom non spécifié'}</h1>
+                <p className="text-xl text-muted-foreground mb-3">{personalInfo.title || 'Titre non spécifié'}</p>
               </>
             )}
             <p className="text-muted-foreground max-w-2xl leading-relaxed">
-              {personalInfo.description}
+              {personalInfo.description || 'Aucune description disponible'}
             </p>
           </div>
           
           <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4 text-primary" />
-              <span>{personalInfo.email}</span>
+              <span>{personalInfo.email || 'Email non spécifié'}</span>
             </div>
             <div className="flex items-center gap-2">
               <Phone className="w-4 h-4 text-primary" />
-              <span>{personalInfo.phone}</span>
+              <span>{personalInfo.phone || 'Téléphone non spécifié'}</span>
             </div>
             <div className="flex items-center gap-2">
               <Linkedin className="w-4 h-4 text-primary" />
-              <span>{personalInfo.linkedin}</span>
+              <span>{personalInfo.linkedin || 'LinkedIn non spécifié'}</span>
             </div>
             {personalInfo.github && (
               <div className="flex items-center gap-2">
@@ -232,7 +232,7 @@ const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing,
           
           <div className="flex flex-wrap gap-2 pt-2">
             <Badge variant="secondary" className="bg-accent-light text-accent-foreground">
-              {personalInfo.availability}
+              {personalInfo.availability || 'Disponibilité non spécifiée'}
             </Badge>
             {personalInfo.remoteWork && (
               <Badge variant="outline">Télétravail possible</Badge>

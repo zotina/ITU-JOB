@@ -4,9 +4,13 @@ import StudentRecommendations from "@/components/student/StudentRecommendations"
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { User, Sparkles } from "lucide-react";
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 
-const StudentProfile = ({ isRecruiterView = false }: { isRecruiterView?: boolean }) => {
+const StudentProfile = ({ isRecruiterView = false, studentId }: { isRecruiterView?: boolean; studentId?: string }) => {
+  // Extract studentId from URL if not provided as prop
+  const { id: urlStudentId } = useParams();
+  const actualStudentId = studentId || urlStudentId;
+  
   const { 
     profileData, 
     isEditing, 
@@ -14,7 +18,7 @@ const StudentProfile = ({ isRecruiterView = false }: { isRecruiterView?: boolean
     cancelEditing, 
     saveChanges, 
     updateEditingData 
-  } = useProfileData();
+  } = useProfileData(actualStudentId ? { specificUserId: actualStudentId } : undefined);
   
   const { toast } = useToast();
   const location = useLocation();
