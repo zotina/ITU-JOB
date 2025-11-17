@@ -2,8 +2,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Star, MapPin, Mail, User, Loader2 } from 'lucide-react';
+import { Star, MapPin, Mail, User, Loader2, Info } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { dataProvider } from '@/data/dataProvider';
@@ -20,6 +21,8 @@ const RecommendedProfiles = ({ offerTitle, offerId }: RecommendedProfilesProps) 
   const [recommendedStudents, setRecommendedStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<any>(null);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
 
   // Load recommended students when dialog is opened
   useEffect(() => {
@@ -57,88 +60,173 @@ const RecommendedProfiles = ({ offerTitle, offerId }: RecommendedProfilesProps) 
     }
   };
 
+  const showMatchingDetails = (student: any) => {
+    setSelectedStudent(student);
+    setDetailsDialogOpen(true);
+  };
+
   return (
-    <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Star className="w-4 h-4 mr-2" />
-          Profils recommandés
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Profils recommandés pour : {offerTitle}</DialogTitle>
-        </DialogHeader>
-        
-        <div className="space-y-4 mt-4">
-          {loading ? (
-            <div className="flex items-center justify-center h-40">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            </div>
-          ) : recommendedStudents.length > 0 ? (
-            recommendedStudents.map((student) => (
-              <Card key={student.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-4">
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={student.avatar} />
-                      <AvatarFallback>{student.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                    </Avatar>
-                    
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h4 className="font-semibold">{student.name}</h4>
-                          <p className="text-sm text-muted-foreground">{student.level}</p>
+    <TooltipProvider>
+      <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm">
+            <Star className="w-4 h-4 mr-2" />
+            Profils recommandés
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Profils recommandés pour : {offerTitle}</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 mt-4">
+            {loading ? (
+              <div className="flex items-center justify-center h-40">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            ) : recommendedStudents.length > 0 ? (
+              recommendedStudents.map((student) => (
+                <Card key={student.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-4">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={student.avatar} />
+                        <AvatarFallback>{student.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                      </Avatar>
+                      
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h4 className="font-semibold">{student.name}</h4>
+                            <p className="text-sm text-muted-foreground">{student.level}</p>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div 
+                                  className="flex items-center gap-1 cursor-pointer"
+                                  onClick={() => showMatchingDetails(student)}
+                                >
+                                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                                  <span className="text-sm font-medium">{student.matchScore}%</span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-sm bg-gray-800 text-white p-3">
+                                <p className="text-sm font-semibold mb-1">Détails du matching:</p>
+                                {student.matchingDetails && student.matchingDetails.length > 0 ? (
+                                  <ul className="text-xs list-disc list-inside space-y-1">
+                                    {student.matchingDetails.slice(0, 3).map((detail: string, index: number) => (
+                                      <li key={index}>{detail}</li>
+                                    ))}
+                                    {student.matchingDetails.length > 3 && (
+                                      <li>+ {student.matchingDetails.length - 3} détails</li>
+                                    )}
+                                  </ul>
+                                ) : (
+                                  <p className="text-xs">Aucun détail disponible</p>
+                                )}
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                          <span className="text-sm font-medium">{student.matchScore}%</span>
+                        
+                        <div className="flex flex-wrap gap-1">
+                          {student.skills.slice(0, 5).map((skill: string) => ( // Show only first 5 skills
+                            <Badge key={skill} variant="secondary" className="text-xs">
+                              {skill}
+                            </Badge>
+                          ))}
+                          {student.skills.length > 5 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{student.skills.length - 5}
+                            </Badge>
+                          )}
                         </div>
-                      </div>
-                      
-                      <div className="flex flex-wrap gap-1">
-                        {student.skills.slice(0, 5).map((skill: string) => ( // Show only first 5 skills
-                          <Badge key={skill} variant="secondary" className="text-xs">
-                            {skill}
-                          </Badge>
-                        ))}
-                        {student.skills.length > 5 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{student.skills.length - 5}
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <MapPin className="w-3 h-3" />
-                        <span>{student.location}</span>
-                      </div>
-                      
-                      <div className="flex gap-2 pt-1">
-                        <Button 
-                          size="sm" 
-                          variant="ghost"
-                          onClick={() => navigate(`/recruiter/student-profile/${student.id}`)}
-                        >
-                          <User className="w-4 h-4 mr-1" />
-                          Voir profil
-                        </Button>
+                        
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <MapPin className="w-3 h-3" />
+                          <span>{student.location}</span>
+                        </div>
+                        
+                        <div className="flex gap-2 pt-1">
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => navigate(`/recruiter/student-profile/${student.id}`)}
+                          >
+                            <User className="w-4 h-4 mr-1" />
+                            Voir profil
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          ) : !loading && recommendedStudents.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <p>Aucun profil recommandé trouvé pour cette offre.</p>
-              <p className="text-sm mt-1">Les profils seront analysés par l'IA pour trouver les meilleurs matchs.</p>
-            </div>
-          ) : null}
-        </div>
-      </DialogContent>
-    </Dialog>
+                  </CardContent>
+                </Card>
+              ))
+            ) : !loading && recommendedStudents.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>Aucun profil recommandé trouvé pour cette offre.</p>
+                <p className="text-sm mt-1">Les profils seront analysés par l'IA pour trouver les meilleurs matchs.</p>
+              </div>
+            ) : null}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog for showing full matching details */}
+      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Détails du matching pour {selectedStudent?.name}</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {selectedStudent && (
+              <>
+                <div className="flex items-center gap-2">
+                  <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                  <span className="text-lg font-bold">{selectedStudent.matchScore}%</span>
+                  <span className="text-muted-foreground">de correspondance</span>
+                </div>
+                
+                <div className="space-y-3">
+                  <h4 className="font-semibold">Critères de correspondance:</h4>
+                  {selectedStudent.matchingDetails && selectedStudent.matchingDetails.length > 0 ? (
+                    <ul className="list-disc list-inside space-y-2">
+                      {selectedStudent.matchingDetails.map((detail: string, index: number) => (
+                        <li key={index} className="text-sm p-2 bg-muted rounded">
+                          {detail}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-muted-foreground text-sm">Aucun détail de matching disponible.</p>
+                  )}
+                </div>
+                
+                <div className="flex gap-2 pt-2">
+                  <Button 
+                    size="sm" 
+                    variant="ghost"
+                    onClick={() => navigate(`/recruiter/student-profile/${selectedStudent.id}`)}
+                  >
+                    <User className="w-4 h-4 mr-1" />
+                    Voir profil complet
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => setDetailsDialogOpen(false)}
+                  >
+                    Fermer
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </TooltipProvider>
   );
 };
 

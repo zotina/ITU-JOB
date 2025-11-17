@@ -213,6 +213,7 @@ Analyse maintenant la demande de l'utilisateur et réponds en JSON pur sans mark
     if (role === 'recruteur') {
       return [
         ...common,
+        { name: 'rechercher_etudiants', description: 'Recherche des étudiants selon critères' },
         { name: 'creer_offre', description: 'Crée une nouvelle offre' },
         { name: 'mes_offres', description: 'Liste les offres' },
         { name: 'candidatures_offre', description: 'Liste les candidatures' },
@@ -253,6 +254,8 @@ Analyse maintenant la demande de l'utilisateur et réponds en JSON pur sans mark
         return await this.mesOffres(userId);
       case 'candidatures_offre':
         return await this.candidaturesOffre(params, userId);
+      case 'rechercher_etudiants':
+        return await this.rechercherEtudiants(params);
       case 'stats_recrutement':
         return await this.statsRecrutement(userId);
       default:
@@ -387,6 +390,63 @@ Réponds de manière concise, utile et professionnelle. Propose des actions conc
     response += `Présélectionnées: ${stats.preselectionne || 0}\n`;
     response += `Acceptées: ${stats.accepte || 0}\n`;
     return response;
+  }
+
+  // ============================================
+  // ACTIONS RECRUTEUR
+  // ============================================
+
+  private async rechercherEtudiants(params: Record<string, any>): Promise<ChatbotResponse> {
+    try {
+      console.log("Rechercher étudiants avec params", params);
+      // Import dynamique du service de recherche étudiante
+      const { studentSearchService } = await import('./studentSearchService');
+      
+      // Récupérer la requête de recherche - ajout de la gestion de 'competence' et autres paramètres potentiels
+      const searchQuery = params.query || params.mots_cles || params.recherche || params.competence || params.technologies || params.skills || params.domaine || '';
+      
+      if (!searchQuery) {
+        return {
+          success: false,
+          message: 'Veuillez spécifier une requête de recherche'
+        };
+      }
+
+      // Effectuer la recherche avec le service AI
+      const searchResult = await studentSearchService.searchStudents(searchQuery);
+      
+      if (!searchResult.success) {
+        return {
+          success: false,
+          message: searchResult.error || 'Erreur lors de la recherche d\'étudiants'
+        };
+      }
+
+      // Formater les résultats pour le chatbot
+      const results = searchResult.data;
+      if (!results) {
+        return {
+          success: false,
+          message: 'Aucun résultat de recherche'
+        };
+      }
+
+      return {
+        success: true,
+        message: searchResult.message,
+        data: {
+          count: results.students.length,
+          etudiants: results.students,
+          queryAnalysis: results.queryAnalysis
+        }
+      };
+    } catch (error) {
+      console.error("Error searching students", error);
+      return {
+        success: false,
+        message: "Erreur lors de la recherche d'étudiants"
+      };
+    }
   }
 
   // ============================================

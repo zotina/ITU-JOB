@@ -1,116 +1,58 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SearchInput } from '@/components/ui/search-input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MapPin, Briefcase, Star, User } from 'lucide-react';
+import { MapPin, Briefcase, Star, User, Loader2, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { mockUsers, mockCandidates } from '@/data/mockData';
+import { chatbotService } from '@/services/chatbotService';
+import { useAuth } from '@/hooks/useAuth';
 
 const RecruiterStudentSearch = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
+  const [filteredStudents, setFilteredStudents] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchInitialized, setSearchInitialized] = useState(false);
 
-  // Obtenir les données des étudiants depuis les données des candidats
-  const allStudents = useMemo(() => {
-    // Pour chaque utilisateur étudiant, récupérer les informations pertinentes
-    const studentUsers = mockUsers.filter(user => user.type === 'student');
+  // Effectuer la recherche d'étudiants avec le service IA
+  const performSearch = async () => {
+    if (!searchQuery.trim()) {
+      setFilteredStudents([]);
+      return;
+    }
+
+    setIsLoading(true);
     
-    return studentUsers.map(user => {
-      // Trouver le candidat correspondant dans mockCandidates
-      const candidate = mockCandidates.find(c => c.id === user.id) || mockCandidates[0]; // fallback to first if not found
+    try {
+      // Utiliser le service de chatbot pour effectuer la recherche d'étudiants
+      const result = await chatbotService.chat(
+        `Recherche d'étudiants: ${searchQuery}`, 
+        user?.id || '', 
+        'recruteur'
+      );
       
-      return {
-        id: user.id,
-        name: candidate?.name || user.name || 'Utilisateur Anonyme',
-        email: user.email,
-        title: candidate?.title || 'N/A',
-        level: candidate?.experience + ' d\'experiences'|| 'N/A',
-        skills: candidate?.skills || [],
-        availability: candidate?.availability || 'N/A',
-        location: candidate?.location || 'N/A',
-        matchScore: candidate?.matchingScore || Math.floor(Math.random() * 40) + 60,
-        avatar: '',
-        description: `Candidat avec ${candidate?.experience || 'expérience'} en ${candidate?.title || 'domaine'}`,
-        languages: [],
-        projects: [],
-        experiences: [],
-        formations: [],
-      };
-    });
-  }, []);
-
-  // Filtrer les étudiants avec recherche intelligente en langage naturel
-  const filteredStudents = useMemo(() => {
-    if (searchQuery === '') {
-      return allStudents;
+      if (result.success && result.data && result.data.etudiants) {
+        setFilteredStudents(result.data.etudiants);
+      } else {
+        setFilteredStudents([]);
+      }
+    } catch (error) {
+      console.error('Error searching students:', error);
+      setFilteredStudents([]);
+    } finally {
+      setIsLoading(false);
+      setSearchInitialized(true);
     }
+  };
 
-    const query = searchQuery.toLowerCase();
-    // Extraire les termes de recherche en ignorant les mots courts et les mots vides courants
-    const searchTerms = query
-      .split(' ')
-      .filter(term => term.length > 2) // mots de plus de 2 caractères
-      .filter(term => !['dans', 'des', 'une', 'pour', 'sur', 'avec', 'dans', 'son', 'ses', 'ses'].includes(term)); // mots vides à ignorer
-
-    if (searchTerms.length === 0) {
-      return allStudents;
-    }
-
-    // Calculer la pertinence pour chaque étudiant
-    const studentsWithRelevance = allStudents.map(student => {
-      // Recherche dans tous les champs pertinents
-      const searchableContent = [
-        student.name,
-        student.title,
-        student.level,
-        student.location,
-        student.availability,
-        student.description,
-        ...student.skills,
-        ...student.languages,
-        ...student.projects,
-        ...student.experiences,
-        ...student.formations.map(f => `${f.degree} ${f.field} ${f.institution}`)
-      ].join(' ').toLowerCase();
-
-      // Calculer le score de pertinence
-      let relevanceScore = 0;
-      let matchedTerms = 0;
-      
-      searchTerms.forEach(term => {
-        if (searchableContent.includes(term)) {
-          matchedTerms++;
-          // Donner plus de poids à des correspondances exactes dans des champs clés
-          if (student.title.toLowerCase().includes(term)) relevanceScore += 3;
-          if (student.skills.some(skill => skill.toLowerCase().includes(term))) relevanceScore += 3;
-          if (student.location.toLowerCase().includes(term)) relevanceScore += 2;
-          if (student.availability.toLowerCase().includes(term)) relevanceScore += 2;
-          if (student.name.toLowerCase().includes(term)) relevanceScore += 1;
-          // Score par défaut pour les autres champs
-          relevanceScore += 1;
-        }
-      });
-
-      // Le score de pertinence est basé sur le nombre de termes correspondants et leur importance
-      const finalScore = matchedTerms > 0 ? relevanceScore / searchTerms.length : 0;
-      
-      return {
-        student,
-        relevanceScore: finalScore,
-        matchedTerms
-      };
-    });
-
-    // Filtrer pour garder uniquement les étudiants avec au moins un terme de correspondance
-    const relevantStudents = studentsWithRelevance
-      .filter(item => item.matchedTerms > 0)
-      .sort((a, b) => b.relevanceScore - a.relevanceScore) // Trier par score de pertinence décroissant
-      .map(item => item.student);
-
-    return relevantStudents;
-  }, [allStudents, searchQuery]);
+  // Gérer la soumission de la recherche (appui sur Entrée ou clic sur le bouton)
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    performSearch();
+  };
 
   return (
     <div className="space-y-6">
@@ -119,19 +61,39 @@ const RecruiterStudentSearch = () => {
           <CardTitle>Moteur de recherche étudiants</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <SearchInput
-              placeholder="Recherche en langage naturel : ex. 'développeur React Antananarivo disponible immédiatement' ou 'master intelligence artificielle Python'"
-              value={searchQuery}
-              onChange={setSearchQuery}
-              className="text-base"
-            />
-          </div>
+          <form onSubmit={handleSearchSubmit}>
+            <div className="flex gap-2 w-full">
+              <SearchInput
+                placeholder="Recherche en langage naturel : ex. 'développeur React Antananarivo disponible immédiatement' ou 'master intelligence artificielle Python'"
+                value={searchQuery}
+                onChange={setSearchQuery}
+                className="text-base flex-grow h-12"
+              />
+              <Button 
+                type="submit" 
+                disabled={isLoading}
+                className="h-12 w-[120px]"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <Search className="w-4 h-4 mr-2" />
+                    Rechercher
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
         </CardContent>
       </Card>
 
       <div className="space-y-4">
-        {filteredStudents.length === 0 ? (
+        {isLoading ? (
+          <div className="flex justify-center items-center h-32">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        ) : filteredStudents.length === 0 && searchInitialized ? (
           <Card>
             <CardContent className="p-12 text-center">
               <p className="text-muted-foreground">
@@ -141,9 +103,11 @@ const RecruiterStudentSearch = () => {
           </Card>
         ) : (
           <>
-            <p className="text-sm text-muted-foreground">
-              {filteredStudents.length} étudiant{filteredStudents.length > 1 ? 's' : ''} trouvé{filteredStudents.length > 1 ? 's' : ''} pour "{searchQuery}"
-            </p>
+            {filteredStudents.length > 0 && (
+              <p className="text-sm text-muted-foreground">
+                {filteredStudents.length} étudiant{filteredStudents.length > 1 ? 's' : ''} trouvé{filteredStudents.length > 1 ? 's' : ''} pour "{searchQuery}"
+              </p>
+            )}
             <div className="grid grid-cols-1 gap-4">
               {filteredStudents.map((student) => (
                 <Card key={student.id} className="hover:shadow-elegant transition-all duration-300">
@@ -151,28 +115,24 @@ const RecruiterStudentSearch = () => {
                     <div className="flex items-start gap-4">
                       <Avatar className="h-16 w-16">
                         <AvatarImage src={student.avatar} />
-                        <AvatarFallback>{student.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                        <AvatarFallback>{student.name?.split(' ').map(n => n[0]).join('') || 'US'}</AvatarFallback>
                       </Avatar>
                       
                       <div className="flex-1 space-y-3">
                         <div className="flex items-start justify-between">
                           <div>
                             <h3 className="font-semibold text-lg">{student.name}</h3>
-                            <p className="text-sm text-muted-foreground">{student.title} , {student.level}</p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                            <span className="text-sm font-medium">{student.matchScore}% match</span>
+                            <p className="text-sm text-muted-foreground">{student.title || 'Étudiant'} , {student.level || 'N/A'}</p>
                           </div>
                         </div>
                         
                         <div className="flex flex-wrap gap-2">
-                          {student.skills.slice(0, 5).map((skill) => (
+                          {student.skills?.slice(0, 5).map((skill: string) => (
                             <Badge key={skill} variant="secondary">
                               {skill}
                             </Badge>
                           ))}
-                          {student.skills.length > 5 && (
+                          {student.skills && student.skills.length > 5 && (
                             <Badge variant="secondary">+{student.skills.length - 5}</Badge>
                           )}
                         </div>
@@ -180,11 +140,11 @@ const RecruiterStudentSearch = () => {
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <MapPin className="w-4 h-4" />
-                            <span>{student.location}</span>
+                            <span>{student.location || 'N/A'}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Briefcase className="w-4 h-4" />
-                            <span>{student.availability}</span>
+                            <span>{student.availability || 'N/A'}</span>
                           </div>
                         </div>
                         

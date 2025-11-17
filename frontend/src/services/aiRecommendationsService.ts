@@ -529,11 +529,19 @@ export class AIRecommendationsService {
       // Get all students from data provider
       const students = await dataProvider.getCandidates();
       
-      // Calculate matching scores for all students
-      const studentsWithScores = students.map(student => ({
-        ...student,
-        matchScore: this.calculateStudentOfferMatchingScore(student, offer)
-      }));
+      // Calculate matching scores for all students with details
+      const studentsWithScores = students.map(student => {
+        const matchingResult = this.calculateStudentOfferMatchingScoreWithDetails(student, offer);
+        const finalScore = matchingResult.totalWeight > 0 
+          ? Math.min(100, Math.round((matchingResult.score / matchingResult.totalWeight) * 100)) 
+          : 0;
+        
+        return {
+          ...student,
+          matchScore: finalScore,
+          matchingDetails: matchingResult.matchingDetails
+        };
+      });
       
       // Sort by matching score in descending order and take top N
       const topStudents = studentsWithScores
@@ -548,6 +556,7 @@ export class AIRecommendationsService {
         skills: student.skills || [],
         location: student.location,
         matchScore: student.matchScore,
+        matchingDetails: student.matchingDetails,
         avatar: student.profilePicture
       }));
     } catch (error) {
@@ -560,23 +569,76 @@ export class AIRecommendationsService {
    * Calculate matching score between student profile and offer requirements
    */
   private static calculateStudentOfferMatchingScore(student: any, offer: JobOffer): number {
+    const { score, totalWeight, matchingDetails } = this.calculateStudentOfferMatchingScoreWithDetails(student, offer);
+    
+    // Calculate final score out of 100
+    const finalScore = totalWeight > 0 ? Math.min(100, Math.round((score / totalWeight) * 100)) : 0;
+    return finalScore;
+  }
+  
+  /**
+   * Calculate matching score and return details about the matching using a more sophisticated AI approach
+   */
+  private static calculateStudentOfferMatchingScoreWithDetails(student: any, offer: JobOffer): { score: number; totalWeight: number; matchingDetails: string[] } {
     let score = 0;
     let totalWeight = 0;
+    const matchingDetails: string[] = [];
     
-    // Extract student skills
-    const studentSkills = (student.skills || []).map((s: string) => s.toLowerCase());
+    // Extract all relevant student information
+    const studentSkills: string[] = [];
+    if (student.technicalSkills) {
+      for (const skillCategory of student.technicalSkills) {
+        for (const skill of skillCategory.skills) {
+          studentSkills.push(skill.name.toLowerCase());
+        }
+      }
+    } else if (student.skills) {
+      // Fallback to simple skills array if technicalSkills is not available
+      for (const skill of student.skills) {
+        studentSkills.push(skill.toLowerCase());
+      }
+    }
     
-    // Extract student experiences
-    const studentExperiences = (student.experiences || []).map((exp: any) => 
-      (exp.title || exp.description || '').toLowerCase()
-    );
+    const studentExperiences: string[] = [];
+    if (student.experiences) {
+      for (const exp of student.experiences) {
+        studentExperiences.push(`${exp.title} ${exp.description} ${exp.technologies?.join(' ') || ''}`.toLowerCase());
+      }
+    }
+    
+    const studentLanguages: string[] = [];
+    if (student.languages) {
+      for (const lang of student.languages) {
+        studentLanguages.push(`${lang.name.toLowerCase()} ${lang.level.toLowerCase()}`);
+      }
+    }
     
     // Check technical skills (40% of score)
     if (offer.technologies && Array.isArray(offer.technologies)) {
       totalWeight += 40; // Weight of 40% for technologies
+      let matchedTechCount = 0;
+      const techMatches: string[] = [];
+      
       for (const tech of offer.technologies) {
         const techLower = tech.toLowerCase();
-        if (studentSkills.some(skill => 
+        // Find matching skills with their level and years
+        const matchingSkill = student.technicalSkills?.find((category: any) => 
+          category.skills?.find((skill: any) => 
+            skill.name.toLowerCase().includes(techLower) || techLower.includes(skill.name.toLowerCase())
+          )
+        );
+        
+        if (matchingSkill) {
+          const skillDetail = matchingSkill.skills.find((skill: any) => 
+            skill.name.toLowerCase().includes(techLower) || techLower.includes(skill.name.toLowerCase())
+          );
+          
+          if (skillDetail) {
+            score += 40 / offer.technologies.length;
+            matchedTechCount++;
+            techMatches.push(`${tech} (${skillDetail.level}, ${skillDetail.years} ans)`);
+          }
+        } else if (studentSkills.some(skill => 
           skill.includes(techLower) || techLower.includes(skill) ||
           // Handle common tech variations 
           (techLower.includes('javascript') && skill.includes('js')) ||
@@ -585,30 +647,176 @@ export class AIRecommendationsService {
           (skill.includes('py') && techLower.includes('python'))
         )) {
           score += 40 / offer.technologies.length;
+          matchedTechCount++;
+          techMatches.push(tech);
         }
+      }
+      
+      if (matchedTechCount > 0) {
+        matchingDetails.push(`Compétences techniques: ${techMatches.join(', ')}`);
+      } else {
+        matchingDetails.push('Aucune compétence technique correspondante');
       }
     }
     
-    // Check requirements (30% of score)
+    // Check detailed requirements (30% of score)
     if (offer.requirements && Array.isArray(offer.requirements)) {
       totalWeight += 30; // Weight of 30% for requirements
+      let matchedReqCount = 0;
+      const reqMatches: string[] = [];
+      
       for (const requirement of offer.requirements) {
         const reqLower = requirement.toLowerCase();
-        // Check if a student skill matches the requirement
-        if (studentSkills.some(skill => 
-          reqLower.includes(skill) || skill.includes(reqLower) ||
-          // More advanced matching
-          this.calculateStringSimilarity(reqLower, skill) > 0.4
-        )) {
-          score += 10;
+        
+        // Check for experience requirements (e.g., "3 ans d'expérience")
+        if (reqLower.includes('ans') && reqLower.includes('expérience')) {
+          // Find if student has relevant experience
+          const yearsMatch = reqLower.match(/(\d+)\s*ans/);
+          if (yearsMatch) {
+            const requiredYears = parseInt(yearsMatch[1]);
+            let studentTotalYears = 0;
+            let hasRelevantExperience = false;
+            
+            // Calculate total years of relevant experience from all jobs
+            for (const exp of studentExperiences) {
+              if (exp.includes('année') || exp.includes('ans') || 
+                  reqLower.includes('développement') || reqLower.includes('web')) {
+                // If the experience seems relevant, estimate it's at least 1 year per job
+                studentTotalYears += 1;
+                hasRelevantExperience = true;
+              }
+            }
+            
+            // Also check technical skills years if available
+            if (student.technicalSkills) {
+              for (const category of student.technicalSkills) {
+                for (const skill of category.skills) {
+                  if (skill.years && typeof skill.years === 'number') {
+                    studentTotalYears += skill.years;
+                  }
+                }
+              }
+            }
+            
+            if (studentTotalYears >= requiredYears) {
+              score += 10;
+              matchedReqCount++;
+              reqMatches.push(`${requirement} (expérience: ~${studentTotalYears} ans)`);
+            } else if (hasRelevantExperience) {
+              // Partial credit if they have some relevant experience
+              score += 5; // Half credit
+              matchedReqCount++;
+              reqMatches.push(`${requirement} (expérience partielle: ~${studentTotalYears} ans)`);
+            } else {
+              reqMatches.push(`${requirement} (expérience: ${studentTotalYears} ans - insuffisant)`);
+            }
+          }
         }
-        // Check if a student experience matches the requirement
-        if (studentExperiences.some(exp => 
-          reqLower.includes(exp) || exp.includes(reqLower) ||
-          this.calculateStringSimilarity(reqLower, exp) > 0.4
-        )) {
-          score += 10;
+        // Check for specific technology requirements like "React et Node.js"
+        else if (reqLower.includes('et') || reqLower.includes('et/ou') || reqLower.includes('or') || reqLower.includes(',')) {
+          // Handle multiple technology requirements
+          const techParts = requirement.split(/et|,|ou|or/i).map(part => part.trim());
+          let techMatchCount = 0;
+          
+          for (const tech of techParts) {
+            const techLower = tech.toLowerCase();
+            if (studentSkills.some(skill => 
+              skill.includes(techLower) || techLower.includes(skill) ||
+              this.calculateStringSimilarity(techLower, skill) > 0.4
+            )) {
+              techMatchCount++;
+            }
+          }
+          
+          if (techMatchCount === techParts.length) {
+            // All required technologies matched
+            score += 10;
+            matchedReqCount++;
+            reqMatches.push(`${requirement} (tous: ${techMatchCount}/${techParts.length})`);
+          } else if (techMatchCount > 0) {
+            // Partial match - give some credit
+            const partialScore = (techMatchCount / techParts.length) * 10;
+            score += partialScore;
+            matchedReqCount++;
+            reqMatches.push(`${requirement} (partiel: ${techMatchCount}/${techParts.length})`);
+          } else {
+            reqMatches.push(`${requirement} (aucun trouvé)`);
+          }
         }
+        // Check for API requirements
+        else if (reqLower.includes('api') || reqLower.includes('rest')) {
+          if (studentSkills.some(skill => 
+            skill.includes('api') || skill.includes('rest') || skill.includes('graphql') || reqLower.includes(skill)
+          ) || studentExperiences.some(exp => 
+            exp.includes('api') || exp.includes('rest') || exp.includes('graphql')
+          )) {
+            score += 10;
+            matchedReqCount++;
+            reqMatches.push(`${requirement} (trouvé dans les compétences ou expériences)`);
+          } else {
+            reqMatches.push(`${requirement} (non trouvé)`);
+          }
+        }
+        // Check for version control requirements like Git
+        else if (reqLower.includes('git') || reqLower.includes('cicd') || reqLower.includes('ci/cd')) {
+          if (studentSkills.some(skill => 
+            skill.includes('git') || skill.includes('cicd') || skill.includes('ci/cd') || skill.includes('github') || skill.includes('gitlab')
+          ) || studentExperiences.some(exp => 
+            exp.includes('git') || exp.includes('cicd') || exp.includes('ci/cd')
+          )) {
+            score += 10;
+            matchedReqCount++;
+            reqMatches.push(`${requirement} (trouvé dans les compétences ou expériences)`);
+          } else {
+            reqMatches.push(`${requirement} (non trouvé)`);
+          }
+        }
+        // Check for language requirements
+        else if (reqLower.includes('anglais') || reqLower.includes('français') || reqLower.includes('langue')) {
+          if (studentLanguages.some(lang => 
+            lang.includes('anglais') || lang.includes('français') || reqLower.includes(lang)
+          )) {
+            score += 10;
+            matchedReqCount++;
+            reqMatches.push(`${requirement} (niveau: ${student.languages?.find(l => l.name.toLowerCase().includes('anglais') || l.name.toLowerCase().includes('français'))?.level || 'trouvé'})`);
+          } else {
+            reqMatches.push(`${requirement} (non trouvé)`);
+          }
+        }
+        // General matching for other requirements
+        else {
+          let foundMatch = false;
+          // Check in skills
+          if (studentSkills.some(skill => 
+            reqLower.includes(skill) || skill.includes(reqLower) ||
+            this.calculateStringSimilarity(reqLower, skill) > 0.4
+          )) {
+            score += 10;
+            foundMatch = true;
+            matchedReqCount++;
+            reqMatches.push(`Exigence: ${requirement} -> compétence trouvée`);
+          }
+          // Check in experiences
+          else if (studentExperiences.some(exp => 
+            reqLower.includes(exp) || exp.includes(reqLower) ||
+            this.calculateStringSimilarity(reqLower, exp) > 0.4
+          )) {
+            score += 10;
+            foundMatch = true;
+            matchedReqCount++;
+            reqMatches.push(`Exigence: ${requirement} -> expérience trouvée`);
+          }
+          
+          if (!foundMatch) {
+            reqMatches.push(`${requirement} (non trouvé)`);
+          }
+        }
+      }
+      
+      if (matchedReqCount === 0) {
+        matchingDetails.push('Aucune exigence correspondante');
+      } else {
+        matchingDetails.push(`Exigences: ${reqMatches.join(', ')}`);
       }
     }
     
@@ -618,12 +826,13 @@ export class AIRecommendationsService {
       if (student.location.toLowerCase().includes(offer.location.toLowerCase()) ||
           this.calculateStringSimilarity(offer.location.toLowerCase(), student.location.toLowerCase()) > 0.6) {
         score += 20;
+        matchingDetails.push(`Localisation: ${student.location} correspond à ${offer.location}`);
+      } else {
+        matchingDetails.push(`Localisation: ${student.location} ne correspond pas à ${offer.location}`);
       }
     }
     
-    // Calculate final score out of 100
-    const finalScore = totalWeight > 0 ? Math.min(100, Math.round((score / totalWeight) * 100)) : 0;
-    return finalScore;
+    return { score, totalWeight, matchingDetails };
   }
   
   /**
