@@ -10,7 +10,7 @@ const StudentProfile = ({ isRecruiterView = false, studentId }: { isRecruiterVie
   // Extract studentId from URL if not provided as prop
   const { id: urlStudentId } = useParams();
   const actualStudentId = studentId || urlStudentId;
-  
+  console.log("StudentProfile rendered with studentId:", actualStudentId, "isRecruiterView:", isRecruiterView);
   const { 
     profileData, 
     isEditing, 
@@ -19,6 +19,9 @@ const StudentProfile = ({ isRecruiterView = false, studentId }: { isRecruiterVie
     saveChanges, 
     updateEditingData 
   } = useProfileData(actualStudentId ? { specificUserId: actualStudentId } : undefined);
+  
+  // Log des données du profil pour débogage
+  console.log("Données du profil récupéré:", profileData);
   
   const { toast } = useToast();
   const location = useLocation();
@@ -45,15 +48,13 @@ const StudentProfile = ({ isRecruiterView = false, studentId }: { isRecruiterVie
       <div className="max-w-7xl mx-auto space-y-8">
         <Tabs defaultValue="personal" className="w-full">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-2 max-w-4xl mx-auto">
-              {!isRecruiterView && (
-                <TabsTrigger value="personal" className="gap-2">
-                  <User className="w-4 h-4" />
-                    <>
-                      <span className="hidden md:inline">Fiche Personnel</span>
-                      <span className="md:hidden">Profil</span>
-                    </>
-                </TabsTrigger>
-              )}
+            <TabsTrigger value="personal" className="gap-2">
+              <User className="w-4 h-4" />
+                <>
+                  <span className="hidden md:inline">Fiche Personnel</span>
+                  <span className="md:hidden">Profil</span>
+                </>
+            </TabsTrigger>
             {!isRecruiterView && (
               <TabsTrigger value="recommendations" className="gap-2">
                 <Sparkles className="w-4 h-4" />
@@ -70,6 +71,7 @@ const StudentProfile = ({ isRecruiterView = false, studentId }: { isRecruiterVie
               onSave={handleSave}
               onCancel={handleCancel}
               isRecruiterView={isRecruiterView}
+              profileData={profileData}
             />
           </TabsContent>
 

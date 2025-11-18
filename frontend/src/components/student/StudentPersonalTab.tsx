@@ -16,11 +16,12 @@ import { preRempliCV } from "@/data/mockData";
 interface StudentPersonalTabProps {
   showActions?: boolean;
   isRecruiterView?: boolean;
+  profileData?: any; // Accepter les données du profil comme props
 }
 
-const StudentPersonalTab = ({ showActions = true, isRecruiterView = false }: StudentPersonalTabProps) => {
+const StudentPersonalTab = ({ showActions = true, isRecruiterView = false, profileData }: StudentPersonalTabProps) => {
   const { 
-    profileData, 
+    profileData: hookProfileData, 
     isEditing, 
     isLoading,
     updateEditingData, 
@@ -29,6 +30,9 @@ const StudentPersonalTab = ({ showActions = true, isRecruiterView = false }: Stu
     saveChanges,
     cancelEditing 
   } = useProfileData();
+  
+  // Utiliser le profileData fourni en props s'il est disponible, sinon utiliser celui du hook
+  const currentProfileData = profileData || hookProfileData;
   
   const [isImporting, setIsImporting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -193,7 +197,7 @@ const StudentPersonalTab = ({ showActions = true, isRecruiterView = false }: Stu
       
       {!isRecruiterView && (
         <EditableProfileHeader
-          profileData={profileData}
+          profileData={currentProfileData}
           isEditing={isEditing}
           onUpdate={updateEditingData}
           startEditing={startEditing}
@@ -202,7 +206,7 @@ const StudentPersonalTab = ({ showActions = true, isRecruiterView = false }: Stu
       {isRecruiterView && (
         <div className="mb-6">
           <EditableProfileHeader
-            profileData={profileData}
+            profileData={currentProfileData}
             isEditing={isEditing}
             onUpdate={updateEditingData}
             startEditing={startEditing}
@@ -210,36 +214,60 @@ const StudentPersonalTab = ({ showActions = true, isRecruiterView = false }: Stu
           />
         </div>
       )}
-      <EditableTechnicalSkillsSection 
-        data={profileData.technicalSkills}
-        isEditing={isEditing}
-        onUpdate={updateEditingData}
-      />
-      <EditableLanguagesSection 
-        data={profileData.languages}
-        isEditing={isEditing}
-        onUpdate={updateEditingData}
-      />
-      <EditableSoftSkillsSection 
-        data={profileData.softSkills}
-        isEditing={isEditing}
-        onUpdate={updateEditingData}
-      />
-      <EditableProjectsSection 
-        data={profileData.projects}
-        isEditing={isEditing}
-        onUpdate={updateEditingData}
-      />
-      <EditableExperienceSection 
-        data={profileData.experiences}
-        isEditing={isEditing}
-        onUpdate={updateEditingData}
-      />
-      <EditableFormationSection 
-        data={profileData.formations}
-        isEditing={isEditing}
-        onUpdate={updateEditingData}
-      />
+      
+      {/* Section compétences techniques */}
+      {currentProfileData.technicalSkills !== undefined && (
+        <EditableTechnicalSkillsSection 
+          data={currentProfileData.technicalSkills}
+          isEditing={isEditing}
+          onUpdate={updateEditingData}
+        />
+      )}
+      
+      {/* Section langues */}
+      {currentProfileData.languages !== undefined && (
+        <EditableLanguagesSection 
+          data={currentProfileData.languages}
+          isEditing={isEditing}
+          onUpdate={updateEditingData}
+        />
+      )}
+      
+      {/* Section soft skills */}
+      {currentProfileData.softSkills !== undefined && (
+        <EditableSoftSkillsSection 
+          data={currentProfileData.softSkills}
+          isEditing={isEditing}
+          onUpdate={updateEditingData}
+        />
+      )}
+      
+      {/* Section projets */}
+      {currentProfileData.projects !== undefined && (
+        <EditableProjectsSection 
+          data={currentProfileData.projects}
+          isEditing={isEditing}
+          onUpdate={updateEditingData}
+        />
+      )}
+      
+      {/* Section expériences */}
+      {currentProfileData.experiences !== undefined && (
+        <EditableExperienceSection 
+          data={currentProfileData.experiences}
+          isEditing={isEditing}
+          onUpdate={updateEditingData}
+        />
+      )}
+      
+      {/* Section formations */}
+      {currentProfileData.formations !== undefined && (
+        <EditableFormationSection 
+          data={currentProfileData.formations}
+          isEditing={isEditing}
+          onUpdate={updateEditingData}
+        />
+      )}
     </div>
   );
 };

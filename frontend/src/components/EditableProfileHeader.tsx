@@ -22,12 +22,30 @@ const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing,
   const personalInfo = profileData?.personalInfo || {};
 
   const updatePersonalInfo = (field: string, value: string | boolean | [number, number]) => {
-    onUpdate({
-      personalInfo: {
-        ...personalInfo,
-        [field]: value
-      }
-    });
+    if (field === 'nom') {
+      // For nom, update at the root level of profileData
+      onUpdate({
+        nom: value as string
+      } as Partial<ProfileData>);
+    } else if (field === 'prenom') {
+      // For prenom, update at the root level of profileData
+      onUpdate({
+        prenom: value as string
+      } as Partial<ProfileData>);
+    } else if (field === 'email') {
+      // For email, update at the root level of profileData
+      onUpdate({
+        email: value as string
+      } as Partial<ProfileData>);
+    } else {
+      // For other fields, update in personalInfo
+      onUpdate({
+        personalInfo: {
+          ...personalInfo,
+          [field]: value
+        }
+      });
+    }
   };
 
   const handleLocationChange = (location: string, coordinates?: [number, number]) => {
@@ -52,13 +70,25 @@ const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing,
           <div className="flex-1 space-y-4">
             <div className="space-y-4">
               <div>
-                <Label htmlFor="name" className="flex items-center">Nom complet
-                  {!personalInfo.nom && <span className="ml-2 w-2 h-2 rounded-full bg-red-500"></span>}
+                <Label htmlFor="prenom" className="flex items-center">Prénom
+                  {!profileData.prenom && <span className="ml-2 w-2 h-2 rounded-full bg-red-500"></span>}
                 </Label>
                 <Input
-                  id="name"
-                  value={personalInfo.nom || ''}
-                  onChange={(e) => updatePersonalInfo("name", e.target.value)}
+                  id="prenom"
+                  value={profileData.prenom || ''}
+                  onChange={(e) => updatePersonalInfo("prenom", e.target.value)}
+                  className="text-2xl font-bold"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="nom" className="flex items-center">Nom
+                  {!profileData.nom && <span className="ml-2 w-2 h-2 rounded-full bg-red-500"></span>}
+                </Label>
+                <Input
+                  id="nom"
+                  value={profileData.nom || ''}
+                  onChange={(e) => updatePersonalInfo("nom", e.target.value)}
                   className="text-2xl font-bold"
                 />
               </div>
@@ -91,11 +121,11 @@ const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing,
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="email" className="flex items-center">Email
-                  {!personalInfo.email && <span className="ml-2 w-2 h-2 rounded-full bg-red-500"></span>}
+                  {!profileData.email && <span className="ml-2 w-2 h-2 rounded-full bg-red-500"></span>}
                 </Label>
                 <Input
                   id="email"
-                  value={personalInfo.email || ''}
+                  value={profileData.email || ''}
                   onChange={(e) => updatePersonalInfo("email", e.target.value)}
                   type="email"
                 />

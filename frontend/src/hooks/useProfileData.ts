@@ -4,13 +4,15 @@ import { Appointment } from "@/types/appointment";
 import { dataProvider } from "@/data/dataProvider";
 
 export interface ProfileData {
-  personalInfo: {
-    nom: string;
-    prenom : string;
+  id?: string;
+  email: string;
+  prenom: string;
+  nom: string;
+  role: string;
+  personalInfo?: {
     title?: string;
     description?: string;
-    email: string;
-    phone: string;
+    phone?: string;
     location?: string;
     coordinates?: [number, number];
     linkedin?: string;
@@ -20,9 +22,32 @@ export interface ProfileData {
     remoteWork?: boolean;
     profileImage?: string;
   };
+  company?: {
+    name: string;
+    description?: string;
+    logo?: string;
+    address?: {
+      street?: string;
+      city?: string;
+      country?: string;
+    };
+    website?: string;
+    email?: string;
+    phone?: string;
+    coordinates?: [number, number];
+    industry?: string;
+    size?: string;
+    verified?: boolean;
+    featured?: boolean;
+  };
+  recruiterInfo?: {
+    position?: string;
+    phone?: string;
+    bio?: string;
+  };
   technicalSkills?: {
     title: string;
-    skills: { name: string; level: string }[];
+    skills: { name: string; level: string; years?: number }[];
   }[];
   languages?: {
     name: string;
@@ -30,11 +55,16 @@ export interface ProfileData {
   }[];
   softSkills?: string[];
   projects?: {
+    id?: string;
     title: string;
     description: string;
     link?: string;
+    technologies?: string[];
+    image?: string;
+    achievements?: string[];
   }[];
   experiences?: {
+    id: string;
     title: string;
     company: string;
     location: string;
@@ -42,6 +72,7 @@ export interface ProfileData {
     type: string;
     description: string;
     technologies: string[];
+    achievements?: string[];
   }[];
   formations?: {
     id: string;
@@ -50,12 +81,34 @@ export interface ProfileData {
     fieldOfStudy?: string;
     period: string;
     description?: string;
+    grade?: string;
+    achievements?: string[];
   }[];
+  certifications?: {
+    name: string;
+    issuer: string;
+    date: string;
+    link?: string;
+  }[];
+  stats?: {
+    totalApplications?: number;
+    pendingApplications?: number;
+    acceptedApplications?: number;
+    profileViews?: number;
+    totalOffers?: number;
+    activeOffers?: number;
+    totalApplicationsReceived?: number;
+  };
   appointments: Appointment[];
 }
 
 // Initialiser à partir des données de mockData
 const initialProfileData: ProfileData = {
+  id: '',
+  email: '',
+  prenom: '',
+  nom: '',
+  role: 'student',
   ...getStudentProfile(),
   appointments: mockAppointments
 };
@@ -95,30 +148,25 @@ export const useProfileData = (options?: UseProfileDataOptions) => {
       if (currentUser && !options?.specificUserId) {
         await dataProvider.saveUserProfile(currentUser.id, editingData);
         
-        // Si le nom dans personalInfo a été mis à jour, envoyer un événement pour mettre à jour le contexte d'authentification
-        if (editingData.personalInfo?.name) {
-          const newName = editingData.personalInfo.name;
-          // Extraire le prénom et le nom de famille à partir du nom complet
-          const nameParts = newName.split(' ');
-          const updatedFirstName = nameParts[0];
-          const updatedLastName = nameParts.slice(1).join(' ') || currentUser.nom;
+        // Si le prénom ou le nom a été mis à jour, envoyer un événement pour mettre à jour le contexte d'authentification
+        const updatedFirstName = editingData.prenom || currentUser.prenom;
+        const updatedLastName = editingData.nom || currentUser.nom;
+        
+        // Si le nom a changé, envoyer un événement personnalisé pour mettre à jour le contexte
+        if (updatedFirstName !== currentUser.prenom || updatedLastName !== currentUser.nom) {
+          // Créer un nouvel objet utilisateur avec les nouvelles données
+          const updatedUser = {
+            ...currentUser,
+            prenom: updatedFirstName,
+            nom: updatedLastName
+          };
           
-          // Si le nom a changé, envoyer un événement personnalisé pour mettre à jour le contexte
-          if (updatedFirstName !== currentUser.prenom || updatedLastName !== currentUser.nom) {
-            // Créer un nouvel objet utilisateur avec les nouvelles données
-            const updatedUser = {
-              ...currentUser,
-              prenom: updatedFirstName,
-              nom: updatedLastName
-            };
-            
-            // Mettre à jour l'utilisateur dans le stockage de session
-            sessionStorage.setItem('currentUser', JSON.stringify(updatedUser));
-            
-            // Envoyer un événement personnalisé pour notifier les autres parties de l'application
-            const event = new CustomEvent('userUpdated', { detail: updatedUser });
-            window.dispatchEvent(event);
-          }
+          // Mettre à jour l'utilisateur dans le stockage de session
+          sessionStorage.setItem('currentUser', JSON.stringify(updatedUser));
+          
+          // Envoyer un événement personnalisé pour notifier les autres parties de l'application
+          const event = new CustomEvent('userUpdated', { detail: updatedUser });
+          window.dispatchEvent(event);
         }
       }
       
@@ -195,8 +243,24 @@ export const useProfileData = (options?: UseProfileDataOptions) => {
         if (userIdToLoad) {
           const profileFromFirestore = await dataProvider.getUserProfile(userIdToLoad);
           if (profileFromFirestore) {
-            setProfileData(profileFromFirestore);
-            setEditingData(profileFromFirestore);
+            // Ensure the profile data is in the correct format for the UI
+            // The Firestore data has prenom, nom at root level, but UI might expect personalInfo structure
+            const normalizedProfile = {
+              ...initialProfileData, // Start with defaults
+              ...profileFromFirestore // Override with Firestore data
+            };
+            setProfileData(normalizedProfile);
+            setEditingData(normalizedProfile);
+          } else {
+            // If profile is not found in Firestore, use initial data with the ID
+            const profileWithId = {
+              ...initialProfileData,
+              id: userIdToLoad,
+              // Don't override prenom, nom, etc. if they don't exist in Firestore
+              // Keep them as empty strings or defaults from initialProfileData
+            };
+            setProfileData(profileWithId);
+            setEditingData(profileWithId);
           }
         } else {
           // If no user is authenticated and no specific user ID is provided, use the initial data
@@ -205,6 +269,9 @@ export const useProfileData = (options?: UseProfileDataOptions) => {
         }
       } catch (error) {
         console.error('Error loading profile:', error);
+        // On error, use the initial data
+        setProfileData(initialProfileData);
+        setEditingData(initialProfileData);
       } finally {
         setIsLoading(false);
       }
