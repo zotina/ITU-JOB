@@ -20,7 +20,7 @@ interface EditableProfileHeaderProps {
 
 const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing, hideHeader = false }: EditableProfileHeaderProps) => {
   const personalInfo = profileData?.personalInfo || {};
-
+  console.log("EditableProfileHeader - profileData:", profileData);
   const updatePersonalInfo = (field: string, value: string | boolean | [number, number]) => {
     if (field === 'nom') {
       // For nom, update at the root level of profileData
@@ -222,12 +222,13 @@ const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing,
         
         <div className="flex-1 space-y-4">
           <div>
-            {!hideHeader && (
-              <>
-                <h1 className="text-3xl font-bold text-foreground mb-2">{profileData.nom + " " + profileData.prenom  || 'Nom non spécifié'}</h1>
-                <p className="text-xl text-muted-foreground mb-3">{personalInfo.title || 'Titre non spécifié'}</p>
-              </>
-            )}
+            <h1 className="text-3xl font-bold text-foreground mb-2">
+              {profileData.prenom && profileData.nom 
+                ? `${profileData.prenom} ${profileData.nom}` 
+                : profileData.prenom || profileData.nom || 'Nom non spécifié'
+              }
+            </h1>
+            <p className="text-xl text-muted-foreground mb-3">{profileData.personalInfo?.title || 'Titre non spécifié'}</p>
             <p className="text-muted-foreground max-w-2xl leading-relaxed">
               {personalInfo.description || 'Aucune description disponible'}
             </p>
@@ -236,7 +237,7 @@ const EditableProfileHeader = ({ profileData, isEditing, onUpdate, startEditing,
           <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4 text-primary" />
-              <span>{personalInfo.email || 'Email non spécifié'}</span>
+              <span>{profileData.email || 'Email non spécifié'}</span>
             </div>
             <div className="flex items-center gap-2">
               <Phone className="w-4 h-4 text-primary" />
