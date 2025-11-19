@@ -17,7 +17,7 @@ const RecruiterLayout = ({ children }: RecruiterLayoutProps) => {
     if (path.includes('notifications')) return 'Notifications';
     if (path.includes('analytics')) return 'Analytiques';
     if (path.includes('chatbot')) return 'Assistant IA';
-    if (path.includes('profile')) return 'Mon Profil';
+    if (path.includes('profile')) return 'Profil';
     return 'Tableau de bord';
   };
 

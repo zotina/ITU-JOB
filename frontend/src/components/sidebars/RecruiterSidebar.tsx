@@ -34,7 +34,7 @@ const menuItems = [
   { title: 'Mes Rendez-vous', url: '/recruiter/appointments', icon: Calendar },
   { title: 'Analytiques', url: '/recruiter/analytics', icon: BarChart3 },
   { title: 'Assistant IA', url: '/recruiter/chatbot', icon: MessageCircle },
-  { title: 'Mon Profil', url: '/recruiter/profile', icon: User },
+  { title: 'Profil', url: '/recruiter/profile', icon: User },
 ];
 
 const RecruiterSidebar = () => {

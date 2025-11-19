@@ -31,7 +31,7 @@ const menuItems = [
   { title: 'Mes Rendez-vous', url: '/student/appointments', icon: Calendar },
   { title: 'Assistant IA', url: '/student/chatbot', icon: MessageCircle },
   { title: 'Localisation', url: '/student/location', icon: MapPin },
-  { title: 'Mon Profil', url: '/student/profile', icon: User },
+  { title: 'Profil', url: '/student/profile', icon: User },
 ];
 
 const StudentSidebar = () => {

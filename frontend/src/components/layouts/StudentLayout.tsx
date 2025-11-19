@@ -16,7 +16,7 @@ const StudentLayout = ({ children }: StudentLayoutProps) => {
     if (path.includes('analytics')) return 'Analytiques';
     if (path.includes('chatbot')) return 'Assistant IA';
     if (path.includes('location')) return 'Localisation';
-    if (path.includes('profile')) return 'Mon Profil';
+    if (path.includes('profile')) return 'Profil';
     return 'Tableau de bord';
   };
 
