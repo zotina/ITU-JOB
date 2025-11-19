@@ -197,7 +197,7 @@ const StudentPersonalTab = ({ showActions = true, isRecruiterView = false, profi
       
       {!isRecruiterView && (
         <EditableProfileHeader
-          profileData={currentProfileData}
+          profileData={hookProfileData}
           isEditing={isEditing}
           onUpdate={updateEditingData}
           startEditing={startEditing}
@@ -206,7 +206,7 @@ const StudentPersonalTab = ({ showActions = true, isRecruiterView = false, profi
       {isRecruiterView && (
         <div className="mb-6">
           <EditableProfileHeader
-            profileData={currentProfileData}
+            profileData={hookProfileData}
             isEditing={isEditing}
             onUpdate={updateEditingData}
             startEditing={startEditing}
@@ -216,54 +216,54 @@ const StudentPersonalTab = ({ showActions = true, isRecruiterView = false, profi
       )}
       
       {/* Section compétences techniques */}
-      {currentProfileData.technicalSkills !== undefined && (
+      {hookProfileData.technicalSkills !== undefined && (
         <EditableTechnicalSkillsSection 
-          data={currentProfileData.technicalSkills}
+          data={hookProfileData.technicalSkills}
           isEditing={isEditing}
           onUpdate={updateEditingData}
         />
       )}
       
       {/* Section langues */}
-      {currentProfileData.languages !== undefined && (
+      {hookProfileData.languages !== undefined && (
         <EditableLanguagesSection 
-          data={currentProfileData.languages}
+          data={hookProfileData.languages}
           isEditing={isEditing}
           onUpdate={updateEditingData}
         />
       )}
       
       {/* Section soft skills */}
-      {currentProfileData.softSkills !== undefined && (
+      {hookProfileData.softSkills !== undefined && (
         <EditableSoftSkillsSection 
-          data={currentProfileData.softSkills}
+          data={hookProfileData.softSkills}
           isEditing={isEditing}
           onUpdate={updateEditingData}
         />
       )}
       
       {/* Section projets */}
-      {currentProfileData.projects !== undefined && (
+      {hookProfileData.projects !== undefined && (
         <EditableProjectsSection 
-          data={currentProfileData.projects}
+          data={hookProfileData.projects}
           isEditing={isEditing}
           onUpdate={updateEditingData}
         />
       )}
       
       {/* Section expériences */}
-      {currentProfileData.experiences !== undefined && (
+      {hookProfileData.experiences !== undefined && (
         <EditableExperienceSection 
-          data={currentProfileData.experiences}
+          data={hookProfileData.experiences}
           isEditing={isEditing}
           onUpdate={updateEditingData}
         />
       )}
       
       {/* Section formations */}
-      {currentProfileData.formations !== undefined && (
+      {hookProfileData.formations !== undefined && (
         <EditableFormationSection 
-          data={currentProfileData.formations}
+          data={hookProfileData.formations}
           isEditing={isEditing}
           onUpdate={updateEditingData}
         />

@@ -184,8 +184,23 @@ export const useProfileData = (options?: UseProfileDataOptions) => {
   };
 
   const updateEditingData = (newData: Partial<ProfileData>) => {
-    setEditingData(prev => ({ ...prev, ...newData }));
-  };
+  setEditingData(prev => {
+    // Clone profond pour les objets imbriqués
+    const result = { ...prev };
+    
+    for (const [key, value] of Object.entries(newData)) {
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        // Fusionner les objets imbriqués
+        result[key] = { ...prev[key], ...value };
+      } else {
+        // Remplacer directement pour les primitives et tableaux
+        result[key] = value;
+      }
+    }
+    
+    return result;
+  });
+};
 
   // Appointment management functions
   const addAppointment = (appointment: Omit<Appointment, 'id' | 'createdAt' | 'updatedAt'>) => {

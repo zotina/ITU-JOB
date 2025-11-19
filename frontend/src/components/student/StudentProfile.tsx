@@ -20,9 +20,6 @@ const StudentProfile = ({ isRecruiterView = false, studentId }: { isRecruiterVie
     updateEditingData 
   } = useProfileData(actualStudentId ? { specificUserId: actualStudentId } : undefined);
   
-  // Log des données du profil pour débogage
-  console.log("Données du profil récupéré:", profileData);
-  
   const { toast } = useToast();
   const location = useLocation();
 
