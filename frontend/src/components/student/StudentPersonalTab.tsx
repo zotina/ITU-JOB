@@ -20,7 +20,8 @@ interface StudentPersonalTabProps {
 }
 
 const StudentPersonalTab = ({ showActions = true, isRecruiterView = false, profileData }: StudentPersonalTabProps) => {
-  const { 
+  const specificUserId = profileData?.id;
+   const { 
     profileData: hookProfileData, 
     isEditing, 
     isLoading,
@@ -29,7 +30,8 @@ const StudentPersonalTab = ({ showActions = true, isRecruiterView = false, profi
     startEditingWithData,
     saveChanges,
     cancelEditing 
-  } = useProfileData();
+  } = useProfileData({ specificUserId }); // ✅ Passer l'ID spécifique
+  
   
   // Utiliser le profileData fourni en props s'il est disponible, sinon utiliser celui du hook
   const currentProfileData = profileData || hookProfileData;
@@ -203,11 +205,11 @@ const StudentPersonalTab = ({ showActions = true, isRecruiterView = false, profi
           startEditing={startEditing}
         />
       )}
-      {isRecruiterView && (
+       {isRecruiterView && (
         <div className="mb-6">
           <EditableProfileHeader
-            profileData={hookProfileData}
-            isEditing={isEditing}
+            profileData={hookProfileData} // ✅ Contient le profil de l'utilisateur spécifique
+            isEditing={false} // ❌ Jamais en édition en mode recruteur
             onUpdate={updateEditingData}
             startEditing={startEditing}
             hideHeader={true}
@@ -219,7 +221,7 @@ const StudentPersonalTab = ({ showActions = true, isRecruiterView = false, profi
       {hookProfileData.technicalSkills !== undefined && (
         <EditableTechnicalSkillsSection 
           data={hookProfileData.technicalSkills}
-          isEditing={isEditing}
+          isEditing={isEditing && !isRecruiterView} 
           onUpdate={updateEditingData}
         />
       )}
@@ -228,7 +230,7 @@ const StudentPersonalTab = ({ showActions = true, isRecruiterView = false, profi
       {hookProfileData.languages !== undefined && (
         <EditableLanguagesSection 
           data={hookProfileData.languages}
-          isEditing={isEditing}
+          isEditing={isEditing && !isRecruiterView} 
           onUpdate={updateEditingData}
         />
       )}
@@ -237,7 +239,7 @@ const StudentPersonalTab = ({ showActions = true, isRecruiterView = false, profi
       {hookProfileData.softSkills !== undefined && (
         <EditableSoftSkillsSection 
           data={hookProfileData.softSkills}
-          isEditing={isEditing}
+          isEditing={isEditing && !isRecruiterView} 
           onUpdate={updateEditingData}
         />
       )}
@@ -246,7 +248,7 @@ const StudentPersonalTab = ({ showActions = true, isRecruiterView = false, profi
       {hookProfileData.projects !== undefined && (
         <EditableProjectsSection 
           data={hookProfileData.projects}
-          isEditing={isEditing}
+          isEditing={isEditing && !isRecruiterView} 
           onUpdate={updateEditingData}
         />
       )}
@@ -255,7 +257,7 @@ const StudentPersonalTab = ({ showActions = true, isRecruiterView = false, profi
       {hookProfileData.experiences !== undefined && (
         <EditableExperienceSection 
           data={hookProfileData.experiences}
-          isEditing={isEditing}
+          isEditing={isEditing && !isRecruiterView} 
           onUpdate={updateEditingData}
         />
       )}
@@ -264,7 +266,7 @@ const StudentPersonalTab = ({ showActions = true, isRecruiterView = false, profi
       {hookProfileData.formations !== undefined && (
         <EditableFormationSection 
           data={hookProfileData.formations}
-          isEditing={isEditing}
+          isEditing={isEditing && !isRecruiterView} 
           onUpdate={updateEditingData}
         />
       )}
