@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { getStudentProfile, updateStudentProfile, mockAppointments } from "@/data/mockData";
 import { Appointment } from "@/types/appointment";
 import { dataProvider } from "@/data/dataProvider";
+import { useToast } from '@/hooks/use-toast';
 
 export interface ProfileData {
   id?: string;
@@ -125,7 +126,7 @@ export const useProfileData = (options?: UseProfileDataOptions) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editingData, setEditingData] = useState<ProfileData>(initialProfileData);
   const [isLoading, setIsLoading] = useState(false);
-
+  const { toast } = useToast();
   const startEditing = () => {
     setEditingData({ ...profileData });
     setIsEditing(true);
@@ -143,41 +144,53 @@ export const useProfileData = (options?: UseProfileDataOptions) => {
       // Mettre à jour les données dans mockData
       updateStudentProfile({ ...editingData });
       
-      // Sauvegarder sur Firestore si l'utilisateur est authentifié et que ce n'est pas une consultation
-      // (si specificUserId est fourni, on ne sauvegarde pas car c'est une visualisation de profil d'autrui)
-      if (currentUser && !options?.specificUserId) {
+      // ✅ Sauvegarder sur Firestore si l'utilisateur est authentifié
+      // ET qu'il modifie son propre profil (pas celui d'un autre utilisateur)
+      const userIdToSave = options?.specificUserId || currentUser?.id;
+      
+      if (currentUser && userIdToSave === currentUser.id) {
+        // ✅ On sauvegarde uniquement si c'est le profil de l'utilisateur connecté
         await dataProvider.saveUserProfile(currentUser.id, editingData);
         
-        // Si le prénom ou le nom a été mis à jour, envoyer un événement pour mettre à jour le contexte d'authentification
+        // Si le prénom ou le nom a été mis à jour, envoyer un événement
         const updatedFirstName = editingData.prenom || currentUser.prenom;
         const updatedLastName = editingData.nom || currentUser.nom;
         
-        // Si le nom a changé, envoyer un événement personnalisé pour mettre à jour le contexte
         if (updatedFirstName !== currentUser.prenom || updatedLastName !== currentUser.nom) {
-          // Créer un nouvel objet utilisateur avec les nouvelles données
           const updatedUser = {
             ...currentUser,
             prenom: updatedFirstName,
             nom: updatedLastName
           };
           
-          // Mettre à jour l'utilisateur dans le stockage de session
           sessionStorage.setItem('currentUser', JSON.stringify(updatedUser));
           
-          // Envoyer un événement personnalisé pour notifier les autres parties de l'application
           const event = new CustomEvent('userUpdated', { detail: updatedUser });
           window.dispatchEvent(event);
         }
+      } else if (currentUser && userIdToSave !== currentUser.id) {
+        // ❌ Un recruteur ne peut pas sauvegarder le profil d'un autre utilisateur
+        console.warn('Cannot save another user\'s profile');
+        toast({
+          title: "Action non autorisée",
+          description: "Vous ne pouvez pas modifier le profil d'un autre utilisateur.",
+          variant: "destructive"
+        });
+        return; // Ne pas sauvegarder
       }
       
       setIsEditing(false);
     } catch (error) {
       console.error('Error saving profile:', error);
+      toast({
+        title: "Erreur de sauvegarde",
+        description: "Une erreur est survenue lors de la sauvegarde.",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
   };
-
   const startEditingWithData = (newData: ProfileData) => {
     setEditingData(newData);
     setIsEditing(true);
