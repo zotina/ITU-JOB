@@ -340,6 +340,8 @@ Réponds de manière concise, utile et professionnelle. Propose des actions conc
     switch (intent.action) {
       case 'rechercher_offres':
         return this.formatOffresResponse(data);
+      case 'rechercher_etudiants':
+        return this.formatEtudiantsResponse(data);
       case 'analyser_profil':
         return this.formatProfilResponse(data);
       case 'mes_candidatures':
@@ -381,6 +383,49 @@ Réponds de manière concise, utile et professionnelle. Propose des actions conc
         response += `  • ${suggestion}\n`;
       });
     }
+    return response;
+  }
+
+  private formatEtudiantsResponse(data: ChatbotResponse): string {
+    const count = data.data?.count || 0;
+    if (count === 0) {
+      return "Je n'ai trouvé aucun étudiant correspondant à vos critères. Voulez-vous élargir votre recherche ?";
+    }
+
+    const etudiants = data.data?.etudiants || [];
+    let response = `Trouvé ${count} étudiant(s) correspondant à votre recherche :\n\n`;
+    
+    etudiants.slice(0, 5).forEach((etudiant: any) => {
+      // Créer un lien cliquable pour le nom de l'étudiant
+      const studentId = etudiant.id || etudiant.studentId || '';
+      const studentName = etudiant.name || etudiant.prenom + ' ' + etudiant.nom || etudiant.studentName || 'Étudiant';
+      
+      if (studentId) {
+        response += `[${studentName}](/recruiter/student-profile/${studentId})\n`;
+        response += `   ${etudiant.personalInfo?.title || etudiant.title || 'Étudiant'} | ${etudiant.personalInfo?.location || etudiant.location || 'Localisation non spécifiée'}\n`;
+        
+        // Ajout des compétences si disponibles
+        if (etudiant.technicalSkills && Array.isArray(etudiant.technicalSkills)) {
+          const allSkills = [];
+          etudiant.technicalSkills.forEach((category: any) => {
+            if (category.skills && Array.isArray(category.skills)) {
+              category.skills.forEach((skill: any) => {
+                allSkills.push(skill.name);
+              });
+            }
+          });
+          if (allSkills.length > 0) {
+            response += `   Compétences: ${allSkills.slice(0, 3).join(', ')}\n`;
+          }
+        }
+        response += '\n';
+      } else {
+        response += `${studentName}\n`;
+        response += `   ${etudiant.personalInfo?.title || etudiant.title || 'Étudiant'} | ${etudiant.personalInfo?.location || etudiant.location || 'Localisation non spécifiée'}\n\n`;
+      }
+    });
+    
+    response += "\nCliquez sur un nom pour voir le profil complet de l'étudiant !";
     return response;
   }
 
