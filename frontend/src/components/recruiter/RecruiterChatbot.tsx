@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MessageCircle, Send, Bot, User } from 'lucide-react';
 import QuickActions from '../chatbot/QuickActions';
+import React from 'react';
 
 const RecruiterChatbot = () => {
   const {
@@ -32,6 +33,34 @@ const RecruiterChatbot = () => {
       e.preventDefault();
       handleUserSendMessage();
     }
+  };
+
+  // Fonction pour convertir le Markdown simple en JSX
+  const renderMarkdown = (text: string) => {
+    // Remplacer les liens Markdown [texte](lien) par des éléments <a>
+    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+    const parts = text.split(linkRegex);
+    
+    return parts.map((part, index) => {
+      if (index % 3 === 1) { // C'est le texte du lien
+        const href = parts[index + 1]; // L'URL est au prochain index impair
+        return (
+          <a 
+            key={index} 
+            href={href} 
+            className="text-blue-600 hover:underline cursor-pointer"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {part}
+          </a>
+        );
+      } else if (index % 3 === 2) { // C'est l'URL, on la saute
+        return null;
+      } else { // C'est du texte normal
+        return part;
+      }
+    }).filter(part => part !== null);
   };
 
   return (
@@ -83,7 +112,9 @@ const RecruiterChatbot = () => {
                         : 'bg-muted'
                     }`}
                   >
-                    <p className="text-xs md:text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere">{message.content}</p>
+                    <p className="text-xs md:text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere">
+                      {renderMarkdown(message.content)}
+                    </p>
                   </div>
 
                   {message.sender === 'user' && (

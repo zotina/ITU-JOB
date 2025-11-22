@@ -359,7 +359,9 @@ Réponds de manière concise, utile et professionnelle. Propose des actions conc
     let response = `J'ai trouvé ${count} offre(s) pour vous :\n\n`;
     
     offres.slice(0, 5).forEach((offre: any) => {
-      response += `**${offre.title || offre.titre}** chez ${offre.company || offre.entreprise}\n`;
+      // Créer un lien cliquable pour le titre de l'offre
+      const queryString = encodeURIComponent(offre.title || offre.titre || '');
+      response += `[${offre.title || offre.titre}](/student/offers?q=${queryString}) chez ${offre.company || offre.entreprise}\n`;
       response += `   ${offre.location || offre.localisation} | ${offre.type || offre.type_contrat}\n`;
       response += `   ${offre.salary || offre.salaire}\n\n`;
     });
