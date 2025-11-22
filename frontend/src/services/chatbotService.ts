@@ -2,6 +2,11 @@ import { dataProvider } from '@/data/dataProvider';
 import { useAuth } from '@/hooks/useAuth';
 import { calculateProfileProgression } from '@/utils/profileProgression';
 
+// Fonction utilitaire pour normaliser les chaînes de caractères (enlever les accents)
+function normalizeString(str: string): string {
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
 // Types pour la réponse du chatbot
 export interface ChatbotResponse {
   success: boolean;
@@ -468,21 +473,24 @@ Réponds de manière concise, utile et professionnelle. Propose des actions conc
       let filteredOffers = allOffers;
       
       if (params.mots_cles) {
+        const normalizedMotsCles = normalizeString(params.mots_cles.toLowerCase());
         filteredOffers = filteredOffers.filter(offer => 
-          offer.title.toLowerCase().includes(params.mots_cles.toLowerCase()) ||
-          offer.description.toLowerCase().includes(params.mots_cles.toLowerCase())
+          normalizeString(offer.title.toLowerCase()).includes(normalizedMotsCles) ||
+          normalizeString(offer.description.toLowerCase()).includes(normalizedMotsCles)
         );
       }
       
       if (params.ville) {
+        const normalizedVille = normalizeString(params.ville.toLowerCase());
         filteredOffers = filteredOffers.filter(offer => 
-          offer.location.toLowerCase().includes(params.ville.toLowerCase())
+          normalizeString(offer.location.toLowerCase()).includes(normalizedVille)
         );
       }
       
       if (params.type_contrat) {
+        const normalizedTypeContrat = normalizeString(params.type_contrat.toLowerCase());
         filteredOffers = filteredOffers.filter(offer => 
-          offer.type.toLowerCase() === params.type_contrat.toLowerCase()
+          normalizeString(offer.type.toLowerCase()) === normalizedTypeContrat
         );
       }
       
@@ -869,8 +877,9 @@ Réponds de manière concise, utile et professionnelle. Propose des actions conc
     if (offer.technologies && Array.isArray(offer.technologies)) {
       totalWeight += 40; // Poids de 40% pour les technologies
       for (const tech of offer.technologies) {
+        const normalizedTech = normalizeString(tech.toLowerCase());
         if (profileSkills.some(skill => 
-          skill.includes(tech.toLowerCase()) || tech.toLowerCase().includes(skill)
+          normalizeString(skill).includes(normalizedTech) || normalizedTech.includes(normalizeString(skill))
         )) {
           score += 40 / offer.technologies.length;
         }
@@ -881,22 +890,22 @@ Réponds de manière concise, utile et professionnelle. Propose des actions conc
     if (offer.requirements && Array.isArray(offer.requirements)) {
       totalWeight += 30; // Poids de 30% pour les exigences
       for (const requirement of offer.requirements) {
-        const reqLower = requirement.toLowerCase();
+        const normalizedReq = normalizeString(requirement.toLowerCase());
         // Vérifier si une compétence du profil correspond à l'exigence
         if (profileSkills.some(skill => 
-          reqLower.includes(skill) || skill.includes(reqLower)
+          normalizeString(normalizedReq).includes(normalizeString(skill)) || normalizeString(skill).includes(normalizedReq)
         )) {
           score += 10;
         }
         // Vérifier si une expérience du profil correspond à l'exigence
         if (profileExperiences.some(exp => 
-          reqLower.includes(exp) || exp.includes(reqLower)
+          normalizeString(normalizedReq).includes(normalizeString(exp)) || normalizeString(exp).includes(normalizedReq)
         )) {
           score += 10;
         }
         // Vérifier si une langue du profil correspond à l'exigence
         if (profileLanguages.some(lang => 
-          reqLower.includes(lang) || lang.includes(reqLower)
+          normalizeString(normalizedReq).includes(normalizeString(lang)) || normalizeString(lang).includes(normalizedReq)
         )) {
           score += 10;
         }
@@ -907,7 +916,7 @@ Réponds de manière concise, utile et professionnelle. Propose des actions conc
     if (offer.location) {
       totalWeight += 20;
       if (profile.personalInfo && profile.personalInfo.location && 
-          profile.personalInfo.location.toLowerCase().includes(offer.location.toLowerCase())) {
+          normalizeString(profile.personalInfo.location.toLowerCase()).includes(normalizeString(offer.location.toLowerCase()))) {
         score += 20;
       }
     }
@@ -915,8 +924,8 @@ Réponds de manière concise, utile et professionnelle. Propose des actions conc
     // Vérifier la disponibilité (10%)
     if (profile.personalInfo && profile.personalInfo.availability) {
       totalWeight += 10;
-      if (offer.description && offer.description.toLowerCase().includes('immédiate') && 
-          profile.personalInfo.availability.toLowerCase().includes('immédiate')) {
+      if (offer.description && normalizeString(offer.description.toLowerCase()).includes(normalizeString('immédiate')) && 
+          normalizeString(profile.personalInfo.availability.toLowerCase()).includes(normalizeString('immédiate'))) {
         score += 10;
       }
     }

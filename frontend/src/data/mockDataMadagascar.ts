@@ -585,6 +585,9 @@ export const deleteAppointment = (id: string) => {
 
 
 export const preRempliCV: ProfileData = {
+  nom: "Rasetrarinjanahary",
+  prenom :"Zo Tina",
+  email:"zotinafiti@gmail.com",
   personalInfo: {
     name: "Andriamalala Raviro",
     title: "Ingénieur Logiciel & Développeur Full Stack",
