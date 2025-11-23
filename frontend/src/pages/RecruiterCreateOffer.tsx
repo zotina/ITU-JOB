@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +17,7 @@ import { JobOffer } from '@/services/firebaseService';
 const RecruiterCreateOffer = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [anonymousPost, setAnonymousPost] = useState(false);
   const [title, setTitle] = useState('');
   const [company, setCompany] = useState('');
@@ -36,6 +37,43 @@ const RecruiterCreateOffer = () => {
   const [experience, setExperience] = useState('');
   const [deadline, setDeadline] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Charger les valeurs pré-remplies depuis les paramètres de l'URL
+  useEffect(() => {
+    const prefilledTitle = searchParams.get('title');
+    const prefilledType = searchParams.get('type');
+    const prefilledLocation = searchParams.get('location');
+    const prefilledDescription = searchParams.get('description');
+    const prefilledTechnologies = searchParams.get('technologies');
+    const prefilledRequirements = searchParams.get('requirements');
+    const prefilledNiceToHave = searchParams.get('niceToHave');
+    const prefilledBenefits = searchParams.get('benefits');
+    const prefilledExperience = searchParams.get('experience');
+    const prefilledSalary = searchParams.get('salary');
+
+    if (prefilledTitle) setTitle(prefilledTitle);
+    if (prefilledType) setType(prefilledType);
+    if (prefilledLocation) setLocation(prefilledLocation);
+    if (prefilledDescription) setDescription(prefilledDescription);
+    if (prefilledTechnologies) setTechnologies(prefilledTechnologies.split(',').map(t => t.trim()).filter(t => t));
+    if (prefilledRequirements) setRequirements(prefilledRequirements.split(',').map(r => r.trim()).filter(r => r));
+    if (prefilledNiceToHave) setNiceToHave(prefilledNiceToHave.split(',').map(n => n.trim()).filter(n => n));
+    if (prefilledBenefits) setBenefits(prefilledBenefits.split(',').map(b => b.trim()).filter(b => b));
+    if (prefilledExperience) setExperience(prefilledExperience);
+    
+    // Gérer le salaire qui peut être au format "min - max" ou un seul chiffre
+    if (prefilledSalary) {
+      const salaryMatch = prefilledSalary.match(/(\d+)(?:\s*[-–]\s*(\d+))?/);
+      if (salaryMatch) {
+        const [, min, max] = salaryMatch;
+        if (min) setSalaryMin(min);
+        if (max) setSalaryMax(max);
+      } else {
+        // Si le salaire n'est pas dans un format numérique, on le met dans le champ min
+        setSalaryMin(prefilledSalary);
+      }
+    }
+  }, [searchParams]);
 
   const handleAddTechnology = () => {
     if (newTech.trim() && !technologies.includes(newTech.trim())) {

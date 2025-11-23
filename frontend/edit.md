@@ -1,5 +1,239 @@
 # Historique des Modifications
 
+## 23-11-2025: Création d'offres via le chatbot IA - Génération complète d'offres comme modèle
+
+- **Objectif :** Étendre la fonctionnalité de création d'offres via le chatbot IA pour permettre la génération complète d'offres de qualité avec description, exigences, technologies, avantages, et autres détails pertinents à partir d'un simple poste demandé par le recruteur, comme un modèle d'offre complet.
+- **Actions :** 
+    1. **Génération IA avancée :** Amélioration de la fonction `creerOffre` dans `chatbotService.ts` pour utiliser l'IA et générer des descriptions complètes, des exigences pertinentes, des technologies appropriées, des avantages standards et des salaires de référence basés sur le poste demandé.
+    2. **Analyse contextuelle :** L'IA analyse le poste demandé (ex: \\\"développeur full stack\\\") et génère automatiquement une offre complète avec des sections \\\"À propos du poste\\\", \\\"Responsabilités\\\", \\\"Environnement de travail\\\", etc.
+    3. **Pré-remplissage intelligent :** Tous les champs du formulaire sont maintenant pré-remplis avec des contenus professionnels et adaptés au poste spécifique.
+    4. **Gestion des listes :** Amélioration du composant `RecruiterCreateOffer.tsx` pour gérer correctement les listes de technologies, exigences, avantages passées dans l'URL.
+    5. **Exemples d'offres de référence :** Intégration d'un exemple détaillé d'offre (comme celle pour \\\"Développeur Full Stack Senior\\\" chez Orange Madagascar) pour guider l'IA dans la génération de contenus de qualité.
+    6. **Paramètres complets :** Le système génère maintenant automatiquement titre, type, localisation, salaire, technologies, exigences, souhaits, avantages, expérience requise, et description détaillée.
+    7. **Fallback intelligent :** Si des détails sont fournis dans la requête, ils sont utilisés, sinon l'IA génère des contenus pertinents.
+- **Résultat :** Les recruteurs peuvent créer des offres complètes et professionnelles en un seul clic à partir d'un poste simple (ex: \\\"développeur full stack\\\"), avec une description détaillée, des exigences pertinentes, des technologies appropriées, et des avantages standards, comme s'ils utilisaient un modèle d'offre pré-rempli de qualité.
+
+---
+
+## 23-11-2025: Ajout de la fonctionnalité de création d'offres pré-remplie via le chatbot IA
+
+- **Objectif :** Permettre aux recruteurs de demander la création d'une offre via le chatbot IA, qui analyse la demande et redirige vers le formulaire de création d'offre avec les champs pré-remplis.
+- **Actions :** 
+    1. **Mise à jour de la détection d'intention dans le chatbot :** Ajout d'exemples spécifiques dans le prompt de `chatbotService.ts` pour détecter les demandes de création d'offres d'emploi.
+    2. **Implémentation de l'action creerOffre :** Mise à jour de la fonction `creerOffre` dans `chatbotService.ts` pour analyser la requête et générer les paramètres d'URL appropriés.
+    3. **Mise à jour de RecruiterCreateOffer :** Ajout de `useSearchParams` pour lire les paramètres d'URL et pré-remplir les champs du formulaire (titre, type, localisation, description, technologies, exigences, etc.).
+    4. **Mise à jour de useChatbot hook :** Extension pour exposer les données d'action (`actionData`) permettant de gérer les redirections.
+    5. **Mise à jour de RecruiterChatbot :** Ajout d'un effet pour intercepter l'action de redirection et naviguer vers la page de création d'offre avec paramètres pré-remplis.
+    6. **Mise à jour de StudentChatbot :** Mise à jour cohérente pour exposer les mêmes fonctionnalités (bien que non utilisées pour le moment).
+    7. **Validation de la fonctionnalité :** Lorsqu'un recruteur dit \\\"Crée moi une offre pour administrateur base de données\\\", le bot analyse la demande et redirige vers le formulaire pré-rempli.
+    8. **Support des champs complexes :** Traitement des technologies, exigences principales, souhaits, avantages, expérience et salaire.
+    9. **Gestion des formats de salaire :** L'analyse du salaire gère les formats \\\"min - max\\\" ou simple.
+- **Résultat :** Les recruteurs peuvent maintenant créer des offres rapidement via le chatbot IA qui pré-remplit le formulaire avec les informations extraites de leur requête.
+
+---
+
+## 19-11-2025: Correction complète du problème d'inputs non modifiables en mode édition du profil + sauvegarde sur Firebase
+
+- **Objectif :** Résoudre complètement le problème d'inputs non modifiables dans le mode édition du profil étudiant où les champs pré-remplis n'étaient pas éditables par l'utilisateur et assurer la sauvegarde correcte sur Firebase.
+- **Actions :**
+    1.  **Analyse du problème :** Identification que la variable `personalInfo` dans `EditableProfileHeader.tsx` était capturée une seule fois au début du rendu du composant et devenait donc périmée lors des mises à jour successives.
+    2.  **Localisation de l'erreur :** Dans la fonction `updatePersonalInfo`, l'utilisation de `...personalInfo` dans la mise à jour des champs imbriqués utilisait une version obsolète des données.
+    3.  **Première tentative de correction :** Remplacement de `...personalInfo` par `...(profileData?.personalInfo || {})` qui accède directement à la valeur actuelle du prop au moment de l'appel.
+    4.  **Approche alternative testée :** Mise en place d'un état local `localEditingData` avec `useState` et `useEffect` pour gérer les modifications en temps réel, mais cela a créé des problèmes de synchronisation entre les états.
+    5.  **Solution finale adoptée :** Retour à l'approche originale sans état local mais avec accès direct à `profileData` dans les fonctions de mise à jour pour garantir que les données les plus récentes sont utilisées.
+    6.  **Mise à jour des fonctions :** La fonction `updatePersonalInfo` utilise désormais `...(profileData?.personalInfo || {})` pour s'assurer que les mises à jour utilisent les données les plus récentes du prop.
+    7.  **Correction du problème de sauvegarde Firebase :** Identification que la fonction `saveUserProfile` ne fonctionnait pas correctement en raison d'une mauvaise gestion des objets imbriqués dans les données du profil.
+    8.  **Réparation de la sauvegarde :** Mise à jour de la fonction `saveUserProfile` dans `firebaseService.ts` pour utiliser la méthode `cleanObjectForFirestore` qui gère correctement les objets imbriqués et les valeurs indéfinies avant de les sauvegarder dans Firestore.
+    9.  **Correction de la gestion des objets imbriqués :** Réparation de la fonction `updateEditingData` dans `useProfileData.ts` pour garantir une fusion correcte des objets imbriqués comme `personalInfo`.
+    10. **Validation de la solution :** Les champs du formulaire en mode édition sont maintenant correctement modifiables, y compris les champs racine (`nom`, `prenom`, `email`) et les champs imbriqués dans `personalInfo`.
+    11. **Sauvegarde Firestore :** Les modifications sont correctement enregistrées dans la base Firestore via le service de données.
+    12. **Impact :** Amélioration significative de l'expérience utilisateur lors de la modification du profil, les utilisateurs peuvent maintenant éditer librement tous les champs de leur profil avec un enregistrement correct sur Firestore.
+
+---
+
+## 19-11-2025: Synchronisation avec l'état actuel du projet et ajout de nouvelles fonctionnalités
+
+- **Objectif :** Comprendre la structure actuelle de la base de données et l'historique des modifications pour assurer une synchronisation complète avec l'état du projet. Ajout d'une fonctionnalité de chatbot avec détection d'intention et mise à jour de la structure de données pour être compatible avec Firestore.
+- **Actions :**
+    1.  **Analyse de la structure de données :** Lecture et compréhension du fichier @scripts/init_firestore-nouveau.mjs contenant la conception complète de la base de données Firestore.
+    2.  **Étude de l'historique :** Lecture du fichier @edit.md pour comprendre l'historique complet des modifications apportées au projet.
+    3.  **Documentation des entités :** Identification des collections Firestore (users, offers, applications, notifications, ai_recommendations) et de leur structure de données.
+    4.  **Analyse des profils :** Compréhension des structures de données pour les recruteurs (intégrés avec les infos entreprises) et les étudiants (profil détaillé avec compétences, expériences, formations, etc.).
+    5.  **Référencement des données :** Documentation des données de test pour les entreprises (Orange, Yas, Airtel, SystAsia, Microlink) et des étudiants (Fanantenana, Raviro, Hasina).
+    6.  **Mise à jour du contexte :** Ajout de cette entrée dans le fichier edit.md pour conserver un historique des modifications conformément aux règles établies.
+    7.  **Implémentation de la détection d'intention :** Ajout de nouvelles intentions dans le chatbot pour permettre une interaction plus naturelle avec les utilisateurs (étudiants et recruteurs).
+    8.  **Mise à jour du service de données :** Adaptation du service de données pour prendre en charge les nouvelles fonctionnalités et structures de données Firestore.
+
+---
+
+## 18-11-2025: Mise à jour de la structure de données pour être compatible avec la nouvelle base Firestore
+
+- **Objectif :** Adapter le hook useProfileData.ts et les composants associés pour qu'ils soient entièrement compatibles avec la nouvelle structure Firestore où toutes les données utilisateur sont stockées dans une collection unique `users`.
+- **Actions :** 
+  1. **Mise à jour de l'interface ProfileData :** Modification de l'interface pour refléter la nouvelle structure Firestore avec `prenom`, `nom`, `email`, `role` au niveau racine et des objets imbriqués pour les détails comme `personalInfo`, `technicalSkills`, etc.
+  2. **Correction de la fonction saveChanges :** Mise à jour pour accéder correctement aux champs `prenom` et `nom` au niveau racine au lieu d'essayer d'accéder à `personalInfo.name`.
+  3. **Mise à jour de la logique de chargement :** Amélioration de la fonction de chargement du profil pour gérer correctement la structure de données Firestore.
+  4. **Mise à jour du composant EditableProfileHeader :** Correction de l'accès aux champs `prenom`, `nom` et `email` pour qu'ils soient correctement liés aux champs racines dans le mode édition.
+  5. **Préparation pour les deux types d'utilisateurs :** L'interface est maintenant prête à gérer à la fois les profils étudiants et les profils recruteurs avec leurs structures spécifiques.
+- **Résultat :** Le système est maintenant entièrement aligné avec la nouvelle structure Firestore, permettant un stockage cohérent des données utilisateur (étudiants et recruteurs) dans une collection unique.
+
+---
+
+## 18-11-2025: Vérification de la fonctionnalité de consultation du profil candidat depuis l'interface recruteur
+
+- **Objectif :** Vérifier que le clic sur le bouton \\\"Voir profil\\\" sur l'interface recruteur envoie bien l'ID du candidat pour afficher son profil spécifique.
+- **Actions :** 
+  1. **Analyse du composant FilteredApplications.tsx :** Vérification que le bouton \\\"Voir profil\\\" envoie l'ID du candidat via `application.studentId` dans l'URL : `/recruiter/student-profile/${application.studentId}`.
+  2. **Analyse du composant RecruiterStudentProfile.tsx :** Confirmation que le composant récupère l'ID du candidat depuis les paramètres d'URL et le transmet au composant StudentProfile via la prop `studentId`.
+  3. **Analyse du composant StudentProfile.tsx :** Vérification que le composant accepte la prop `studentId` et la transmet au hook `useProfileData` avec l'option `{ specificUserId: actualStudentId }`.
+  4. **Analyse du hook useProfileData.ts :** Confirmation que le hook est configuré pour charger un profil spécifique par ID via `dataProvider.getUserProfile(userIdToLoad)`.
+  5. **Conclusion :** La fonctionnalité est entièrement implémentée et fonctionnelle. Le bouton \\\"Voir profil\\\" transmet bien l'ID du candidat pour afficher son profil spécifique.
+- **Résultat :** La fonctionnalité demandée est déjà correctement implémentée dans le code.
+
+---
+
+## 16-11-2025: Amélioration de l'algorithme de matching IA avec analyse sémantique
+
+- **Objectif :** Implémenter un algorithme de matching plus sophistiqué qui analyse en profondeur les correspondances entre les exigences d'offre et les profils étudiants.
+- **Actions :**
+    1. **Analyse détaillée des compétences :** Prise en compte du niveau (débutant, intermédiaire, avancé) et de l'expérience (années) pour chaque compétence technique.
+    2. **Interprétation des exigences complexes :** Traitement des exigences multiples avec \\\"et/ou\\\", des exigences d'expérience (ex: \\\"3 ans\\\"), des technologies spécifiques.
+    3. **Analyse des technologies :** Meilleure reconnaissance des technologies et variantes (ex: JS pour JavaScript).
+    4. **Évaluation des langues :** Intégration des niveaux de langue dans le matching (anglais technique).
+    5. **Calcul de score progressif :** Attribution de scores partiels pour les correspondances partielles.
+    6. **Meilleure explication :** Détails plus précis sur les éléments qui ont contribué au score de matching.
+    7. **Prise en charge des structures de données complexes :** Analyse des compétences techniques structurées par catégories.
+
+---
+
+## 16-11-2025: Ajout des détails de matching sur les profils recommandés
+
+- **Objectif :** Permettre aux recruteurs de voir les détails du matching IA en cliquant sur le score de compatibilité.
+- **Actions :**
+    1. **Amélioration du service AI :** Mise à jour de la fonction de calcul de matching pour inclure des détails sur les critères qui ont contribué au score.
+    2. **Ajout des détails de matching :** Stockage des explications du matching dans la réponse pour chaque étudiant.
+    3. **Intégration de la tooltip :** Ajout d'une infobulle interactive qui s'affiche lors du survol du score de matching.
+    4. **Affichage des détails :** Les raisons du score (compétences, exigences, localisation) sont affichées dans la tooltip.
+    5. **Expérience utilisateur :** Les recruteurs peuvent maintenant comprendre pourquoi un candidat a obtenu un certain score de matching.
+    6. **Amélioration de la transparence :** Les décisions de matching sont maintenant expliquées avec des détails concrets.
+
+---
+
+## 16-11-2025: Correction du bouton de recommandation en double
+
+- **Objectif :** Corriger l'affichage de deux boutons de recommandation identiques dans la page des offres recruteur.
+- **Actions :**
+    1. **Identification du problème :** Lors de l'intégration du système de recommandation IA, un composant RecommendedProfiles avait été ajouté en double.
+    2. **Correction du code :** Suppression du composant RecommendedProfiles en double pour ne garder qu'une seule instance.
+    3. **Maintien des fonctionnalités :** Le bouton de recommandation IA reste fonctionnel avec le passage correct de l'ID de l'offre.
+    4. **Amélioration UX :** Interface plus propre sans boutons redondants.
+
+---
+
+## 16-11-2025: Système de recommandation IA pour les profils étudiants
+
+- **Objectif :** Implémenter un système de recommandation utilisant l'IA pour matcher les profils étudiants avec les exigences d'une offre d'emploi et afficher les 4 meilleurs profils.
+- **Actions :**
+    1. **Extension du service AIRecommendationsService :** Ajout de la fonction `generateStudentRecommendationsForOffer` pour analyser les profils étudiants par rapport aux exigences d'une offre.
+    2. **Algorithme de matching :** Implémentation d'un système de calcul de score basé sur les compétences techniques, les expériences, la localisation et les exigences textuelles de l'offre.
+    3. **Mécanisme d'analyse sémantique :** Ajout de fonctions pour calculer la similarité entre les exigences textuelles et les profils, permettant de matcher des descriptions en langage naturel.
+    4. **Mise à jour du composant RecommendedProfiles :** Modification pour récupérer dynamiquement les profils recommandés en fonction d'une offre spécifique via l'IA.
+    5. **Interface utilisateur améliorée :** Ajout d'indicateurs de chargement et de messages pour les cas sans résultats.
+    6. **Intégration avec les offres :** Le composant est maintenant intégré à la page des offres avec passage de l'ID de l'offre pour analyse.
+    7. **Affichage des résultats :** Seulement les 4 profils avec le meilleur score de matching sont affichés.
+    8. **Système de score :** Chaque profil affiche son pourcentage de matching calculé par l'IA.
+
+---
+
+## 16-11-2025: Mise à jour du formulaire de création d'offres avec nouveaux champs
+
+- **Objectif :** Étendre le formulaire de création d'offres pour inclure les exigences principales, les souhaits (nice to have) et les avantages.
+- **Actions :**
+    1. **Ajout des variables d'état :** Ajout des états pour gérer les listes d'exigences, de souhaits et d'avantages.
+    2. **Ajout des fonctions de gestion :** Création des fonctions pour ajouter et supprimer des éléments dans chaque liste.
+    3. **Ajout des champs de formulaire :** Intégration des sections \\\"Exigences principales\\\", \\\"Souhaits (Nice to have)\\\" et \\\"Avantages\\\" dans l'interface.
+    4. **Interface utilisateur améliorée :** Chaque section permet l'ajout d'éléments par liste via un champ de texte et un bouton \\\"+\\\".
+    5. **Gestion des éléments :** Chaque élément ajouté peut être supprimé individuellement.
+    6. **Mise à jour de la soumission :** Le formulaire soumet maintenant toutes les nouvelles données vers Firestore.
+    7. **Saisie clavier :** Possibilité d'ajouter des éléments en appuyant sur Entrée dans les champs de texte.
+    8. **Intégration avec Firestore :** Les nouvelles données sont correctement stockées dans les documents d'offres Firestore.
+
+---
+
+## 16-11-2025: Amélioration de l'affichage des détails d'offres avec exigences et avantages
+
+- **Objectif :** Améliorer la page de détails d'offres pour afficher correctement les exigences, les souhaits (nice to have) et les avantages à partir des données Firestore.
+- **Actions :**
+    1. **Mise à jour de l'interface JobOffer :** Ajout des champs `niceToHave` et `benefits` dans les interfaces des deux services (firebaseService et chatbotService).
+    2. **Amélioration de OfferDetailPage :** Ajout de sections distinctes pour afficher les exigences principales, les souhaits (nice to have) et les avantages de l'offre.
+    3. **Condition d'affichage :** Les sections \\\"Souhaits\\\" et \\\"Avantages\\\" ne s'affichent que si les données sont présentes dans l'offre.
+    4. **Structure :** Affichage des listes d'éléments sous forme de puces pour une meilleure lisibilité.
+    5. **Compatibilité :** Le code est rétrocompatible et ne casse pas si certaines sections sont absentes.
+
+---
+
+## 16-11-2025: Création d'offres avec Firestore et badges \\\"Nouveau\\\"
+
+- **Objectif :** Implémenter la création d'offres d'emploi avec stockage dans Firestore et ajout d'un badge temporaire \\\"Nouveau\\\" sur les nouvelles offres.
+- **Actions :**
+    1. **Mise à jour de l'interface JobOffer :** Ajout des champs `isNouveau` et `nouveauUntil` pour gérer le badge temporaire.
+    2. **Ajout de la fonction createOffer :** Création de la méthode dans firebaseService pour stocker les nouvelles offres dans Firestore avec les informations appropriées.
+    3. **Ajout de la fonction createOffer au dataProvider :** Extension du dataProvider pour inclure la création d'offres via Firebase.
+    4. **Mise à jour du formulaire RecruiterCreateOffer :** Connexion de tous les champs du formulaire aux variables d'état et implémentation de la soumission vers Firestore.
+    5. **Ajout du badge \\\"Nouveau\\\" :** Affichage d'un badge \\\"Nouveau\\\" sur les offres récemment créées (dans les 7 derniers jours) dans la liste des offres.
+    6. **Gestion automatique du badge :** Mise à jour automatique dans Firestore pour retirer le statut \\\"Nouveau\\\" après 7 jours.
+    7. **Amélioration UX :** Les recruteurs peuvent maintenant créer des offres qui sont stockées de manière persistante dans Firestore avec un indicateur visuel pour les offres récentes.
+
+---
+
+## 16-11-2025: Ajout du nombre de candidatures sur les offres et amélioration UX
+
+- **Objectif :** Améliorer l'UX sur la page des offres du recruteur en affichant le nombre de candidatures pour chaque offre.
+- **Actions :**
+    1. **Mise à jour de l'interface JobOffer :** Ajout du champ `nbCandidatures` à l'interface pour stocker le nombre de candidatures.
+    2. **Mise à jour de getOffers :** Modification de la fonction pour compter les candidatures associées à chaque offre en interrogeant la collection 'applications'.
+    3. **Mise à jour de addApplication :** Modification de la fonction pour incrémenter le compteur de candidatures sur l'offre concernée lors de l'ajout d'une candidature.
+    4. **Mise à jour de l'interface RecruiterOffers :** Modification du bouton \\\"Voir candidatures\\\" pour afficher le nombre de candidatures à côté du texte du bouton via un badge.
+    5. **Amélioration UX :** Les recruteurs peuvent maintenant voir le nombre de candidatures sur chaque offre sans avoir à cliquer sur le bouton, améliorant ainsi l'expérience utilisateur.
+    6. **Fonctionnement technique :** Le système dénormalise les données en stockant le nombre de candidatures directement dans le document de l'offre pour des performances optimales.
+
+---
+
+## 16-11-2025: Modification de dataProvider.ts pour retourner des tableaux vides au lieu des données mock
+
+- **Objectif :** Modifier dataProvider.ts pour qu'il retourne des tableaux vides ([]) au lieu des données mock quand il n'y a pas de données dans Firestore.
+- **Actions :**
+    1. **Mise à jour de getCompanies :** La fonction retourne maintenant un tableau vide au lieu de données mock quand il n'y a pas d'entreprises dans Firestore.
+    2. **Mise à jour de getCompanyById :** La fonction retourne maintenant null au lieu de données mock quand l'entreprise n'existe pas dans Firestore.
+    3. **Mise à jour de getOffers :** La fonction retourne maintenant un tableau vide au lieu de données mock quand il n'y a pas d'offres dans Firestore.
+    4. **Mise à jour de getOfferById :** La fonction retourne maintenant null au lieu de données mock quand l'offre n'existe pas dans Firestore.
+    5. **Mise à jour de getCandidates :** La fonction retourne maintenant un tableau vide au lieu de données mock quand il n'y a pas de candidats dans Firestore.
+    6. **Mise à jour de getCandidateById :** La fonction retourne maintenant null au lieu de données mock quand le candidat n'existe pas dans Firestore.
+    7. **Mise à jour de getApplications :** La fonction retourne maintenant un tableau vide au lieu des données mock quand il n'y a pas de candidatures dans Firestore.
+    8. **Mise à jour de addApplication :** La fonction ne fait plus de fallback aux données mock et lève une exception en cas d'erreur.
+    9. **Mise à jour de updateApplication :** La fonction ne fait plus de fallback aux données mock et lève une exception en cas d'erreur.
+    10. **Mise à jour de getUserProfile :** La fonction retourne maintenant null en cas d'erreur au lieu de faire un fallback.
+    11. **Mise à jour de saveUserProfile :** La fonction ne fait plus de fallback aux données mock et lève une exception en cas d'erreur.
+    12. **Mise à jour de getAIRecommendations :** La fonction retourne maintenant null en cas d'erreur au lieu de faire un fallback.
+    13. **Mise à jour de saveAIRecommendations :** La fonction ne fait plus de fallback aux données mock et lève une exception en cas d'erreur.
+    14. **Suppression des imports inutilisés :** Suppression des imports des données mock (mockCompanies, mockOffers, mockCandidates, getApplications, addApplication) qui ne sont plus utilisés.
+    15. **Résultat :** Le dataProvider suit maintenant la même logique que firebaseService et retourne des tableaux vides ou null quand il n'y a pas de données dans Firestore, sans utiliser de données mock.
+
+---
+
+## 15-11-2025: Mise à jour de RecruiterCandidates - Affichage conditionnel des candidatures
+
+- **Objectif :** Modifier le composant RecruiterCandidates pour afficher les candidatures selon la présence du paramètre offerId dans l'URL.
+- **Actions :**
+    1. **Ajout de useSearchParams :** Intégration de l'hook pour récupérer le paramètre offerId depuis l'URL.
+    2. **Logique conditionnelle :** Si offerId est présent, affichage des candidatures pour cette offre spécifique uniquement.
+    3. **Affichage par défaut :** Si offerId est absent, affichage de toutes les candidatures appartenant à l'entreprise du recruteur connecté.
+    4. **Mise à jour de l'interface :** Adaptation de l'UI pour afficher les applications au lieu des candidats bruts.
+    5. **Fonctionnalité de filtrage :** Le filtrage est géré via le service backend qui s'assure que seules les candidatures de la bonne entreprise sont retournées.
+    6. **Amélioration des fonctionnalités :** Les boutons d'acceptation/rejet fonctionnent maintenant avec les données Firestore réelles.
+
+---
+
 ## 15-11-2025: Suppression du fallback aux données mock dans firebaseService
 
 - **Objectif :** Empêcher l'affichage de données statiques mockdata dans les cas où il n'y a pas de données dans Firestore.
@@ -31,10 +265,10 @@
 - **Actions :**
     1. **Mise à jour de firebaseService :** Réorganisation complète des opérations Firestore pour fonctionner avec la nouvelle structure où les entreprises sont stockées dans les profils utilisateurs (rôle 'recruiter').
     2. **Mise à jour des opérations de candidats :** Modification des fonctions `getCandidates` et `getCandidateById` pour récupérer les profils étudiants depuis la collection `users`.
-    3. **Correction des requêtes Firestore :** Mise à jour de la fonction `addApplication` pour éviter l'erreur "where() called with invalid data" en retirant la requête vers la collection 'companies' supprimée.
+    3. **Correction des requêtes Firestore :** Mise à jour de la fonction `addApplication` pour éviter l'erreur \\\"where() called with invalid data\\\" en retirant la requête vers la collection 'companies' supprimée.
     4. **Mise à jour de l'affichage des offres :** Correction des fonctions `getOffers` et `getOfferById` pour récupérer correctement le nom de l'entreprise depuis la nouvelle structure dénormalisée.
-    5. **Fix de l'OfferDetailPage :** Remplacement de l'utilisation des données mock par les appels à `dataProvider` pour récupérer les détails de l'offre et corriger l'erreur "Offre non trouvée".
-    6. **Fix de StudentApplications :** Correction de l'erreur "Cannot read properties of undefined (reading 'toLowerCase')" en sécurisant l'accès aux propriétés potentiellement undefined.
+    5. **Fix de l'OfferDetailPage :** Remplacement de l'utilisation des données mock par les appels à `dataProvider` pour récupérer les détails de l'offre et corriger l'erreur \\\"Offre non trouvée\\\".
+    6. **Fix de StudentApplications :** Correction de l'erreur \\\"Cannot read properties of undefined (reading 'toLowerCase')\\\" en sécurisant l'accès aux propriétés potentiellement undefined.
     7. **Mise à jour des fonctions d'application :** Adaptation des fonctions pour utiliser les données correctes de l'utilisateur authentifié via `useAuth`.
 
 ---
@@ -71,7 +305,7 @@
 - **Actions :**
     1. **Vérification des sidebars :** Confirmation que `RecruiterSidebar.tsx` et `StudentSidebar.tsx` utilisent déjà correctement le hook `useAuth` pour afficher le nom de l'utilisateur connecté.
     2. **Mise à jour de StudentApplications.tsx :** Amélioration de la logique de filtrage pour s'assurer que seules les candidatures appartenant à l'utilisateur connecté sont affichées (filtrage par `studentId`).
-    3. **Amélioration de l'affichage :** Ajout d'un état de chargement et mise à jour des messages pour afficher "Aucune candidature" quand il n'y a pas de candidatures pour l'utilisateur connecté.
+    3. **Amélioration de l'affichage :** Ajout d'un état de chargement et mise à jour des messages pour afficher \\\"Aucune candidature\\\" quand il n'y a pas de candidatures pour l'utilisateur connecté.
     4. **Mise à jour de l'interface Application :** Ajout des champs `studentId`, `studentName` et `offerId` à l'interface Application pour garantir la cohérence des types.
     5. **Optimisation du filtrage :** Clarification de la logique de filtrage pour qu'elle soit plus explicite et plus fiable.
 
@@ -226,7 +460,7 @@
 - **Objectif :** Améliorer le moteur de recherche pour qu'il fonctionne correctement en langage naturel et corriger l'erreur dans le composant RecruiterStudentSearch.
 - **Actions :**
     1. **Correction de RecruiterStudentSearch.tsx :** Réparation de l'erreur liée à l'accès à des propriétés potentiellement undefined, notamment skills, en assurant une initialisation correcte des données à partir de mockCandidates.
-    2. **Mise à jour de la logique de recherche en langage naturel :** Amélioration de l'algorithme de recherche pour traiter correctement les requêtes en langage naturel comme "développeur React Antananarivo disponible immédiatement", avec un système de score de pertinence pour classer les résultats.
+    2. **Mise à jour de la logique de recherche en langage naturel :** Amélioration de l'algorithme de recherche pour traiter correctement les requêtes en langage naturel comme \\\"développeur React Antananarivo disponible immédiatement\\\", avec un système de score de pertinence pour classer les résultats.
     3. **Mise à jour de la logique de données :** Modification de l'accès aux profils étudiants pour utiliser les données de mockCandidates au lieu d'un profil global.
     4. **Mise à jour de RecruiterStudentProfile.tsx :** Ajout de la gestion des paramètres d'URL pour permettre l'affichage de profils spécifiques d'étudiants.
     5. **Mise à jour de StudentProfile.tsx :** Ajout du paramètre studentId pour permettre l'affichage de profils spécifiques en mode recruteur.
@@ -235,7 +469,7 @@
 
 ## 09-11-2025: Correction de l'erreur d'export dans RecruiterStudentProfile
 
-- **Objectif :** Résoudre l'erreur de module "does not provide an export named 'default'" dans RecruiterStudentProfile.tsx.
+- **Objectif :** Résoudre l'erreur de module \\\"does not provide an export named 'default'\\\" dans RecruiterStudentProfile.tsx.
 - **Actions :**
     1. **Analyse de l'erreur :** Identification que la modification de StudentProfile pour accepter un studentId prop a causé des problèmes d'export.
     2. **Réversion des changements :** Retrait du paramètre studentId de StudentProfile.tsx pour restaurer la compatibilité.
@@ -257,7 +491,7 @@
 
 ## 09-11-2025: Correction de l'erreur dans la recherche d'étudiants
 
-- **Objectif :** Résoudre l'erreur "Cannot read properties of undefined (reading 'flatMap')" sur la page de recherche des étudiants.
+- **Objectif :** Résoudre l'erreur \\\"Cannot read properties of undefined (reading 'flatMap')\\\" sur la page de recherche des étudiants.
 - **Actions :**
     1. **Diagnostic de l'erreur :** Identification du problème dans RecruiterStudentSearch.tsx ligne 32 avec l'appel à flatMap sur des propriétés potentiellement nulles.
     2. **Ajout de vérifications de nullité :** Mise en place de protections pour les propriétés techniques du profil (technicalSkills, languages, projects, experiences, formations).
@@ -363,10 +597,10 @@
 
 ## 09-11-2025: Ajout de la section offres de stage dans le profil étudiant
 
-- **Objectif :** Ajouter des offres de stage dans la section "Toutes les offres" du profil étudiant, avec le type "stage" dans le select et rendre les champs technologie et ville libres.
+- **Objectif :** Ajouter des offres de stage dans la section \\\"Toutes les offres\\\" du profil étudiant, avec le type \\\"stage\\\" dans le select et rendre les champs technologie et ville libres.
 - **Actions :**
     1. **Ajout des offres de stage :** Ajout de 4 nouvelles offres de stage dans les données de test.
-    2. **Mise à jour du type d'offre :** Ajout du type "Stage" aux données existantes pour permettre son utilisation dans les filtres.
+    2. **Mise à jour du type d'offre :** Ajout du type \\\"Stage\\\" aux données existantes pour permettre son utilisation dans les filtres.
     3. **Rendre technologie libre :** Remplacement du Select de technologie par un champ de recherche libre pour permettre des filtres plus souples.
     4. **Rendre ville libre :** Remplacement du Select de ville par un champ de recherche libre pour permettre des filtres plus souples.
 
@@ -377,7 +611,7 @@
 - **Objectif :** Supprimer la fonctionnalité de tri dans la page StudentOffers.tsx pour simplifier l'interface et garder une structure pertinente.
 - **Actions :**
     1.  **Suppression de l'état sortBy :** Suppression de la variable d'état `sortBy` dans le composant `StudentOffers.tsx`.
-    2.  **Suppression du composant Select de tri :** Suppression du Select permettant de trier par "Pertinence", "Salaire" ou "Plus récent".
+    2.  **Suppression du composant Select de tri :** Suppression du Select permettant de trier par \\\"Pertinence\\\", \\\"Salaire\\\" ou \\\"Plus récent\\\".
     3.  **Simplification de la logique de tri :** Remplacement de la logique de tri dynamique par un tri fixe par pertinence (matchingScore).
     4.  **Ajustement de la structure :** Modification de la grille de filtres de 4 colonnes à 3 colonnes pour conserver une disposition équilibrée après la suppression du filtre de tri.
 
@@ -408,17 +642,17 @@
 
 - **Objectif :** Afficher le mois et l'année en cours dans l'interface du calendrier pour une meilleure lisibilité.
 - **Actions :**
-    1.  **Mise à jour de `src/components/AppointmentCalendar.tsx` :** Ajout d'un élément affichant le mois et l'année en cours (format: "MMMM yyyy") au-dessus de la grille du calendrier.
+    1.  **Mise à jour de `src/components/AppointmentCalendar.tsx` :** Ajout d'un élément affichant le mois et l'année en cours (format: \\\"MMMM yyyy\\\") au-dessus de la grille du calendrier.
     2.  **Utilisation de la fonction `format` de `date-fns` :** Utilisation de la locale française pour l'affichage du mois en cours.
 
 ---
 
 ## 04-11-2025: Ajout de la section Rendez-vous dans les sidebars
 
-- **Objectif :** Ajouter la section "Mes Rendez-vous" aux sidebars de chaque utilisateur pour permettre un accès direct depuis la navigation.
+- **Objectif :** Ajouter la section \\\"Mes Rendez-vous\\\" aux sidebars de chaque utilisateur pour permettre un accès direct depuis la navigation.
 - **Actions :**
-    1.  **Mise à jour de `src/components/sidebars/StudentSidebar.tsx` :** Ajout d'un lien "Mes Rendez-vous" pointant vers `/student/appointments`.
-    2.  **Mise à jour de `src/components/sidebars/RecruiterSidebar.tsx` :** Ajout d'un lien "Mes Rendez-vous" pointant vers `/recruiter/appointments`.
+    1.  **Mise à jour de `src/components/sidebars/StudentSidebar.tsx` :** Ajout d'un lien \\\"Mes Rendez-vous\\\" pointant vers `/student/appointments`.
+    2.  **Mise à jour de `src/components/sidebars/RecruiterSidebar.tsx` :** Ajout d'un lien \\\"Mes Rendez-vous\\\" pointant vers `/recruiter/appointments`.
     3.  **Importation de l'icône Calendar** dans les deux composants de sidebar.
     4.  **Mise à jour de l'ordre des éléments** dans le menu pour une meilleure organisation.
 
@@ -426,7 +660,7 @@
 
 ## 04-11-2025: Déplacement de la section Rendez-vous vers les sidebars
 
-- **Objectif :** Déplacer la section "Mes Rendez-vous" des profils vers les sidebars de chaque utilisateur pour une meilleure organisation.
+- **Objectif :** Déplacer la section \\\"Mes Rendez-vous\\\" des profils vers les sidebars de chaque utilisateur pour une meilleure organisation.
 - **Actions :**
     1.  **Suppression de l'onglet Rendez-vous** des composants `StudentProfile.tsx` et `RecruiterProfile.tsx`.
     2.  **Création de `src/components/student/StudentAppointments.tsx` :** Nouvelle page dédiée aux rendez-vous pour les étudiants.
@@ -438,14 +672,14 @@
 
 ## 04-11-2025: Ajout de la section Rendez-vous
 
-- **Objectif :** Ajouter une section "Mes Rendez-vous" commune aux profils étudiant et recruteur permettant de visualiser un calendrier des rendez-vous.
+- **Objectif :** Ajouter une section \\\"Mes Rendez-vous\\\" commune aux profils étudiant et recruteur permettant de visualiser un calendrier des rendez-vous.
 - **Actions :**
     1.  **Création de `src/types/appointment.ts` :** Définition de l'interface `Appointment` pour structurer les données de rendez-vous.
     2.  **Création de `src/components/AppointmentCalendar.tsx` :** Composant réutilisable pour afficher un calendrier de rendez-vous avec navigation mensuelle et détails quotidiens.
     3.  **Mise à jour de `src/data/mockData.ts` :** Ajout de données de test pour les rendez-vous (`mockAppointments`) et des fonctions utilitaires pour gérer les rendez-vous.
     4.  **Mise à jour de `src/hooks/useProfileData.ts` :** Extension de l'interface `ProfileData` pour inclure une propriété `appointments`, et ajout des fonctions `addAppointment`, `updateAppointment`, et `deleteAppointment`.
-    5.  **Mise à jour de `src/components/student/StudentProfile.tsx` :** Ajout d'un nouvel onglet "Mes Rendez-vous" avec le composant `AppointmentCalendar` affichant les rendez-vous pour les étudiants (seulement les entretiens).
-    6.  **Mise à jour de `src/components/recruiter/RecruiterProfile.tsx` :** Réorganisation du composant pour utiliser un système d'onglets avec "Profil Entreprise" et "Mes Rendez-vous", intégrant le composant `AppointmentCalendar` pour les recruteurs.
+    5.  **Mise à jour de `src/components/student/StudentProfile.tsx` :** Ajout d'un nouvel onglet \\\"Mes Rendez-vous\\\" avec le composant `AppointmentCalendar` affichant les rendez-vous pour les étudiants (seulement les entretiens).
+    6.  **Mise à jour de `src/components/recruiter/RecruiterProfile.tsx` :** Réorganisation du composant pour utiliser un système d'onglets avec \\\"Profil Entreprise\\\" et \\\"Mes Rendez-vous\\\", intégrant le composant `AppointmentCalendar` pour les recruteurs.
 
 ---
 
@@ -453,11 +687,11 @@
 
 - **Objectif :** Implémenter le flow complet pour le recruteur permettant de voir les candidatures par offre et d'accéder aux profils étudiants.
 - **Actions :**
-    1.  **Modification de `RecruiterOffers.tsx` :** Le bouton "Voir candidatures" redirige maintenant vers `/recruiter/candidates?offerId={id}` pour filtrer les candidatures par offre.
+    1.  **Modification de `RecruiterOffers.tsx` :** Le bouton \\\"Voir candidatures\\\" redirige maintenant vers `/recruiter/candidates?offerId={id}` pour filtrer les candidatures par offre.
     2.  **Création de `FilteredApplications.tsx` :** Page pour afficher les candidatures filtrées par offer_id, avec recherche et pagination.
     3.  **Création de `RecruiterStudentProfile.tsx` :** Page de profil étudiant version recruteur affichant uniquement les champs autorisés (nom, email, expérience, compétences, langues, position, etc.).
     4.  **Mise à jour de `RecruiterDashboard.tsx` :** Ajout des routes pour les nouvelles pages.
-    5.  **Ajout du bouton "Voir profil" :** Dans la liste des candidatures, ajout d'un bouton pour accéder au profil complet de l'étudiant.
+    5.  **Ajout du bouton \\\"Voir profil\\\" :** Dans la liste des candidatures, ajout d'un bouton pour accéder au profil complet de l'étudiant.
 
 ---
 
@@ -465,8 +699,8 @@
 
 - **Objectif :** Réduire le profil étudiant aux sections Fiche Personnel et Recommandations uniquement.
 - **Actions :**
-    1.  **Modification de `StudentProfile.tsx` :** Suppression des onglets "Top Postes", "CV & Export" et "Statistiques".
-    2.  **Mise à jour de l'interface :** Le composant n'affiche plus que les onglets "Fiche Personnel" et "Recommandations".
+    1.  **Modification de `StudentProfile.tsx` :** Suppression des onglets \\\"Top Postes\\\", \\\"CV & Export\\\" et \\\"Statistiques\\\".
+    2.  **Mise à jour de l'interface :** Le composant n'affiche plus que les onglets \\\"Fiche Personnel\\\" et \\\"Recommandations\\\".
     3.  **Nettoyage des imports :** Suppression des imports inutiles des composants supprimés.
     4.  **Ajustement de la grille :** Réduction du nombre de colonnes dans la liste des onglets de 5 à 2.
 
@@ -490,13 +724,13 @@
     1.  **Création de données de test (`mockData.ts`) :** Un nouvel objet `preRempliCV` a été créé pour servir de source de données pour le pré-remplissage.
     2.  **Extension du hook (`useProfileData.ts`) :** Une nouvelle fonction `startEditingWithData` a été ajoutée pour permettre de passer en mode édition en injectant un jeu de données externe.
     3.  **Ajout du bouton et de la logique (`StudentPersonalTab.tsx`) :**
-        - Un bouton "Importer un CV" a été ajouté à l'interface.
+        - Un bouton \\\"Importer un CV\\\" a été ajouté à l'interface.
         - Au clic, une simulation de 7 secondes se lance, affichant un spinner.
         - À la fin du délai, le formulaire d'édition du profil est affiché, pré-rempli avec les données du `preRempliCV`.
 
 ---
 
-## 03-11-2025: Ajout de la section "Formations"
+## 03-11-2025: Ajout de la section \\\"Formations\\\"
 
 - **Objectif :** Ajouter une section complète pour gérer le parcours académique de l'étudiant.
 - **Actions :**
@@ -506,9 +740,9 @@
     2.  **Création du composant (`EditableFormationSection.tsx`) :**
         - Un nouveau composant a été créé pour afficher la liste des formations et permettre leur ajout, modification et suppression en mode édition.
     3.  **Intégration au profil (`StudentPersonalTab.tsx`) :**
-        - La nouvelle section "Formations" est maintenant visible dans l'onglet du profil personnel.
+        - La nouvelle section \\\"Formations\\\" est maintenant visible dans l'onglet du profil personnel.
     4.  **Mise à jour du calcul de progression (`profileProgression.ts`) :**
-        - La fonction de calcul de la complétion du profil a été mise à jour pour inclure le score de la section "Formations", la rendant plus précise.
+        - La fonction de calcul de la complétion du profil a été mise à jour pour inclure le score de la section \\\"Formations\\\", la rendant plus précise.
 
 ---
 
@@ -516,7 +750,7 @@
 
 - **Objectif :** Remplacer l'ancien calcul de complétion du profil par une nouvelle logique pondérée plus détaillée, basée sur un modèle fourni.
 - **Actions :**
-    1.  **Création d'un utilitaire (`src/utils/profileProgression.ts`) :** La nouvelle logique de calcul a été traduite de PHP en TypeScript et isolée dans une fonction dédiée. Cette fonction adapte le calcul à la structure de données du frontend (notamment en omettant la section "Formations", inexistante côté client).
+    1.  **Création d'un utilitaire (`src/utils/profileProgression.ts`) :** La nouvelle logique de calcul a été traduite de PHP en TypeScript et isolée dans une fonction dédiée. Cette fonction adapte le calcul à la structure de données du frontend (notamment en omettant la section \\\"Formations\\\", inexistante côté client).
     2.  **Mise à jour du badge de progression (`profile-progress-badge.tsx`) :**
         - L'ancienne logique de calcul a été supprimée.
         - Le composant utilise désormais la nouvelle fonction pour calculer le score global.
@@ -527,7 +761,7 @@
 ## 03-11-2025: Correction de syntaxe JSX
 
 - **Action :** Correction d'une erreur de syntaxe dans `StudentLocation.tsx`.
-- **Raison :** Un commentaire (`/* Statistiques */`) n'était pas entouré d'accolades (`{}`), ce qui provoquait une erreur de compilation "Unterminated regexp literal".
+- **Raison :** Un commentaire (`/* Statistiques */`) n'était pas entouré d'accolades (`{}`), ce qui provoquait une erreur de compilation \\\"Unterminated regexp literal\\\".
 - **Impact :** Le problème de compilation est résolu.
 
 ---
@@ -537,12 +771,12 @@
 - **Objectif :** Rendre les cartes statistiques de la page Localisation dynamiques et interactives.
 - **Actions :**
     1.  **Réorganisation de l'UI (`StudentLocation.tsx`) :**
-        - Suppression de la carte statique "Entreprises partenaires".
-        - Réorganisation des deux cartes restantes ("Offres disponibles" et "Entreprises localisées") sur une grille.
+        - Suppression de la carte statique \\\"Entreprises partenaires\\\".
+        - Réorganisation des deux cartes restantes (\\\"Offres disponibles\\\" et \\\"Entreprises localisées\\\") sur une grille.
     2.  **Logique de calcul (`StudentLocation.tsx`) :**
-        - Le compteur "Offres disponibles" calcule désormais dynamiquement le nombre d'offres provenant uniquement des entreprises situées dans le rayon de recherche défini par l'utilisateur.
+        - Le compteur \\\"Offres disponibles\\\" calcule désormais dynamiquement le nombre d'offres provenant uniquement des entreprises situées dans le rayon de recherche défini par l'utilisateur.
     3.  **Interactivité et redirection (`StudentLocation.tsx`) :**
-        - La carte "Offres disponibles" est maintenant cliquable.
+        - La carte \\\"Offres disponibles\\\" est maintenant cliquable.
         - Un clic redirige vers la page des offres (`/student/offers`) en passant les noms des entreprises filtrées en paramètre d'URL (ex: `?companies=CompanyA,CompanyB`).
     4.  **Gestion du filtre (`StudentOffers.tsx`) :**
         - La page des offres lit désormais les paramètres d'URL pour appliquer un filtre basé sur les entreprises.
@@ -553,8 +787,8 @@
 ## 03-11-2025: Nettoyage de l'affichage du profil
 
 - **Action :** Suppression de l'affichage de la localisation de l'en-tête principal du profil étudiant (`EditableProfileHeader.tsx`).
-- **Raison :** La gestion de la localisation est désormais centralisée dans son propre onglet/page dédié(e) ("Location"). Cette modification évite la redondance et clarifie l'interface.
-- **Impact :** L'adresse n'est plus visible ni modifiable directement sous le nom de l'étudiant. Elle reste gérée dans la section "Location".
+- **Raison :** La gestion de la localisation est désormais centralisée dans son propre onglet/page dédié(e) (\\\"Location\\\"). Cette modification évite la redondance et clarifie l'interface.
+- **Impact :** L'adresse n'est plus visible ni modifiable directement sous le nom de l'étudiant. Elle reste gérée dans la section \\\"Location\\\".
 
 ---
 
@@ -572,6 +806,87 @@
 
 - **Action :** Annulation des modifications précédentes qui ajoutaient un composant `EditableLocationSection` superflu.
 - **Analyse :** La première analyse avait conclu à tort que le code était déjà correct, ce qui était une erreur. Le vrai problème était la non-persistance de l'état d'édition.
+
+---
+
+## 17-11-2025: Correction de l'affichage du profil étudiant pour les recruteurs
+
+- **Objectif :** Permettre aux recruteurs de voir les profils détaillés des étudiants avec une gestion correcte des données manquantes.
+- **Actions :**
+    1.  **Passage de l'ID étudiant :** Modification de `RecruiterStudentProfile.tsx` pour transmettre l'ID de l'étudiant au composant `StudentProfile`.
+    2.  **Support de profils spécifiques :** Mise à jour du hook `useProfileData.ts` pour charger un profil utilisateur spécifique par son ID, en plus du profil de l'utilisateur connecté.
+    3.  **Gestion des données manquantes :** Correction de `EditableProfileHeader.tsx` pour gérer les cas où `personalInfo` ou ses propriétés sont `undefined`.
+    4.  **Sécurité des accès :** Ajout de vérifications de nullité pour éviter les erreurs d'accès aux propriétés de `personalInfo`.
+    5.  **Valeurs par défaut :** Mise en place de valeurs par défaut appropriées pour les champs manquants dans l'interface utilisateur.
+
+---
+
+## 17-11-2025: Correction de la récupération des profils étudiants
+
+- **Objectif :** Corriger l'erreur de récupération des profils étudiants qui empêchait la recherche de fonctionner.
+- **Actions :**
+    1.  **Identification du problème :** Le service utilisait `dataProvider.getUsers()` qui n'existe pas dans le dataProvider.
+    2.  **Changement d'approche :** Utilisation de `dataProvider.getCandidates()` pour récupérer les étudiants, puis `dataProvider.getUserProfile()` pour obtenir les détails complets.
+    3.  **Amélioration de la robustesse :** Le service récupère maintenant correctement les profils complets des étudiants depuis Firestore.
+    4.  **Gestion des erreurs :** Ajout de protections pour gérer les cas où les profils ne sont pas trouvés.
+
+---
+
+## 17-11-2025: Correction de la gestion des paramètres de recherche
+
+- **Objectif :** Corriger la logique de gestion des paramètres de recherche pour prendre en compte les différents noms de paramètres possibles passés par le système d'intention.
+- **Actions :**
+    1.  **Extension de la gestion des paramètres :** Ajout de la gestion des paramètres `competence`, `technologies`, `skills` et `domaine` dans la méthode `rechercherEtudiants`.
+    2.  **Correction du bug :** Le système détectait maintenant les compétences comme `params.competence` mais ne les traitait pas correctement.
+    3.  **Amélioration de la robustesse :** Le service recherche maintenant dans plusieurs noms de paramètres possibles pour assurer une meilleure compatibilité.
+
+---
+
+## 17-11-2025: Optimisation de l'espace pour le remplissage complet de la div
+
+- **Objectif :** Assurer que les éléments de recherche remplissent complètement la div conteneur avec une répartition optimale de l'espace.
+- **Actions :**
+    1.  **Extension à la largeur totale :** Maintien de la classe `w-full` au conteneur flex pour permettre l'expansion complète.
+    2.  **Ajustement du bouton :** Changement de `min-w-[120px]` à `w-[120px]` pour fixer la largeur du bouton et permettre au champ de recherche de prendre exactement l'espace restant.
+    3.  **Optimisation de l'affichage :** Le champ de recherche s'agrandit dynamiquement pour remplir l'espace disponible après le bouton fixe.
+
+---
+
+## 17-11-2025: Ajout d'un bouton de recherche pour optimiser l'utilisation de l'IA
+
+- **Objectif :** Remplacer l'appel automatique à l'IA à chaque frappe par un système avec bouton de recherche pour réduire les coûts d'API.
+- **Actions :**
+    1.  **Modification du composant RecruiterStudentSearch :** Ajout d'un bouton \\\"Rechercher\\\" à côté du champ de recherche.
+    2.  **Suppression de useEffect :** Suppression de l'effet qui déclenchait la recherche à chaque changement de texte.
+    3.  **Ajout d'un gestionnaire de soumission :** Création d'une fonction `performSearch` appelée uniquement lors du clic sur le bouton ou de l'appui sur Entrée.
+    4.  **Amélioration de l'interface :** Ajout d'un indicateur visuel (icône de recherche) sur le bouton et gestion du chargement.
+    5.  **Optimisation des coûts :** Réduction significative du nombre d'appels à l'API Groq en limitant les appels aux recherches intentionnelles.
+
+---
+
+## 17-11-2025: Création du service de recherche étudiants avec IA
+
+- **Objectif :** Remplacer le moteur de recherche étudiants statique par un service alimenté par l'IA pour une recherche sémantique en langage naturel.
+- **Actions :**
+    1.  **Création du service de recherche :** Développement de @src/services/studentSearchService.ts avec une logique de recherche sémantique utilisant l'API Groq.
+    2.  **Intégration avec le chatbot :** Ajout de l'action `rechercher_etudiants` dans @src/services/chatbotService.ts pour permettre aux recruteurs de rechercher des étudiants via l'interface de chatbot.
+    3.  **Mise à jour du composant :** Remplacement de la logique de recherche statique dans @src/components/recruiter/RecruiterStudentSearch.tsx par une intégration avec le nouveau service IA.
+    4.  **Amélioration de l'UX :** Ajout d'un indicateur de chargement et d'une gestion d'erreur pour une meilleure expérience utilisateur.
+    5.  **Analyse sémantique :** Mise en place d'une analyse approfondie des requêtes de recherche pour extraire les paramètres pertinents (compétences, localisation, disponibilité, etc.).
+    6.  **Calcul de matching :** Implémentation d'un système de score de pertinence basé sur la correspondance entre les critères de recherche et le profil des étudiants.
+
+---
+
+## 17-11-2025: Synchronisation avec l'état actuel du projet
+
+- **Objectif :** Comprendre la structure actuelle de la base de données et l'historique des modifications pour assurer une synchronisation complète avec l'état du projet.
+- **Actions :**
+    1.  **Analyse de la structure de données :** Lecture et compréhension du fichier @scripts/init_firestore-nouveau.mjs contenant la conception complète de la base de données Firestore.
+    2.  **Étude de l'historique :** Lecture du fichier @edit.md pour comprendre l'historique complet des modifications apportées au projet.
+    3.  **Documentation des entités :** Identification des collections Firestore (users, offers, applications, notifications, ai_recommendations) et de leur structure de données.
+    4.  **Analyse des profils :** Compréhension des structures de données pour les recruteurs (intégrés avec les infos entreprises) et les étudiants (profil détaillé avec compétences, expériences, formations, etc.).
+    5.  **Référencement des données :** Documentation des données de test pour les entreprises (Orange, Yas, Airtel, SystAsia, Microlink) et des étudiants (Fanantenana, Raviro, Hasina).
+    6.  **Mise à jour du contexte :** Ajout de cette entrée dans le fichier edit.md pour conserver un historique des modifications conformément aux règles établies.
 
 ---
 

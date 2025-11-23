@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { chatbotService, ChatbotResponse } from '@/services/chatbotService';
 import { useAuth } from './useAuth';
+import { useNavigate } from 'react-router-dom';
 
 // Types pour les messages
 export interface ChatMessage {
@@ -17,6 +18,7 @@ export interface ChatbotState {
   isLoading: boolean;
   error: string | null;
   currentAction: string | null;
+  actionData: any | null;
 }
 
 // Hook personnalisé pour le chatbot
@@ -26,7 +28,8 @@ export const useChatbot = (userRole: 'etudiant' | 'recruteur' = 'etudiant') => {
     messages: [],
     isLoading: false,
     error: null,
-    currentAction: null
+    currentAction: null,
+    actionData: null
   });
 
   // Fonction pour envoyer un message à l'API du chatbot
@@ -72,7 +75,8 @@ export const useChatbot = (userRole: 'etudiant' | 'recruteur' = 'etudiant') => {
         messages: [...prev.messages, botMessage],
         isLoading: false,
         error: null,
-        currentAction: response.action || null
+        currentAction: response.action || null,
+        actionData: response.data || null
       }));
     } catch (error: any) {
       setState(prev => ({
@@ -105,7 +109,8 @@ export const useChatbot = (userRole: 'etudiant' | 'recruteur' = 'etudiant') => {
       messages: [],
       isLoading: false,
       error: null,
-      currentAction: null
+      currentAction: null,
+      actionData: null
     });
   }, []);
 

@@ -4,15 +4,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MessageCircle, Send, Bot, User } from 'lucide-react';
 import QuickActions from '../chatbot/QuickActions';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const RecruiterChatbot = () => {
+  const navigate = useNavigate();
   const {
     messages,
     isLoading,
     error,
     sendMessage,
-    resetConversation
+    resetConversation,
+    currentAction,
+    actionData
   } = useChatbot('recruteur');
 
   const handleSendMessage = (message: string) => {
@@ -44,17 +48,38 @@ const RecruiterChatbot = () => {
     return parts.map((part, index) => {
       if (index % 3 === 1) { // C'est le texte du lien
         const href = parts[index + 1]; // L'URL est au prochain index impair
-        return (
-          <a 
-            key={index} 
-            href={href} 
-            className="text-blue-600 hover:underline cursor-pointer"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {part}
-          </a>
-        );
+        
+        // Vérifier si le lien est interne (commence par /) ou externe
+        const isInternalLink = href.startsWith('/');
+        
+        if (isInternalLink) {
+          // Pour les liens internes, utiliser navigate
+          return (
+            <a 
+              key={index} 
+              onClick={(e) => {
+                e.preventDefault();
+                navigate(href);
+              }}
+              className="text-blue-600 hover:underline cursor-pointer"
+            >
+              {part}
+            </a>
+          );
+        } else {
+          // Pour les liens externes, utiliser href standard
+          return (
+            <a 
+              key={index} 
+              href={href} 
+              className="text-blue-600 hover:underline cursor-pointer"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {part}
+            </a>
+          );
+        }
       } else if (index % 3 === 2) { // C'est l'URL, on la saute
         return null;
       } else { // C'est du texte normal
@@ -62,6 +87,13 @@ const RecruiterChatbot = () => {
       }
     }).filter(part => part !== null);
   };
+
+  // Gérer les redirections basées sur l'action du chatbot
+  useEffect(() => {
+    if (currentAction === 'show_create_offer_link' && actionData && actionData.redirect) {
+      // Ne rien faire ici car la redirection se fait via le lien cliquable dans le message
+    }
+  }, [currentAction, actionData, navigate]);
 
   return (
     <div className="p-4 md:p-6 w-full">

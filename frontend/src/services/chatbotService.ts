@@ -192,6 +192,10 @@ Exemples:
 - "Je cherche un stage React à Paris" → {"needs_action": true, "intent": "recherche", "action": "rechercher_offres", "params": {"mots_cles": "React", "ville": "Paris", "type_contrat": "stage"}}
 - "Comment vas-tu?" → {"needs_action": false, "intent": "conversation"}
 - "Postule à l'offre job_123" → {"needs_action": true, "intent": "postuler", "action": "postuler_offre", "params": {"id_offre": "job_123"}}
+- "Crée moi une offre pour administrateur base de données" → {"needs_action": true, "intent": "creer_offre", "action": "creer_offre", "params": {"title": "administrateur base de données", "query": "administrateur base de données"}}
+- "Crée une offre de développeur full stack" → {"needs_action": true, "intent": "creer_offre", "action": "creer_offre", "params": {"title": "développeur full stack", "query": "développeur full stack"}}
+- "Je veux créer une offre pour développeur React à Antananarivo, CDI, avec salaire 2M à 3M, technologies: React, Node.js, expérience: junior" → {"needs_action": true, "intent": "creer_offre", "action": "creer_offre", "params": {"title": "développeur React", "location": "Antananarivo", "type": "cdi", "salary": "2000000 - 3000000", "technologies": ["React", "Node.js"], "experience": "junior"}}
+- "Créer une offre développeur mobile avec exigences: 3 ans d'expérience, Flutter, Dart, et avantages: télétravail, mutuelle" → {"needs_action": true, "intent": "creer_offre", "action": "creer_offre", "params": {"title": "développeur mobile", "requirements": ["3 ans d'expérience", "Flutter", "Dart"], "benefits": ["télétravail", "mutuelle"]}}
 
 Analyse maintenant la demande de l'utilisateur et réponds en JSON pur sans markdown.`;
   }
@@ -812,12 +816,174 @@ Réponds de manière concise, utile et professionnelle. Propose des actions conc
   // ============================================
 
   private async creerOffre(params: Record<string, any>, userId: string): Promise<ChatbotResponse> {
-    // Pour l'instant, on ne fait qu'une réponse positive car la création d'offres
-    // n'est pas implémentée dans le dataProvider actuel
+    // Analyser la requête pour extraire les paramètres de l'offre à créer
+    let title = params.title || params.poste || params.jobTitle || params.job_title || params.query || 'Nouveau poste';
+    
+    // Obtenir les informations de base à partir des paramètres ou de la requête
+    let type = params.type || params.type_contrat || params.contract_type || 'cdi'; // Valeur par défaut
+    let location = params.location || params.lieu || 'Antananarivo, Madagascar';
+    let salary = params.salary || params.salaire || '';
+    let experience = params.experience || params.level || '';
+    let technologies = params.technologies || params.skills || params.competences || [];
+    let requirements = params.requirements || params.exigences || [];
+    let niceToHave = params.niceToHave || params.souhaits || [];
+    let benefits = params.benefits || params.avantages || [];
+    let description = params.description || params.desc || '';
+    
+    // Si ce sont des chaînes, les convertir en tableaux
+    if (typeof technologies === 'string') technologies = technologies.split(',').map(t => t.trim());
+    if (typeof requirements === 'string') requirements = requirements.split(',').map(r => r.trim());
+    if (typeof niceToHave === 'string') niceToHave = niceToHave.split(',').map(n => n.trim());
+    if (typeof benefits === 'string') benefits = benefits.split(',').map(b => b.trim());
+    
+    // Si nous avons seulement le titre, demander à l'IA d'analyser le poste et de générer les détails
+    const fullQuery = params.query || title;
+    
+    if (!params.hasDetailedParams && (technologies.length === 0 || requirements.length === 0 || description === '')) {
+      try {
+        // Demander à l'IA d'analyser le poste et de générer un contenu détaillé
+        const generationPrompt = `
+        Tu es un expert RH et recruteur. Génère des détails complets pour l'offre d'emploi suivante : "${title}"
+        
+        Format de réponse : JSON avec les champs suivants:
+        - technologies: tableau de technologies pertinentes pour ce poste
+        - requirements: tableau d'exigences principales pour ce poste
+        - niceToHave: tableau de compétences ou qualifications souhaitées mais non obligatoires
+        - benefits: tableau d'avantages classiques pour ce poste
+        - description: description détaillée du poste en format markdown avec sections "À propos du poste", "Responsabilités", et "Environnement de travail"
+        - experience: niveau d'expérience approprié (junior, intermediate, senior)
+        - salary: salaire approprié pour ce poste (sous forme de chaîne)
+        - type: type de contrat approprié (cdi, cdd, stage, alternance, freelance)
+        - location: lieu typique pour ce type de poste à Madagascar
+        
+        Exemple de format de données pour un développeur full stack senior:
+        {
+          technologies: ["React", "Node.js", "MongoDB", "Express", "TypeScript", "Docker", "AWS"],
+          requirements: [
+            "Minimum 3 ans d'expérience en développement web",
+            "Maîtrise de React et Node.js",
+            "Expérience avec les bases de données NoSQL",
+            "Connaissance des API REST",
+            "Expérience avec Git et CI/CD",
+            "Bon niveau en anglais technique"
+          ],
+          niceToHave: [
+            "Expérience avec TypeScript",
+            "Connaissance de Docker",
+            "Expérience en architecture microservices"
+          ],
+          benefits: [
+            "Assurance santé",
+            "Formation continue",
+            "Équipement moderne",
+            "Team building réguliers",
+            "Primes de performance"
+          ],
+          description: "## À propos du poste...",
+          experience: "senior",
+          salary: "2,000,000 - 3,000,000 MGA/mois",
+          type: "cdi",
+          location: "Antananarivo, Madagascar"
+        }
+        
+        Réponds en JSON pur sans commentaire.`;
+        
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.groqApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: this.model,
+            messages: [
+              { role: 'system', content: generationPrompt },
+              { role: 'user', content: fullQuery }
+            ],
+            temperature: 0.5,
+            max_tokens: 1000
+          })
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          const content = result.choices[0]?.message?.content || '';
+          
+          try {
+            const parsedData = JSON.parse(content);
+            
+            // Ne remplacer les valeurs que si elles n'étaient pas explicitement fournies
+            if (technologies.length === 0 && Array.isArray(parsedData.technologies)) {
+              technologies = parsedData.technologies;
+            }
+            if (requirements.length === 0 && Array.isArray(parsedData.requirements)) {
+              requirements = parsedData.requirements;
+            }
+            if (niceToHave.length === 0 && Array.isArray(parsedData.niceToHave)) {
+              niceToHave = parsedData.niceToHave;
+            }
+            if (benefits.length === 0 && Array.isArray(parsedData.benefits)) {
+              benefits = parsedData.benefits;
+            }
+            if (description === '' && parsedData.description) {
+              description = parsedData.description;
+            }
+            if (experience === '' && parsedData.experience) {
+              experience = parsedData.experience;
+            }
+            if (salary === '' && parsedData.salary) {
+              salary = parsedData.salary;
+            }
+            if (type === 'cdi' && parsedData.type) {  // Si c'était la valeur par défaut
+              type = parsedData.type;
+            }
+            if (location === 'Antananarivo, Madagascar' && parsedData.location) {  // Si c'était la valeur par défaut
+              location = parsedData.location;
+            }
+          } catch (parseError) {
+            console.warn("Erreur d'analyse du JSON généré par l'IA", parseError);
+          }
+        }
+      } catch (error) {
+        console.error("Erreur lors de la génération IA des détails de l'offre", error);
+        // En cas d'erreur, on continue avec les valeurs existantes
+      }
+    }
+    
+    // Créer une chaîne de requête avec les paramètres pré-remplis
+    const queryParams = new URLSearchParams();
+    if (title) queryParams.append('title', title);
+    if (type) queryParams.append('type', type);
+    if (location) queryParams.append('location', location);
+    if (description) queryParams.append('description', description);
+    if (Array.isArray(technologies) && technologies.length > 0) queryParams.append('technologies', technologies.join(','));
+    if (Array.isArray(requirements) && requirements.length > 0) queryParams.append('requirements', requirements.join(','));
+    if (Array.isArray(niceToHave) && niceToHave.length > 0) queryParams.append('niceToHave', niceToHave.join(','));
+    if (Array.isArray(benefits) && benefits.length > 0) queryParams.append('benefits', benefits.join(','));
+    if (experience) queryParams.append('experience', experience);
+    if (salary) queryParams.append('salary', salary);
+
+    // Créer un message avec un lien cliquable pour créer l'offre
+    const redirectUrl = `/recruiter/create-offer?${queryParams.toString()}`;
+    const message = `J'ai analysé votre demande pour "${title}". Cliquez sur [Nouveau poste](${redirectUrl}) pour accéder au formulaire pré-rempli.`;
+
     return {
       success: true,
-      message: 'Offre créée !',
-      data: { offre_id: 'temp_id' }
+      message: message,
+      data: { 
+        redirect: redirectUrl,
+        title: title,
+        type: type,
+        location: location,
+        description: description,
+        technologies: technologies,
+        requirements: requirements,
+        niceToHave: niceToHave,
+        benefits: benefits,
+        experience: experience,
+        salary: salary
+      },
+      action: 'show_create_offer_link' // Changed action type
     };
   }
 
@@ -848,13 +1014,15 @@ Réponds de manière concise, utile et professionnelle. Propose des actions conc
 
   private async candidaturesOffre(params: Record<string, any>, userId: string): Promise<ChatbotResponse> {
     try {
-      if (!params.id_offre) {
+      // Vérifier si l'ID de l'offre est présent dans différents formats possibles
+      const offerId = params.id_offre || params.offerId || params.offer_id;
+      if (!offerId) {
         return { success: false, message: 'ID de l\'offre manquant' };
       }
 
       // Récupérer toutes les candidatures et filtrer par ID d'offre
       const allApplications = await dataProvider.getApplications();
-      const applicationsForOffer = allApplications.filter(app => app.offerId === params.id_offre);
+      const applicationsForOffer = allApplications.filter(app => app.offerId === offerId);
       
       return {
         success: true,
