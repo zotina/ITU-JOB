@@ -56,23 +56,25 @@ const RecruiterStudentSearch = () => {
 
   return (
     <div className="space-y-6">
-      <Card>
+     <Card>
         <CardHeader>
-          <CardTitle>Moteur de recherche étudiants</CardTitle>
+          <CardTitle className="text-center">Moteur de recherche étudiants</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <form onSubmit={handleSearchSubmit}>
-            <div className="flex gap-2 w-full">
-              <SearchInput
-                placeholder="Recherche en langage naturel : ex. 'développeur React Antananarivo disponible immédiatement' ou 'master intelligence artificielle Python'"
-                value={searchQuery}
-                onChange={setSearchQuery}
-                className="text-base flex-grow h-12"
-              />
+        <CardContent className="space-y-4 px-8 py-6">
+          <form onSubmit={handleSearchSubmit} className="w-full">
+            <div className="flex items-center gap-3 w-full max-w-5xl mx-auto">
+              <div className="flex-1">
+                <SearchInput
+                  placeholder="Recherche en langage naturel : ex. 'développeur React Antananarivo disponible immédiatement' ou 'master intelligence artificielle Python'"
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  className="text-base w-full h-12"
+                />
+              </div>
               <Button 
                 type="submit" 
                 disabled={isLoading}
-                className="h-12 w-[120px]"
+                className="h-12 w-[140px] shrink-0"
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
