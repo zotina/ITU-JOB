@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, Star, CheckCircle, X, MessageCircle, Send, Filter, User } from 'lucide-react';
+import { MapPin, Star, CheckCircle, X, MessageCircle, Send, Filter, User, Target } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { SearchInput } from '@/components/ui/search-input';
@@ -19,6 +19,12 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { dataProvider } from '@/data/dataProvider';
 import { Application } from '@/services/firebaseService';
+import { 
+  calculateApplicationMatchingScore, 
+  ApplicationWithMatching,
+  getMatchScoreColor,
+  getMatchScoreVariant
+} from '@/utils/applicationMatching';
 
 const RecruiterCandidates = () => {
   const navigate = useNavigate();
@@ -27,10 +33,11 @@ const RecruiterCandidates = () => {
   const { toast } = useToast();
   const offerId = searchParams.get('offerId');
   
-  const [applications, setApplications] = useState<Application[]>([]);
+  const [applications, setApplications] = useState<ApplicationWithMatching[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [sortOption, setSortOption] = useState('relevance'); // Add sort option state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
 
@@ -39,18 +46,52 @@ const RecruiterCandidates = () => {
     const fetchApplications = async () => {
       try {
         setLoading(true);
+        let apps: Application[] = [];
+
         if (user && offerId) {
           // Get only applications for this specific offer
-          const apps = await dataProvider.getApplications(user.id, offerId);
-          setApplications(apps);
+          apps = await dataProvider.getApplications(user.id, offerId);
         } else if (user) {
           console.log('Fetching all applications for company = ' + user.id);
           // If no offer ID, get all applications for the user's company
-          const apps = await dataProvider.getApplications(user.id);
-          setApplications(apps);
+          apps = await dataProvider.getApplications(user.id);
         } else {
-          setApplications([]);
+          apps = [];
         }
+
+        // Calculate matching scores for each application
+        const applicationsWithScores = await Promise.all(
+          apps.map(async (app) => {
+            // Get the corresponding job offer
+            const offer = await dataProvider.getOfferById(app.offerId);
+            
+            if (offer) {
+              // Calculate the matching score
+              const { matchScore, matchingDetails } = await calculateApplicationMatchingScore(
+                app,
+                offer,
+                async (studentId: string) => {
+                  // Function to get candidate profile by ID
+                  return await dataProvider.getUserProfile(studentId);
+                }
+              );
+              
+              return {
+                ...app,
+                matchScore,
+                matchingDetails
+              };
+            }
+            
+            return {
+              ...app,
+              matchScore: 0,
+              matchingDetails: ['Offre non trouvée']
+            };
+          })
+        );
+        
+        setApplications(applicationsWithScores);
       } catch (error) {
         console.error('Error fetching applications:', error);
         toast({
@@ -67,16 +108,43 @@ const RecruiterCandidates = () => {
     fetchApplications();
   }, [user, offerId, toast]);
 
-  // Filter applications based on search term and status
+  // Filter and sort applications based on search term, status and sort option
   const filteredApplications = useMemo(() => {
-    return applications.filter(app => {
+    let result = applications.filter(app => {
       const matchesSearch = app.studentName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            app.position.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
       
       return matchesSearch && matchesStatus;
     });
-  }, [applications, searchTerm, statusFilter]);
+    
+    // Apply sorting
+    switch (sortOption) {
+      case 'match':
+        // Sort by matching score (highest first)
+        result = result.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+        break;
+      case 'date':
+        // Sort by application date (newest first)
+        result = result.sort((a, b) => 
+          new Date(b.appliedDate).getTime() - new Date(a.appliedDate).getTime()
+        );
+        break;
+      case 'name':
+        // Sort by student name (alphabetically)
+        result = result.sort((a, b) => 
+          (a.studentName || '').localeCompare(b.studentName || '')
+        );
+        break;
+      case 'relevance':
+      default:
+        // Default: sort by matching score (highest first) as default
+        result = result.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+        break;
+    }
+    
+    return result;
+  }, [applications, searchTerm, statusFilter, sortOption]);
 
   // Pagination
   const totalPages = Math.ceil(filteredApplications.length / itemsPerPage);
@@ -177,7 +245,7 @@ const RecruiterCandidates = () => {
             onChange={setSearchTerm}
           />
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="Statut" />
@@ -189,10 +257,23 @@ const RecruiterCandidates = () => {
                 <SelectItem value="rejected">Refusé</SelectItem>
               </SelectContent>
             </Select>
-
+            
+            <Select value={sortOption} onValueChange={setSortOption}>
+              <SelectTrigger>
+                <SelectValue placeholder="Trier par" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="relevance">Pertinence</SelectItem>
+                <SelectItem value="match">Score de matching</SelectItem>
+                <SelectItem value="date">Date de candidature</SelectItem>
+                <SelectItem value="name">Nom du candidat</SelectItem>
+              </SelectContent>
+            </Select>
+            
             <Button variant="outline" onClick={() => {
               setSearchTerm('');
               setStatusFilter('all');
+              setSortOption('relevance');
               setCurrentPage(1);
             }}>
               <Filter className="w-4 h-4 mr-2" />
@@ -247,6 +328,24 @@ const RecruiterCandidates = () => {
                   {application.offerId}
                 </div>
               </div>
+
+              {/* Matching Score Section */}
+              {application.matchScore !== undefined && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium">Score de matching:</p>
+                    <Badge className={getMatchScoreVariant(application.matchScore || 0)}>
+                      <Target className="w-3 h-3 mr-1" />
+                      {application.matchScore}%
+                    </Badge>
+                  </div>
+                  {application.matchingDetails && application.matchingDetails.length > 0 && (
+                    <div className="text-xs p-2 bg-muted rounded">
+                      {application.matchingDetails[0] || 'Détails de matching non disponibles'}
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="space-y-2">
                 <p className="text-sm font-medium">Date de candidature:</p>
