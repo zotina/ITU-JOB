@@ -373,9 +373,9 @@ const StudentRecommendations = () => {
                       <span className="text-sm text-muted-foreground">• {job.location}</span>
                     </div>
                   </div>
-                  <div className={`px-3 py-1 rounded-full font-bold ${getMatchColor(job.match)}`}>
+                  {/* <div className={`px-3 py-1 rounded-full font-bold ${getMatchColor(job.match)}`}>
                     {job.match}% match
-                  </div>
+                  </div> */}
                 </div>
 
                 <div className="flex flex-wrap gap-2">

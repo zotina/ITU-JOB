@@ -111,8 +111,8 @@ const RecruiterCandidates = () => {
   // Filter and sort applications based on search term, status and sort option
   const filteredApplications = useMemo(() => {
     let result = applications.filter(app => {
-      const matchesSearch = app.studentName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           app.position.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = (app.studentName && app.studentName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                           (app.position && app.position.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
       
       return matchesSearch && matchesStatus;
