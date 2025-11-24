@@ -1381,8 +1381,8 @@ async function createApplicationsForOrangeOffers() {
         offerId: offer.id,
         offerTitle: offer.title,
         position: offer.title, // Add the position field for compatibility
-        candidateId: user.id,
-        candidateName: `${user.prenom} ${user.nom}`,
+        studentId: user.id, // Use correct field name: studentId, not candidateId
+        studentName: `${user.prenom} ${user.nom}`, // Use correct field name: studentName, not candidateName
         candidateEmail: user.email,
         companyName: 'Orange Madagascar',
         company: 'Orange Madagascar', // Also add company field
