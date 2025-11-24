@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/pagination';
 import { useAuth } from '@/hooks/useAuth';
 import { dataProvider } from '@/data/dataProvider';
-import { JobOffer } from '@/services/firebaseService';
+import { JobOffer, Application } from '@/services/firebaseService';
 
 const RecruiterOffers = () => {
   const navigate = useNavigate();
@@ -28,7 +28,9 @@ const RecruiterOffers = () => {
   const [locationFilter, setLocationFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [offers, setOffers] = useState<JobOffer[]>([]);
+  const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
+  const [appsLoading, setAppsLoading] = useState(true);
   const itemsPerPage = 5;
 
   // Fetch the recruiter's offers (filtered by company)
@@ -49,6 +51,41 @@ const RecruiterOffers = () => {
     if (user) {
       fetchOffers();
     }
+  }, [user]);
+
+  // Listen to all applications for the recruiter's company in real-time to count new ones
+  useEffect(() => {
+    let unsubscribe = () => {};
+    
+    const setupListener = async () => {
+      try {
+        setAppsLoading(true);
+        
+        // Set up real-time listener for applications
+        const listenerUnsubscribe = dataProvider.listenToApplications(user?.id, undefined, (apps) => {
+          setApplications(apps);
+          setAppsLoading(false);
+        });
+        
+        // Check if the returned value is actually a function before assigning
+        if (typeof listenerUnsubscribe === 'function') {
+          unsubscribe = listenerUnsubscribe;
+        }
+      } catch (error) {
+        console.error('Error setting up applications listener:', error);
+        setApplications([]);
+        setAppsLoading(false);
+      }
+    };
+
+    if (user) {
+      setupListener();
+    }
+
+    // Cleanup function
+    return () => {
+      unsubscribe();
+    };
   }, [user]);
 
   // Filtrage des offres
@@ -74,7 +111,21 @@ const RecruiterOffers = () => {
   const uniqueLocations = [...new Set(offers.map(offer => offer.location))];
   const uniqueTypes = [...new Set(offers.map(offer => offer.type))];
 
-  if (loading) {
+  // Count new applications per offer
+  const getNewApplicationsCount = (offerId: string) => {
+    return applications.filter(app => 
+      app.offerId === offerId && app.isNew === true
+    ).length;
+  };
+
+  // Get total applications for an offer
+  const getTotalApplicationsCount = (offerId: string) => {
+    return applications.filter(app => 
+      app.offerId === offerId
+    ).length;
+  };
+
+  if (loading || appsLoading) {
     return (
       <div className="p-6 flex items-center justify-center h-64">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -213,11 +264,26 @@ const RecruiterOffers = () => {
                   <RecommendedProfiles offerTitle={offer.title} offerId={offer.id} />
                   <Button size="sm" onClick={() => navigate(`/recruiter/candidates?offerId=${offer.id}`)}>
                     Voir candidatures
-                    {offer.nbCandidatures !== undefined && (
-                      <Badge variant="secondary" className="ml-2">
-                        {offer.nbCandidatures}
-                      </Badge>
-                    )}
+                    {(() => {
+                      const totalApps = getTotalApplicationsCount(offer.id);
+                      const newApps = getNewApplicationsCount(offer.id);
+                      
+                      return (
+                        <div className="ml-2 flex items-center gap-1">
+                          <span>{totalApps}</span>
+                          {newApps > 0 && (
+                            <div className="relative">
+                              <Badge variant="default" className="bg-green-500 text-white text-xs px-1.5 py-0.5 h-auto">
+                                {newApps}
+                              </Badge>
+                              <span className="absolute -top-3 -right-3 bg-green-500 text-white text-xs rounded-full px-1 py-0.5 text-[0.6rem] leading-none">
+                                NEW
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </Button>
                 </div>
               </div>

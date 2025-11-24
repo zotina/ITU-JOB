@@ -11,7 +11,9 @@ import {
   updateDoc,
   serverTimestamp,
   QueryConstraint,
-  deleteDoc
+  deleteDoc,
+  writeBatch,
+  onSnapshot
 } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { mockCompanies, mockOffers, mockCandidates } from '@/data/mockData';
@@ -77,6 +79,7 @@ export interface Application {
   appliedDate: string;
   offerId: string;
   companyId?: string;
+  isNew?: boolean;
 }
 
 // Service class to handle Firebase operations
@@ -572,9 +575,106 @@ class FirebaseService {
     }
   }
 
+  // Mark multiple applications as viewed (isNew = false)
+  async markApplicationsAsViewed(applicationIds: string[]): Promise<void> {
+    try {
+      const useFirebase = await this.ensureInitialized();
+      if (useFirebase && this.currentUser) {
+        const batch = writeBatch(db);
+        
+        for (const appId of applicationIds) {
+          const docRef = doc(db, 'applications', appId);
+          batch.update(docRef, { isNew: false });
+        }
+        
+        await batch.commit();
+      }
+    } catch (error) {
+      console.error('Error marking applications as viewed:', error);
+    }
+  }
+
+  // Listen for real-time application updates
+  async listenToApplications(userId?: string, offerId?: string, callback: (applications: Application[]) => void) {
+    try {
+      const useFirebase = await this.ensureInitialized();
+      if (useFirebase && this.currentUser) {
+        let q;
+        
+        if (userId) {
+          const userDoc = await getDoc(doc(db, 'users', userId));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            if (userData.role === 'recruiter' && userData.company.name) {
+              if (offerId) {
+                const offerDoc = await getDoc(doc(db, 'offers', offerId));
+                if (offerDoc.exists() && offerDoc.data().companyName === userData.company.name) {
+                  q = query(
+                    collection(db, 'applications'),
+                    where('offerId', '==', offerId)
+                  );
+                } else {
+                  q = query(
+                    collection(db, 'applications'),
+                    where('offerId', '==', 'nonexistent')
+                  );
+                }
+              } else {
+                const offersSnapshot = await getDocs(
+                  query(collection(db, 'offers'), where('companyName', '==', userData.company.name))
+                );
+                const offerIds = offersSnapshot.docs.map(doc => doc.id);
+                
+                if (offerIds.length > 0) {
+                  q = query(
+                    collection(db, 'applications'),
+                    where('offerId', 'in', offerIds)
+                  );
+                } else {
+                  q = query(
+                    collection(db, 'applications'),
+                    where('offerId', '==', 'nonexistent')
+                  );
+                }
+              }
+            } else {
+              q = query(collection(db, 'applications'), where('studentId', '==', userId));
+            }
+          } else {
+            q = query(collection(db, 'applications'), where('studentId', '==', userId));
+          }
+        } else {
+          q = query(
+            collection(db, 'applications'),
+            where('studentId', '==', 'nonexistent')
+          );
+        }
+
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+          const apps: Application[] = [];
+          querySnapshot.forEach((doc) => {
+            apps.push({ id: doc.id, ...doc.data() } as Application);
+          });
+          callback(apps);
+        });
+
+        return unsubscribe;
+      }
+    } catch (error) {
+      console.error('Error listening to applications:', error);
+    }
+    return () => {}; // Return no-op function if not initialized
+  }
+
   // User profile operations
   async getUserProfile(userId: string): Promise<any> {
     try {
+      // Check if userId is valid before proceeding
+      if (!userId) {
+        console.warn('getUserProfile: userId is null or undefined');
+        return null;
+      }
+      
       const useFirebase = await this.ensureInitialized();
       if (useFirebase && this.currentUser) {
         const docRef = doc(db, 'users', userId);

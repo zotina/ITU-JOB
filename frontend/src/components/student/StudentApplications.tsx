@@ -218,7 +218,9 @@ const StudentApplications = () => {
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         {app.isNew && (
-                          <Badge className="mb-2 bg-primary">Nouvelle candidature</Badge>
+                          <Badge variant="default" className="mb-2 bg-green-100 text-green-800 animate-pulse">
+                            NOUVEAU
+                          </Badge>
                         )}
                         <h3 className="text-xl font-semibold">{app.position}</h3>
                         <div className="flex items-center gap-2 text-muted-foreground mt-1">

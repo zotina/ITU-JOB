@@ -98,6 +98,25 @@ export const dataProvider = {
     }
   },
   
+  markApplicationsAsViewed: async (applicationIds: string[]): Promise<void> => {
+    try {
+      await firebaseService.markApplicationsAsViewed(applicationIds);
+    } catch (error) {
+      console.warn('Firebase failed, applications not marked as viewed', error);
+      throw error; // Re-throw to let calling code handle the error
+    }
+  },
+
+  listenToApplications: (userId: string | undefined, offerId: string | undefined, callback: (applications: Application[]) => void) => {
+    try {
+      return firebaseService.listenToApplications(userId, offerId, callback);
+    } catch (error) {
+      console.warn('Firebase failed, cannot listen to applications', error);
+      // Return a mock unsubscribe function
+      return () => {};
+    }
+  },
+  
   // User profile operations
   getUserProfile: async (userId: string) => {
     try {

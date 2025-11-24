@@ -713,7 +713,7 @@ const mockStudents = [
 // ============================================
 const mockOffers = [
   {
-    id: 'offer-1',
+    id: 'offer-1  ',
     title: 'Développeur Full Stack Senior',
     companyName: 'Orange Madagascar',  // Dénormalisé depuis users.company.name
     recruiterId: null,  // Sera rempli après création du recruteur

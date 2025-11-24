@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, Star, CheckCircle, X, MessageCircle, Send, Filter, User, Target } from 'lucide-react';
-import { useState, useMemo, useEffect } from 'react';
+import { MapPin, Star, CheckCircle, X, MessageCircle, Send, Filter, User, Target, CircleDot } from 'lucide-react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { SearchInput } from '@/components/ui/search-input';
 import { 
@@ -41,62 +41,60 @@ const RecruiterCandidates = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
 
-  // Fetch applications for the specific offer or all applications for the user's company
+  // Listen to applications for the specific offer or all applications for the user's company (real-time)
   useEffect(() => {
-    const fetchApplications = async () => {
+    let unsubscribe = () => {};
+    
+    const setupListener = async () => {
       try {
         setLoading(true);
-        let apps: Application[] = [];
-
-        if (user && offerId) {
-          // Get only applications for this specific offer
-          apps = await dataProvider.getApplications(user.id, offerId);
-        } else if (user) {
-          console.log('Fetching all applications for company = ' + user.id);
-          // If no offer ID, get all applications for the user's company
-          apps = await dataProvider.getApplications(user.id);
-        } else {
-          apps = [];
-        }
-
-        // Calculate matching scores for each application
-        const applicationsWithScores = await Promise.all(
-          apps.map(async (app) => {
-            // Get the corresponding job offer
-            const offer = await dataProvider.getOfferById(app.offerId);
-            
-            if (offer) {
-              // Calculate the matching score
-              const { matchScore, matchingDetails } = await calculateApplicationMatchingScore(
-                app,
-                offer,
-                async (studentId: string) => {
-                  // Function to get candidate profile by ID
-                  return await dataProvider.getUserProfile(studentId);
-                }
-              );
+        
+        // Set up real-time listener
+        const listenerUnsubscribe = dataProvider.listenToApplications(user?.id, offerId, async (apps) => {
+          // Calculate matching scores for each application
+          const applicationsWithScores = await Promise.all(
+            apps.map(async (app) => {
+              // Get the corresponding job offer
+              const offer = await dataProvider.getOfferById(app.offerId);
+              
+              if (offer) {
+                // Calculate the matching score
+                const { matchScore, matchingDetails } = await calculateApplicationMatchingScore(
+                  app,
+                  offer,
+                  async (studentId: string) => {
+                    // Function to get candidate profile by ID
+                    return await dataProvider.getUserProfile(studentId);
+                  }
+                );
+                
+                return {
+                  ...app,
+                  matchScore,
+                  matchingDetails
+                };
+              }
               
               return {
                 ...app,
-                matchScore,
-                matchingDetails
+                matchScore: 0,
+                matchingDetails: ['Offre non trouvée']
               };
-            }
-            
-            return {
-              ...app,
-              matchScore: 0,
-              matchingDetails: ['Offre non trouvée']
-            };
-          })
-        );
+            })
+          );
+          
+          setApplications(applicationsWithScores);
+        });
         
-        setApplications(applicationsWithScores);
+        // Check if the returned value is actually a function before assigning
+        if (typeof listenerUnsubscribe === 'function') {
+          unsubscribe = listenerUnsubscribe;
+        }
       } catch (error) {
-        console.error('Error fetching applications:', error);
+        console.error('Error setting up applications listener:', error);
         toast({
           title: "Erreur",
-          description: "Impossible de charger les candidatures.",
+          description: "Impossible de charger les candidatures en temps réel.",
           variant: "destructive",
         });
         setApplications([]);
@@ -105,7 +103,14 @@ const RecruiterCandidates = () => {
       }
     };
 
-    fetchApplications();
+    if (user) {
+      setupListener();
+    }
+
+    // Cleanup function
+    return () => {
+      unsubscribe();
+    };
   }, [user, offerId, toast]);
 
   // Filter and sort applications based on search term, status and sort option
@@ -121,25 +126,45 @@ const RecruiterCandidates = () => {
     // Apply sorting
     switch (sortOption) {
       case 'match':
-        // Sort by matching score (highest first)
-        result = result.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+        // Sort by matching score (highest first), but prioritize new applications
+        result = result.sort((a, b) => {
+          // Prioritize new applications at the top
+          if (a.isNew && !b.isNew) return -1;
+          if (!a.isNew && b.isNew) return 1;
+          // Then sort by matching score
+          return (b.matchScore || 0) - (a.matchScore || 0);
+        });
         break;
       case 'date':
-        // Sort by application date (newest first)
-        result = result.sort((a, b) => 
-          new Date(b.appliedDate).getTime() - new Date(a.appliedDate).getTime()
-        );
+        // Sort by application date (newest first), but prioritize new applications
+        result = result.sort((a, b) => {
+          // Prioritize new applications at the top
+          if (a.isNew && !b.isNew) return -1;
+          if (!a.isNew && b.isNew) return 1;
+          // Then sort by date
+          return new Date(b.appliedDate).getTime() - new Date(a.appliedDate).getTime();
+        });
         break;
       case 'name':
-        // Sort by student name (alphabetically)
-        result = result.sort((a, b) => 
-          (a.studentName || '').localeCompare(b.studentName || '')
-        );
+        // Sort by student name (alphabetically), but prioritize new applications
+        result = result.sort((a, b) => {
+          // Prioritize new applications at the top
+          if (a.isNew && !b.isNew) return -1;
+          if (!a.isNew && b.isNew) return 1;
+          // Then sort by name
+          return (a.studentName || '').localeCompare(b.studentName || '');
+        });
         break;
       case 'relevance':
       default:
-        // Default: sort by matching score (highest first) as default
-        result = result.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+        // Default: sort by matching score (highest first) as default, but prioritize new applications
+        result = result.sort((a, b) => {
+          // Prioritize new applications at the top
+          if (a.isNew && !b.isNew) return -1;
+          if (!a.isNew && b.isNew) return 1;
+          // Then sort by matching score
+          return (b.matchScore || 0) - (a.matchScore || 0);
+        });
         break;
     }
     
@@ -167,16 +192,35 @@ const RecruiterCandidates = () => {
     }
   };
 
+  // Effect to mark all new applications as viewed when leaving the page
+  useEffect(() => {
+    return () => {
+      // When component unmounts (navigating away), mark all currently new applications as viewed
+      const currentlyNewApplications = applications
+        .filter(app => app.isNew === true)
+        .map(app => app.id);
+        
+      if (currentlyNewApplications.length > 0) {
+        dataProvider.markApplicationsAsViewed(currentlyNewApplications).catch(error => {
+          console.error('Error marking applications as viewed on unmount:', error);
+        });
+      }
+    };
+  }, [applications]);
+
   const handleAcceptApplication = async (applicationId: string, studentName: string) => {
     try {
       await dataProvider.updateApplication(applicationId, { status: 'accepted' });
       setApplications(prev => 
         prev.map(app => 
           app.id === applicationId 
-            ? { ...app, status: 'accepted' }
+            ? { ...app, status: 'accepted', isNew: false }
             : app
         )
       );
+      
+      // Mark the application as viewed
+      await dataProvider.markApplicationsAsViewed([applicationId]);
       
       toast({
         title: "Candidature acceptée",
@@ -198,10 +242,13 @@ const RecruiterCandidates = () => {
       setApplications(prev => 
         prev.map(app => 
           app.id === applicationId 
-            ? { ...app, status: 'rejected' }
+            ? { ...app, status: 'rejected', isNew: false }
             : app
         )
       );
+      
+      // Mark the application as viewed
+      await dataProvider.markApplicationsAsViewed([applicationId]);
       
       toast({
         title: "Candidature rejetée",
@@ -295,7 +342,14 @@ const RecruiterCandidates = () => {
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <CardTitle className="text-lg">{application.studentName || 'Nom inconnu'}</CardTitle>
+                    <div className="flex items-center gap-2">
+                      <CardTitle className="text-lg">{application.studentName || 'Nom inconnu'}</CardTitle>
+                      {application.isNew && (
+                        <Badge variant="default" className="bg-blue-100 text-blue-800 text-xs">
+                          Nouveau
+                        </Badge>
+                      )}
+                    </div>
                     <p className="text-sm text-muted-foreground">{application.position}</p>
                   </div>
                 </div>
@@ -348,6 +402,11 @@ const RecruiterCandidates = () => {
               )}
 
               <div className="space-y-2">
+                {application.isNew && (
+                  <Badge variant="default" className="bg-green-100 text-green-800">
+                    NOUVEAU
+                  </Badge>
+                )}
                 <p className="text-sm font-medium">Date de candidature:</p>
                 <div className="text-xs p-2 bg-muted rounded">
                   {new Date(application.appliedDate).toLocaleDateString('fr-FR')}
