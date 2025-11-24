@@ -17,7 +17,7 @@ const StudentLocation = () => {
   const { profileData, setProfileData } = useProfileData();
   const { user } = useAuth();
   const { toast } = useToast();
-  const [radius, setRadius] = useState(50); // Default radius in km
+  const [radius, setRadius] = useState(10); // Default radius in km
   const [companies, setCompanies] = useState<any[]>([]);
   const [offers, setOffers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

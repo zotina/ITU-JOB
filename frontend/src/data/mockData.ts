@@ -413,7 +413,7 @@ import { ProfileData } from '@/hooks/useProfileData';
 export let studentProfileData: ProfileData = {
   personalInfo: {
     name: "Rasetrarinjanahary Zo Tina",
-    email: "zotinafifi@gmail.com",
+    email: "zotinafiti@gmail.com",
     phone: "+261382010328",
     // title: "Développeur Full Stack",
     // description: "Je suis passionné par le développement informatique et les technologies de pointe. Je cherche à rejoindre une équipe dynamique pour contribuer à des projets innovants.",
@@ -577,11 +577,11 @@ export const deleteAppointment = (id: string) => {
 export const preRempliCV: ProfileData = {
   nom: "Rasetrarinjanahary",
   prenom :"Zo Tina",
-  email:"zotinafifi@gmail.com",
+  email:"zotinafiti@gmail.com",
   personalInfo: {
     title: "Développeur Java",
     description: "En tant que développeur avec une passion pour l'architecture des bases de données, je suis actuellement en 3ème année à ITUniversity. Mon engagement dans la conception de systèmes robustes et évolutifs me permet de transformer les besoins systèmes en solutions adaptées, particulièrement grâce à mes compétences en développement et en gestion de projet. Je m'investis dans le développement et la conception d'applications, en analysant les besoins des clients pour proposer des solutions innovantes qui renforcent la performance des systèmes existants.",
-    email: "zotinafifi@gmail.com",
+    email: "zotinafiti@gmail.com",
     phone: "+261382010328",
     location: "Antananarivo 105 Ambohidratrimo",
     coordinates: [-18.7667, 47.4333],

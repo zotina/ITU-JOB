@@ -305,9 +305,9 @@ const StudentOffers = () => {
                 }}>{offer.company}</p>
               </div>
             </div>
-              <Badge variant="secondary" className="bg-green-100 text-green-700 font-semibold">
+              {/* <Badge variant="secondary" className="bg-green-100 text-green-700 font-semibold">
                 {finalMatchingScore}% Match
-              </Badge>
+              </Badge> */}
           </div>
         </CardHeader>
         
