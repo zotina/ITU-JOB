@@ -99,7 +99,12 @@ class ChatbotService {
 
       // 3. Exécuter l'action si nécessaire
       if (intent.needs_action && intent.action) {
-        const actionResult = await this.executeAction(intent.action, intent.params || {}, userId, userContext);
+        // Ajouter le message original aux paramètres pour la détection de stage
+        const paramsWithOriginalMessage = {
+          ...intent.params,
+          original_message: message
+        };
+        const actionResult = await this.executeAction(intent.action, paramsWithOriginalMessage, userId, userContext);
         return this.formatResponse(actionResult, intent);
       }
 
@@ -189,7 +194,11 @@ Réponds UNIQUEMENT en JSON avec cette structure:
 }
 
 Exemples:
-- "Je cherche un stage React à Paris" → {"needs_action": true, "intent": "recherche", "action": "rechercher_offres", "params": {"mots_cles": "React", "ville": "Paris", "type_contrat": "stage"}}
+- "Je cherche un stage React à Paris" → {"needs_action": true, "intent": "recherche", "action": "rechercher_offres", "params": {"mots_cles": "React", "ville": "Paris", "type_contrat": "stage", "original_message": "Je cherche un stage React à Paris"}}
+- "Je cherche un stage en réseau" → {"needs_action": true, "intent": "recherche", "action": "rechercher_offres", "params": {"mots_cles": "réseau", "type_contrat": "stage", "original_message": "Je cherche un stage en réseau"}}
+- "Je veux un stage en informatique" → {"needs_action": true, "intent": "recherche", "action": "rechercher_offres", "params": {"mots_cles": "informatique", "type_contrat": "stage", "original_message": "Je veux un stage en informatique"}}
+- "Je cherche un stage en réseau informatique" → {"needs_action": true, "intent": "recherche", "action": "rechercher_offres", "params": {"mots_cles": "réseau informatique", "type_contrat": "stage", "original_message": "Je cherche un stage en réseau informatique"}}
+- "Le stage est une priorité" → {"needs_action": true, "intent": "recherche", "action": "rechercher_offres", "params": {"type_contrat": "stage", "original_message": "Le stage est une priorité"}}
 - "Comment vas-tu?" → {"needs_action": false, "intent": "conversation"}
 - "Postule à l'offre job_123" → {"needs_action": true, "intent": "postuler", "action": "postuler_offre", "params": {"id_offre": "job_123"}}
 - "Crée moi une offre pour administrateur base de données" → {"needs_action": true, "intent": "creer_offre", "action": "creer_offre", "params": {"title": "administrateur base de données", "query": "administrateur base de données"}}
@@ -358,7 +367,13 @@ Réponds de manière concise, utile et professionnelle. Propose des actions conc
   private formatOffresResponse(data: ChatbotResponse): string {
     const count = data.data?.count || 0;
     if (count === 0) {
-      return "Je n'ai trouvé aucune offre correspondant à vos critères. Voulez-vous élargir votre recherche ?";
+      // Vérifier si une recherche de stage a été demandée
+      const params = data.data?.params || {};
+      if (params.type_contrat && params.type_contrat.toLowerCase().includes('stage')) {
+        return "Je n'ai trouvé aucune offre de stage correspondant à vos critères. Puis-je vous proposer des offres d'emploi à temps plein ?";
+      } else {
+        return "Je n'ai trouvé aucune offre correspondant à vos critères. Voulez-vous élargir votre recherche ?";
+      }
     }
 
     const offres = data.data?.offres || [];
@@ -523,6 +538,7 @@ Réponds de manière concise, utile et professionnelle. Propose des actions conc
       // Filtrer les offres en fonction des paramètres
       let filteredOffers = allOffers;
       
+      // Filtrer par mots-clés
       if (params.mots_cles) {
         const normalizedMotsCles = normalizeString(params.mots_cles.toLowerCase());
         filteredOffers = filteredOffers.filter(offer => 
@@ -531,6 +547,7 @@ Réponds de manière concise, utile et professionnelle. Propose des actions conc
         );
       }
       
+      // Filtrer par ville
       if (params.ville) {
         const normalizedVille = normalizeString(params.ville.toLowerCase());
         filteredOffers = filteredOffers.filter(offer => 
@@ -538,10 +555,16 @@ Réponds de manière concise, utile et professionnelle. Propose des actions conc
         );
       }
       
+      // Filtrer par type de contrat - si le message original contient "stage", forcer le filtre
       if (params.type_contrat) {
         const normalizedTypeContrat = normalizeString(params.type_contrat.toLowerCase());
         filteredOffers = filteredOffers.filter(offer => 
-          normalizeString(offer.type.toLowerCase()) === normalizedTypeContrat
+          normalizeString(offer.type.toLowerCase()).includes(normalizedTypeContrat)
+        );
+      } else if (params.original_message && normalizeString(params.original_message.toLowerCase()).includes('stage')) {
+        // Si le message original mentionne 'stage' mais qu'aucun type_contrat n'est spécifié
+        filteredOffers = filteredOffers.filter(offer => 
+          normalizeString(offer.type.toLowerCase()).includes('stage')
         );
       }
       

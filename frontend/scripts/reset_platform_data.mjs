@@ -442,6 +442,110 @@ Stage de 5 mois en développement mobile pour participer à la création d'appli
     deadline: new Date('2024-02-22').toISOString(),
     viewsCount: 0,
     applicationsCount: 0
+  },
+  {
+    id: 'offer-9',
+    title: 'Stage Ingénieur Bases de Données',
+    companyName: 'Orange Madagascar',
+    recruiterId: null,
+    location: 'Antananarivo, Madagascar',
+    coordinates: [47.5229909, -18.8842199],
+    salary: 'Gratification de stage',
+    type: 'Stage',
+    status: 'active',
+    description: `## À propos du stage
+
+Stage d'ingénieur bases de données chez Orange Madagascar - l'un des leaders des télécommunications à Madagascar. Vous participerez à la gestion, l'optimisation et le développement des systèmes de gestion de données qui supportent nos services critiques pour des millions d'utilisateurs.
+
+## Vos missions
+
+- Administration et maintenance des bases de données PostgreSQL et MySQL
+- Optimisation des performances et des requêtes SQL
+- Participation aux projets de migration et d'évolution des systèmes de données
+- Mise en place de solutions de sauvegarde et de sécurité
+- Collaboration avec les équipes de développement et de sécurité
+
+## Ce que vous apporterez
+
+- Une formation en informatique ou systèmes d'information
+- Une curiosité pour les systèmes de gestion de données
+- Une rigueur et une attention aux détails
+- Une bonne capacité d'analyse`,
+    requirements: [
+      'Étudiant en informatique ou en systèmes d\'information',
+      'Connaissance des bases de données relationnelles (SQL)',
+      'Intérêt pour PostgreSQL et MySQL',
+      'Capacité d\'analyse et de résolution de problèmes',
+      'Bon esprit d\'équipe'
+    ],
+    niceToHave: [
+      'Connaissance de Oracle',
+      'Familiarité avec les outils de gestion de bases de données',
+      'Notions de sécurité des données'
+    ],
+    technologies: ['PostgreSQL', 'MySQL', 'SQL', 'Oracle', 'Git', 'Linux'],
+    benefits: [
+      'Encadrement par des experts',
+      'Accès aux technologies de pointe',
+      'Formation continue',
+      'Possibilité d\'embauche'
+    ],
+    postedDate: new Date('2024-01-25').toISOString(),
+    deadline: new Date('2024-03-25').toISOString(),
+    viewsCount: 0,
+    applicationsCount: 0
+  },
+  {
+    id: 'offer-10',
+    title: 'Stage Ingénieur Réseau Télécoms',
+    companyName: 'Orange Madagascar',
+    recruiterId: null,
+    location: 'Antananarivo, Madagascar',
+    coordinates: [47.5229909, -18.8842199],
+    salary: 'Gratification de stage',
+    type: 'Stage',
+    status: 'active',
+    description: `## À propos du stage
+
+Stage d'ingénieur réseau télécoms chez Orange Madagascar. Vous participerez à la conception, l'implémentation et la maintenance de nos infrastructures réseau qui supportent les services de télécommunications pour des millions de clients à Madagascar.
+
+## Vos missions
+
+- Support dans la conception et l'optimisation des infrastructures réseau
+- Participation à la configuration et au déploiement d'équipements réseaux
+- Surveillance et analyse des performances du réseau
+- Support dans la résolution des problèmes techniques
+- Documentation des procédures et configurations réseau
+
+## Ce que vous apporterez
+
+- Une formation en télécommunications, génie informatique ou réseau
+- Des connaissances de base en protocoles réseaux
+- Une passion pour les technologies de réseau
+- Un esprit d'analyse et de synthèse`,
+    requirements: [
+      'Étudiant en télécommunications ou en génie informatique',
+      'Connaissance des protocoles réseaux (TCP/IP, DHCP, DNS)',
+      'Familiarité avec les équipements réseaux (routeurs, commutateurs)',
+      'Compétences en analyse et résolution de problèmes',
+      'Capacité de travail en équipe'
+    ],
+    niceToHave: [
+      'Connaissance des équipements Cisco ou Huawei',
+      'Certification réseau (CCNA, etc.)',
+      'Expérience avec des outils de surveillance réseau'
+    ],
+    technologies: ['TCP/IP', 'Cisco', 'Huawei', 'SNMP', 'VPN', 'Firewall', 'Linux'],
+    benefits: [
+      'Encadrement par des ingénieurs expérimentés',
+      'Accès à l'infrastructure réseau d'un opérateur de premier plan',
+      'Formation continue',
+      'Possibilité de CDI après le stage'
+    ],
+    postedDate: new Date('2024-01-26').toISOString(),
+    deadline: new Date('2024-03-30').toISOString(),
+    viewsCount: 0,
+    applicationsCount: 0
   }
 ];
 
